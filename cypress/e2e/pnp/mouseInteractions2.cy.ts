@@ -16,26 +16,7 @@ describe('mouseInteractions2', () => {
     afterEachMouseInteraction();
   });
 
-  // // Output socket with no connection
-  // it('Opens node browser on dragging from unconnected output socket to graph', () => {
-  //   const endX = 460;
-  //   const endY = 150;
-
-  //   doWithTestController((testController) => {
-  //     const [startX, startY] =
-  //       testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'Out');
-  //     dragFromAtoB(startX, startY, endX, endY, true);
-  //     cy.get('body').realMouseUp(); // tests occasionally fail as the first mouse up is not registered
-  //   });
-  //   cy.wait(2000);
-  //   cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
-  //   cy.get('#node-search[placeholder*="Search nodes"]').type('{enter}');
-  //   cy.wait(100);
-  //   doWithTestController((testController) => {
-  //     expect(testController.getNodes().length).to.eq(3);
-  //   });
-  // });
-
+  // Output socket with no connection
   it('Creates a connection to preferred socket on dragging from unconnected output socket to node', () => {
     addTwoNodes();
     moveTwoNodes();
@@ -49,6 +30,25 @@ describe('mouseInteractions2', () => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
       ).to.eq('Constant3');
+    });
+  });
+
+  it('Opens node browser on dragging from unconnected output socket to graph', () => {
+    const endX = 460;
+    const endY = 150;
+
+    doWithTestController((testController) => {
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'Out');
+      dragFromAtoB(startX, startY, endX, endY, true);
+      cy.get('body').realMouseUp(); // tests occasionally fail as the first mouse up is not registered
+    });
+    cy.wait(2000);
+    cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
+    cy.get('#node-search[placeholder*="Search nodes"]').type('{enter}');
+    cy.wait(100);
+    doWithTestController((testController) => {
+      expect(testController.getNodes().length).to.eq(3);
     });
   });
 
