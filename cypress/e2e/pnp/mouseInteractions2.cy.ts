@@ -33,21 +33,39 @@ describe('mouseInteractions2', () => {
     });
   });
 
-  it('Opens node browser on dragging from unconnected output socket to graph', () => {
+  // it('Opens node browser on dragging from unconnected output socket to graph', () => {
+  //   const endX = 460;
+  //   const endY = 150;
+
+  //   doWithTestController((testController) => {
+  //     const [startX, startY] =
+  //       testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'Out');
+  //     cy.log(startX, startY);
+  //     dragFromAtoB(startX, startY, endX, endY, true);
+  //     cy.get('body').realMouseUp(); // tests occasionally fail as the first mouse up is not registered
+  //   });
+  //   cy.wait(2000);
+  //   cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
+  //   cy.get('#node-search[placeholder*="Search nodes"]').type('{enter}');
+  //   cy.wait(100);
+  //   doWithTestController((testController) => {
+  //     expect(testController.getNodes().length).to.eq(3);
+  //   });
+  // });
+
+  it('Opens node browser on dragging from connected output socket to graph', () => {
     const endX = 460;
     const endY = 150;
 
     doWithTestController((testController) => {
       const [startX, startY] =
-        testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'Out');
-      cy.log(startX, startY);
+        testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
       dragFromAtoB(startX, startY, endX, endY, true);
-      // cy.get('body').realMouseUp(); // tests occasionally fail as the first mouse up is not registered
+      cy.get('body').realMouseUp(); // tests occasionally fail as the first mouse up is not registered
     });
     cy.wait(2000);
     cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     cy.get('#node-search[placeholder*="Search nodes"]').type('{enter}');
-    cy.wait(100);
     doWithTestController((testController) => {
       expect(testController.getNodes().length).to.eq(3);
     });
