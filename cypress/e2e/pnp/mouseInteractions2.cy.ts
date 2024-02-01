@@ -40,8 +40,9 @@ describe('mouseInteractions2', () => {
     doWithTestController((testController) => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'Out');
+      cy.log(startX, startY);
       dragFromAtoB(startX, startY, endX, endY, true);
-      cy.get('body').realMouseUp(); // tests occasionally fail as the first mouse up is not registered
+      // cy.get('body').realMouseUp(); // tests occasionally fail as the first mouse up is not registered
     });
     cy.wait(2000);
     cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
