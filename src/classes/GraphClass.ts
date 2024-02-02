@@ -19,7 +19,11 @@ import {
   TNodeSource,
   TPastePos,
 } from '../utils/interfaces';
-import { connectNodeToSocket, isPhone } from '../utils/utils';
+import {
+  calculateDistance,
+  connectNodeToSocket,
+  isPhone,
+} from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
@@ -47,6 +51,7 @@ export default class PPGraph {
   _showExecutionVisualisation: boolean;
   socketToInspect: null | PPSocket;
   selectedSourceSocket: null | PPSocket;
+  clickPoint: null | PIXI.Point;
   lastSelectedSocketWasInput = false;
   overrideNodeCursorPosition: null | PIXI.Point = null;
   overInputRef: null | PPSocket;
@@ -81,6 +86,7 @@ export default class PPGraph {
     this._showComments = true;
     this._showExecutionVisualisation = true;
     this.selectedSourceSocket = null;
+    this.clickPoint = null;
 
     this.backgroundTempContainer = new PIXI.Container();
     this.backgroundTempContainer.name = 'backgroundTempContainer';
@@ -246,11 +252,23 @@ export default class PPGraph {
     return this.viewport.toWorld(dragSourcePoint);
   }
 
-  onViewportMove(event: PIXI.FederatedPointerEvent): void {
+  async onViewportMove(event: PIXI.FederatedPointerEvent): Promise<void> {
     this.tempConnection.clear();
 
     // draw connection
     if (this.selectedSourceSocket) {
+      if (this.clickPoint) {
+        const threshold = calculateDistance(this.clickPoint, event.global);
+        // only disconnect if the mouse movement was intentional/more than threshold
+        if (threshold > 5) {
+          await Promise.all(
+            this.selectedSourceSocket.links.map(
+              async (link) => await this.action_Disconnect(link),
+            ),
+          );
+          this.clickPoint = null;
+        }
+      }
       // draw connection while dragging
       let socketCenter = this.getSocketCenter(this.selectedSourceSocket);
 
@@ -304,7 +322,7 @@ export default class PPGraph {
     if (socket == this.overInputRef) this.overInputRef = null;
   }
 
-  async socketMouseDown(
+  async socketPointerDown(
     socket: PPSocket,
     event: PIXI.FederatedPointerEvent,
   ): Promise<void> {
@@ -317,9 +335,7 @@ export default class PPGraph {
       const hasLink = socket.links.length > 0;
       if (hasLink) {
         this.selectedSourceSocket = socket.links[0].getSource();
-        await Promise.all(
-          socket.links.map(async (link) => await this.action_Disconnect(link)),
-        );
+        this.clickPoint = new PIXI.Point(event.global.x, event.global.y);
         this.onViewportMove(event);
       } else {
         this.selectedSourceSocket = socket;

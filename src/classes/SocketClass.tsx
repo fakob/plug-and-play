@@ -617,7 +617,7 @@ ${newMessage}`,
     if (event.shiftKey) {
       InterfaceController.onAddToDashboard(this);
     } else {
-      this.getGraph().socketMouseDown(this, event);
+      this.getGraph().socketPointerDown(this, event);
     }
   }
 
