@@ -954,3 +954,9 @@ export const parseValueAndAttachWarnings = (
   }
   return value;
 };
+
+export const calculateDistance = (pointA: PIXI.Point, pointB: PIXI.Point) => {
+  const xDist = pointB.x - pointA.x;
+  const yDist = pointB.y - pointA.y;
+  return Math.sqrt(xDist * xDist + yDist * yDist);
+};
