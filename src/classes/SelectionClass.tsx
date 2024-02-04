@@ -509,16 +509,31 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.focusGraphics.endFill();
   }
 
+  getBoundsFromNodes(nodes: PPNode[]): PIXI.Rectangle {
+    let x = Infinity;
+    let y = Infinity;
+    let width = 0;
+    let height = 0;
+    nodes.forEach((node) => {
+      const nodeBounds = node.getSelectionBounds();
+      x = Math.min(x, nodeBounds.x);
+      y = Math.min(y, nodeBounds.y);
+      width = Math.max(width, nodeBounds.width);
+      height = Math.max(height, nodeBounds.height);
+    });
+    return new PIXI.Rectangle(x, y, width, height);
+  }
+
   drawRectanglesFromSelection(fill = true): void {
     this.drawSingleSelections();
 
-    const selectionBounds = this.singleSelectionsGraphics.getBounds();
+    const selectionBounds = this.getBoundsFromNodes(this.selectedNodes); //this.singleSelectionsGraphics.getBounds();
     this.selectionGraphics.clear();
     this.selectionGraphics.x = 0;
     this.selectionGraphics.y = 0;
 
     if (fill) {
-      this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
+      this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.05);
     }
 
     this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
@@ -537,19 +552,10 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       selectionBounds.x + selectionBounds.width - SCALEHANDLE_SIZE / 2;
     this.scaleHandle.y =
       selectionBounds.y + selectionBounds.height - SCALEHANDLE_SIZE / 2;
-
-    InterfaceController.selectionRedrawn(this.screenPoint());
   }
 
   isNodeSelected(node: PPNode): boolean {
     return this.selectedNodes.includes(node);
-  }
-
-  screenPoint(): PIXI.Point {
-    return new PIXI.Point(
-      this.selectionGraphics.getBounds().x + NODE_MARGIN,
-      this.selectionGraphics.getBounds().y,
-    );
   }
 
   selectNodes(
