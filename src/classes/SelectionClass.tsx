@@ -42,10 +42,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   selectionHeader: SelectionHeaderClass;
 
   protected sourcePoint: PIXI.Point;
-  private nodePosBeforeMovement: PIXI.Point;
+  protected lastPointMovedTo: PIXI.Point;
   isDrawingSelection: boolean;
   isDraggingSelection: boolean;
-  interactionData: PIXI.FederatedPointerEvent | null;
   listenID: string;
 
   protected onMoveHandler: (event?: PIXI.FederatedPointerEvent) => void;
@@ -59,7 +58,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.isDraggingSelection = false;
     this.previousSelectedNodes = [];
     this._selectedNodes = [];
-    this.interactionData = null;
     this.listenID = '';
 
     this.name = 'selectionContainer';
@@ -129,12 +127,11 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.cursor = 'move';
     this.isDraggingSelection = true;
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
-    this.interactionData = event;
-    this.sourcePoint = this.interactionData.getLocalPosition(
-      this.selectedNodes[0],
-    );
-
-    this.nodePosBeforeMovement = getCurrentCursorPosition();
+    this.sourcePoint = getCurrentCursorPosition();
+    this.lastPointMovedTo = this.sourcePoint;
+    //this.interactionData.getLocalPosition(
+    //  this.selectedNodes[0],
+    //);
 
     // subscribe to pointermove
     this.listenID = InterfaceController.addListener(
@@ -157,15 +154,14 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     }
     this.cursor = 'default';
     this.isDraggingSelection = false;
-    this.interactionData = null;
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, false);
 
     // unsubscribe from pointermove
     InterfaceController.removeListener(this.listenID);
 
     const endPoint = getCurrentCursorPosition();
-    const deltaX = endPoint.x - this.nodePosBeforeMovement.x;
-    const deltaY = endPoint.y - this.nodePosBeforeMovement.y;
+    const deltaX = endPoint.x - this.sourcePoint.x;
+    const deltaY = endPoint.y - this.sourcePoint.y;
 
     const nodeIDs = this.selectedNodes.map((node) => node.id);
     const doMove = async () => {
@@ -272,12 +268,14 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       this.selectNodes(differenceSelection);
       this.drawRectanglesFromSelection();
       // this.drawSingleSelections();
-    } else if (this.isDraggingSelection && this.interactionData) {
-      const targetPoint = this.interactionData.getLocalPosition(
-        this.selectedNodes[0],
-      );
-      const deltaX = targetPoint.x - this.sourcePoint.x;
-      const deltaY = targetPoint.y - this.sourcePoint.y;
+    } else if (this.isDraggingSelection) {
+      const targetPoint = getCurrentCursorPosition();
+      //this.interactionData.getLocalPosition(
+      //  this.selectedNodes[0],
+      //);
+      const deltaX = targetPoint.x - this.lastPointMovedTo.x;
+      const deltaY = targetPoint.y - this.lastPointMovedTo.y;
+      this.lastPointMovedTo = targetPoint;
       this.moveSelection(deltaX, deltaY);
     }
   }
@@ -429,11 +427,8 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     addToOrToggleSelection || this.resetGraphics(this.selectionGraphics);
 
     this.isDrawingSelection = true;
-    this.interactionData = event;
-    const adjustedP = this.toLocal(
-      new PIXI.Point(event.clientX, event.clientY),
-    );
-    this.sourcePoint = new PIXI.Point(adjustedP.x, adjustedP.y);
+    this.sourcePoint = this.toLocal(event.client);
+    this.lastPointMovedTo = this.sourcePoint;
 
     // subscribe to pointermove
     this.listenID = InterfaceController.addListener(
@@ -481,10 +476,11 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.singleSelectionsGraphics.x = 0;
     this.singleSelectionsGraphics.y = 0;
     this.singleSelectionsGraphics.lineStyle(1, SELECTION_COLOR_HEX, 0.8);
+    //this.singleSelectionsGraphics.beginFill(SELECTION_COLOR_HEX, 0.2);
 
     // draw single selections
     this.selectedNodes.forEach((node) => {
-      console.trace();
+      //  console.trace();
       console.log('drawing single boys');
       const nodeBounds = node.getSelectionBounds();
       this.singleSelectionsGraphics.drawRect(
@@ -535,10 +531,11 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     const selectionBounds = this.getBoundsFromNodes(this.selectedNodes); //this.singleSelectionsGraphics.getBounds();
     this.selectionGraphics.clear();
 
+    /*
     if (fill) {
       this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
     }
-    /*
+
     this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
     this.selectionGraphics.drawRect(
       selectionBounds.x,
@@ -547,7 +544,8 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       selectionBounds.height,
     );
     this.selectionGraphics.endFill();
-*/
+    */
+
     this.selectionHeader.x = selectionBounds.x;
     this.selectionHeader.y = selectionBounds.y + selectionBounds.height + 4;
 
