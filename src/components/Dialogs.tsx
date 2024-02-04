@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -211,6 +211,125 @@ Public gists are visible to everyone.`}
             Cancel
           </Button>
           {props.isLoggedIn && <Button type="submit">Share playground</Button>}
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
+
+export const DeleteConfirmationDialog = (props) => {
+  return (
+    <Dialog
+      open={props.showDeleteGraph}
+      onClose={() => props.setShowDeleteGraph(false)}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      fullWidth
+      maxWidth="sm"
+      sx={{
+        '& .MuiDialog-paper': {
+          bgcolor: 'background.default',
+        },
+      }}
+    >
+      <DialogTitle id="alert-dialog-title">{'Delete Graph?'}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          Are you sure you want to delete
+          <br />
+          <b>{`${props.graphToBeModified?.name}`}</b>?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => props.setShowDeleteGraph(false)} autoFocus>
+          Cancel
+        </Button>
+        <Button
+          onClick={() => {
+            props.setShowDeleteGraph(false);
+            const currentGraphID = PPGraph.currentGraph.id;
+            const graphToBeModifiedID = props.graphToBeModified.id;
+            PPStorage.getInstance().deleteGraph(graphToBeModifiedID);
+            if (graphToBeModifiedID == currentGraphID) {
+              PPStorage.getInstance().loadGraphFromDB();
+            }
+          }}
+        >
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export const EditDialog = (props) => {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (props.showEdit) {
+      // Slight delay to ensure the TextField is available
+      const timer = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          inputRef.current.select();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [props.showEdit]);
+
+  const submitEditDialog = (): void => {
+    const name = (
+      document.getElementById('playground-name-input') as HTMLInputElement
+    ).value;
+    props.setShowEdit(false);
+    PPStorage.getInstance().renameGraph(props.graphToBeModified.id, name);
+  };
+
+  return (
+    <Dialog
+      open={props.showEdit}
+      onClose={() => props.setShowEdit(false)}
+      fullWidth
+      disableRestoreFocus
+      maxWidth="sm"
+      sx={{
+        '& .MuiDialog-paper': {
+          bgcolor: 'background.default',
+        },
+      }}
+    >
+      <DialogTitle>Edit playground details</DialogTitle>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          submitEditDialog();
+        }}
+      >
+        <DialogContent>
+          <TextField
+            id="playground-name-input"
+            autoFocus
+            margin="dense"
+            label="Name of playground"
+            fullWidth
+            variant="standard"
+            defaultValue={`${props.graphToBeModified?.name}`}
+            placeholder={`${props.graphToBeModified?.name}`}
+            InputProps={{
+              inputRef: inputRef,
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => props.setShowEdit(false)}>Cancel</Button>
+          <Button
+            onClick={() => {
+              submitEditDialog();
+            }}
+          >
+            Save
+          </Button>
         </DialogActions>
       </form>
     </Dialog>

@@ -9,18 +9,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Paper,
-  TextField,
-} from '@mui/material';
+import { Autocomplete, Box, Paper } from '@mui/material';
 import { useTheme } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import Color from 'color';
@@ -41,7 +30,11 @@ import {
   NodeContextMenu,
   SocketContextMenu,
 } from './components/ContextMenus';
-import { ShareDialog } from './components/Dialogs';
+import {
+  EditDialog,
+  DeleteConfirmationDialog,
+  ShareDialog,
+} from './components/Dialogs';
 import PPGraph from './classes/GraphClass';
 import {
   BASIC_VERTEX_SHADER,
@@ -622,14 +615,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
   };
 
-  const submitEditDialog = (): void => {
-    const name = (
-      document.getElementById('playground-name-input') as HTMLInputElement
-    ).value;
-    setShowEdit(false);
-    PPStorage.getInstance().renameGraph(graphToBeModified.id, name);
-  };
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div
@@ -663,88 +648,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             isLoggedIn={isLoggedIn}
             setIsLoggedIn={setIsLoggedIn}
           />
-          <Dialog
-            open={showDeleteGraph}
-            onClose={() => setShowDeleteGraph(false)}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            fullWidth
-            maxWidth="sm"
-            sx={{
-              '& .MuiDialog-paper': {
-                bgcolor: 'background.default',
-              },
-            }}
-          >
-            <DialogTitle id="alert-dialog-title">{'Delete Graph?'}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Are you sure you want to delete
-                <br />
-                <b>{`${graphToBeModified?.name}`}</b>?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setShowDeleteGraph(false)} autoFocus>
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowDeleteGraph(false);
-                  const currentGraphID = PPGraph.currentGraph.id;
-                  const graphToBeModifiedID = graphToBeModified.id;
-                  PPStorage.getInstance().deleteGraph(graphToBeModifiedID);
-                  if (graphToBeModifiedID == currentGraphID) {
-                    PPStorage.getInstance().loadGraphFromDB();
-                  }
-                }}
-              >
-                Delete
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
-            open={showEdit}
-            onClose={() => setShowEdit(false)}
-            fullWidth
-            maxWidth="sm"
-            sx={{
-              '& .MuiDialog-paper': {
-                bgcolor: 'background.default',
-              },
-            }}
-          >
-            <DialogTitle>Edit playground details</DialogTitle>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                submitEditDialog();
-              }}
-            >
-              <DialogContent>
-                <TextField
-                  id="playground-name-input"
-                  autoFocus
-                  margin="dense"
-                  label="Name of playground"
-                  fullWidth
-                  variant="standard"
-                  defaultValue={`${graphToBeModified?.name}`}
-                  placeholder={`${graphToBeModified?.name}`}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setShowEdit(false)}>Cancel</Button>
-                <Button
-                  onClick={() => {
-                    submitEditDialog();
-                  }}
-                >
-                  Save
-                </Button>
-              </DialogActions>
-            </form>
-          </Dialog>
+          <DeleteConfirmationDialog
+            showDeleteGraph={showDeleteGraph}
+            setShowDeleteGraph={setShowDeleteGraph}
+            graphToBeModified={graphToBeModified}
+          />
+          <EditDialog
+            showEdit={showEdit}
+            setShowEdit={setShowEdit}
+            graphToBeModified={graphToBeModified}
+          />
           {isGraphContextMenuOpen && (
             <GraphContextMenu
               controlOrMetaKey={controlOrMetaKey()}
