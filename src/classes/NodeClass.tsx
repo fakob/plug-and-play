@@ -1554,9 +1554,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   getSelectionBounds() : PIXI.Rectangle{
     const EXTRA_NODE_SELECTION_MARGIN = 20;
     const bounds = new PIXI.Rectangle(this._BackgroundGraphicsRef.x + this.x, this._BackgroundGraphicsRef.y + this.y, this._BackgroundGraphicsRef.width, this._BackgroundGraphicsRef.height);
-    bounds.x -= EXTRA_NODE_SELECTION_MARGIN;
+    bounds.x -= EXTRA_NODE_SELECTION_MARGIN/2;
     bounds.y -= EXTRA_NODE_SELECTION_MARGIN;
-    bounds.width += EXTRA_NODE_SELECTION_MARGIN*2;
+    bounds.width += EXTRA_NODE_SELECTION_MARGIN*1.5;
     bounds.height += EXTRA_NODE_SELECTION_MARGIN*2;
     return bounds;
 
