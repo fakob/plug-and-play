@@ -33,6 +33,7 @@ describe('mouseInteractions2', () => {
     });
   });
 
+  // THIS TEST LEADS CYPRESS TO HANG INDEFINITELY > NEED LOCAL TEST TO DO MORE INVESTIGATION
   // it('Opens node browser on dragging from unconnected output socket to graph', () => {
   //   const endX = 460;
   //   const endY = 150;
