@@ -112,14 +112,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   onScaling = (pointerPosition: PIXI.Point, shiftKeyPressed: boolean): void => {
-    const worldPosition = this.viewport.toWorld(
-      pointerPosition.x,
-      pointerPosition.y,
-    );
-
     this.selectedNodes[0].onBeingScaled(
-      Math.abs(worldPosition.x - this.selectedNodes[0].x),
-      Math.abs(worldPosition.y - this.selectedNodes[0].y),
+      Math.abs(pointerPosition.x - this.selectedNodes[0].x),
+      Math.abs(pointerPosition.y - this.selectedNodes[0].y),
       shiftKeyPressed,
     );
     this.drawRectanglesFromSelection();
@@ -189,7 +184,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
     if (this.selectedNodes.length > 0) {
       if (shiftKey) {
-        const targetPoint = new PIXI.Point(event.clientX, event.clientY);
+        const targetPoint = this.toLocal(
+          new PIXI.Point(event.clientX, event.clientY),
+        );
         const selectionRect = new PIXI.Rectangle(
           targetPoint.x,
           targetPoint.y,
@@ -244,7 +241,10 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   onMove(event: PIXI.FederatedPointerEvent): void {
     if (this.isDrawingSelection) {
       // temporarily draw rectangle while dragging
-      const targetPoint = new PIXI.Point(event.clientX, event.clientY);
+      const targetPoint = this.toLocal(
+        new PIXI.Point(event.clientX, event.clientY),
+      );
+
       const selX = Math.min(this.sourcePoint.x, targetPoint.x);
       const selY = Math.min(this.sourcePoint.y, targetPoint.y);
       const selWidth = Math.max(this.sourcePoint.x, targetPoint.x) - selX;
@@ -430,7 +430,10 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
     this.isDrawingSelection = true;
     this.interactionData = event;
-    this.sourcePoint = new PIXI.Point(event.clientX, event.clientY);
+    const adjustedP = this.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
+    this.sourcePoint = new PIXI.Point(adjustedP.x, adjustedP.y);
 
     // subscribe to pointermove
     this.listenID = InterfaceController.addListener(
@@ -460,10 +463,12 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     );
 
     // only trigger deselect if the mouse was not moved and onMove was not called
-    const targetPoint = new PIXI.Point(event.clientX, event.clientY);
+    const adjustedP = this.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
     if (
-      this.sourcePoint.x === targetPoint.x &&
-      this.sourcePoint.y === targetPoint.y
+      this.sourcePoint.x === adjustedP.x &&
+      this.sourcePoint.y === adjustedP.y
     ) {
       console.log('deselectAllNodesAndResetSelection');
       this.deselectAllNodesAndResetSelection();
@@ -471,8 +476,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   drawSingleSelections(): void {
-    console.log('drawing single boys');
-    console.trace();
     this.focusGraphics.clear();
     this.singleSelectionsGraphics.clear();
     this.singleSelectionsGraphics.x = 0;
@@ -481,6 +484,8 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
     // draw single selections
     this.selectedNodes.forEach((node) => {
+      console.trace();
+      console.log('drawing single boys');
       const nodeBounds = node.getSelectionBounds();
       this.singleSelectionsGraphics.drawRect(
         nodeBounds.x,
@@ -499,7 +504,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.focusGraphics.beginFill(ERROR_COLOR.hexNumber(), 0.15);
 
     // draw single selections
-    const nodeBounds = node._BackgroundGraphicsRef.getBounds();
+    const nodeBounds = node.getSelectionBounds();
     this.focusGraphics.drawRect(
       nodeBounds.x - 4,
       nodeBounds.y - 4,
@@ -528,7 +533,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.drawSingleSelections();
 
     const selectionBounds = this.getBoundsFromNodes(this.selectedNodes); //this.singleSelectionsGraphics.getBounds();
-    this.selectionGraphics.clear();
+    /*this.selectionGraphics.clear();
     this.selectionGraphics.x = 0;
     this.selectionGraphics.y = 0;
 
@@ -544,6 +549,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       selectionBounds.height,
     );
     this.selectionGraphics.endFill();
+    */
 
     this.selectionHeader.x = selectionBounds.x;
     this.selectionHeader.y = selectionBounds.y + selectionBounds.height + 4;
@@ -630,7 +636,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   getTooltipPosition(): PIXI.Point {
-    const absPos = this.selectionGraphics.getBounds();
+    const absPos = this.getBoundsFromNodes(this.selectedNodes);
     return new PIXI.Point(
       Math.max(0, absPos.x - TOOLTIP_WIDTH - TOOLTIP_DISTANCE),
       absPos.y,
@@ -735,18 +741,24 @@ class ScaleHandle extends PIXI.Graphics {
   }
 
   protected onDragStart(event: PIXI.FederatedPointerEvent): void {
-    this._pointerPosition = new PIXI.Point(event.clientX, event.clientY);
+    // cant use ourselves as tolocal guide, because we are moving around
+    const adjustedP = this.selection.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
+    this._pointerPosition = new PIXI.Point(adjustedP.x, adjustedP.y);
     this._pointerDragging = true;
   }
 
   protected onDrag(event: PIXI.FederatedPointerEvent): void {
-    const currentPosition = new PIXI.Point(event.clientX, event.clientY);
+    const adjustedP = this.selection.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
 
     // Callback handles the rest!
     const shiftKeyPressed = event.shiftKey;
-    this.selection.onScaling(currentPosition, shiftKeyPressed);
+    this.selection.onScaling(adjustedP, shiftKeyPressed);
 
-    this._pointerPosition = currentPosition;
+    this._pointerPosition = adjustedP;
   }
 
   protected onDragEnd(_: PIXI.FederatedPointerEvent): void {
