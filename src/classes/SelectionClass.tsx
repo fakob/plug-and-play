@@ -180,9 +180,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
     if (this.selectedNodes.length > 0) {
       if (shiftKey) {
-        const targetPoint = this.toLocal(
-          new PIXI.Point(event.clientX, event.clientY),
-        );
+        const targetPoint = this.toLocal(event.client);
         const selectionRect = new PIXI.Rectangle(
           targetPoint.x,
           targetPoint.y,
@@ -237,9 +235,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   onMove(event: PIXI.FederatedPointerEvent): void {
     if (this.isDrawingSelection) {
       // temporarily draw rectangle while dragging
-      const targetPoint = this.toLocal(
-        new PIXI.Point(event.clientX, event.clientY),
-      );
+      const targetPoint = this.toLocal(event.client);
 
       const selX = Math.min(this.sourcePoint.x, targetPoint.x);
       const selY = Math.min(this.sourcePoint.y, targetPoint.y);
@@ -458,9 +454,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     );
 
     // only trigger deselect if the mouse was not moved and onMove was not called
-    const adjustedP = this.toLocal(
-      new PIXI.Point(event.clientX, event.clientY),
-    );
+    const adjustedP = this.toLocal(event.client);
     if (
       this.sourcePoint.x === adjustedP.x &&
       this.sourcePoint.y === adjustedP.y
@@ -531,7 +525,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     const selectionBounds = this.getBoundsFromNodes(this.selectedNodes); //this.singleSelectionsGraphics.getBounds();
     this.selectionGraphics.clear();
 
-    /*
     if (fill) {
       this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
     }
@@ -544,7 +537,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       selectionBounds.height,
     );
     this.selectionGraphics.endFill();
-    */
 
     this.selectionHeader.x = selectionBounds.x;
     this.selectionHeader.y = selectionBounds.y + selectionBounds.height + 4;
@@ -737,17 +729,13 @@ class ScaleHandle extends PIXI.Graphics {
 
   protected onDragStart(event: PIXI.FederatedPointerEvent): void {
     // cant use ourselves as tolocal guide, because we are moving around
-    const adjustedP = this.selection.toLocal(
-      new PIXI.Point(event.clientX, event.clientY),
-    );
+    const adjustedP = this.selection.toLocal(event.client);
     this._pointerPosition = new PIXI.Point(adjustedP.x, adjustedP.y);
     this._pointerDragging = true;
   }
 
   protected onDrag(event: PIXI.FederatedPointerEvent): void {
-    const adjustedP = this.selection.toLocal(
-      new PIXI.Point(event.clientX, event.clientY),
-    );
+    const adjustedP = this.selection.toLocal(event.client);
 
     // Callback handles the rest!
     const shiftKeyPressed = event.shiftKey;
