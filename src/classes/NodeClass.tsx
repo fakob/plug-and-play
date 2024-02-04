@@ -30,6 +30,7 @@ import {
   STATUS_SEVERITY,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
+  SOCKET_WIDTH,
 } from '../utils/constants';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
 import NodeHeaderClass from './NodeHeaderClass';
@@ -1548,5 +1549,16 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   // these are imported before node is added to the graph
   public getDynamicImports(): string[] {
     return [];
+  }
+
+  getSelectionBounds() : PIXI.Rectangle{
+    const EXTRA_NODE_SELECTION_MARGIN = 20;
+    const bounds = new PIXI.Rectangle(this._BackgroundGraphicsRef.x + this.x, this._BackgroundGraphicsRef.y + this.y, this._BackgroundGraphicsRef.width, this._BackgroundGraphicsRef.height);
+    bounds.x -= EXTRA_NODE_SELECTION_MARGIN;
+    bounds.y -= EXTRA_NODE_SELECTION_MARGIN;
+    bounds.width += EXTRA_NODE_SELECTION_MARGIN*2;
+    bounds.height += EXTRA_NODE_SELECTION_MARGIN*2;
+    return bounds;
+
   }
 }

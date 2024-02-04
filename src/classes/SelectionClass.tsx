@@ -99,10 +99,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.addEventListener('rightclick', (event) =>
       InterfaceController.onRightClick(event, event.target),
     );
-    this.viewport.addEventListener(
-      'moved',
-      (this as any).onViewportMoved.bind(this),
-    );
 
     this.onMoveHandler = this.onMove.bind(this);
   }
@@ -475,6 +471,8 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   drawSingleSelections(): void {
+    console.log('drawing single boys');
+    console.trace();
     this.focusGraphics.clear();
     this.singleSelectionsGraphics.clear();
     this.singleSelectionsGraphics.x = 0;
@@ -483,7 +481,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
     // draw single selections
     this.selectedNodes.forEach((node) => {
-      const nodeBounds = node._BackgroundGraphicsRef.getBounds();
+      const nodeBounds = node.getSelectionBounds();
       this.singleSelectionsGraphics.drawRect(
         nodeBounds.x,
         nodeBounds.y,

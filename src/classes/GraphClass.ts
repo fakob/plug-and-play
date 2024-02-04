@@ -113,7 +113,7 @@ export default class PPGraph {
     this.backgroundTempContainer.addChild(this.tempConnection);
 
     this.selection = new PPSelection(this.viewport);
-    this.app.stage.addChild(this.selection);
+    this.viewport.addChild(this.selection);
 
     this.viewport.cursor = 'default';
 
