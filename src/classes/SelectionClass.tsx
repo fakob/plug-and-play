@@ -97,6 +97,10 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.addEventListener('rightclick', (event) =>
       InterfaceController.onRightClick(event, event.target),
     );
+    this.viewport.addEventListener(
+      'moved',
+      (this as any).onViewportMoved.bind(this),
+    );
 
     this.onMoveHandler = this.onMove.bind(this);
   }
@@ -180,7 +184,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
     if (this.selectedNodes.length > 0) {
       if (shiftKey) {
-        const targetPoint = this.toLocal(event.client);
+        const targetPoint = this.toLocal(
+          new PIXI.Point(event.clientX, event.clientY),
+        );
         const selectionRect = new PIXI.Rectangle(
           targetPoint.x,
           targetPoint.y,
@@ -235,7 +241,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   onMove(event: PIXI.FederatedPointerEvent): void {
     if (this.isDrawingSelection) {
       // temporarily draw rectangle while dragging
-      const targetPoint = this.toLocal(event.client);
+      const targetPoint = getCurrentCursorPosition(); //this.toLocal(new PIXI.Point(event.clientX,event.clientY));
 
       const selX = Math.min(this.sourcePoint.x, targetPoint.x);
       const selY = Math.min(this.sourcePoint.y, targetPoint.y);
@@ -423,7 +429,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     addToOrToggleSelection || this.resetGraphics(this.selectionGraphics);
 
     this.isDrawingSelection = true;
-    this.sourcePoint = this.toLocal(event.client);
+    this.sourcePoint = this.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
     this.lastPointMovedTo = this.sourcePoint;
 
     // subscribe to pointermove
@@ -454,7 +462,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     );
 
     // only trigger deselect if the mouse was not moved and onMove was not called
-    const adjustedP = this.toLocal(event.client);
+    const adjustedP = this.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
     if (
       this.sourcePoint.x === adjustedP.x &&
       this.sourcePoint.y === adjustedP.y
