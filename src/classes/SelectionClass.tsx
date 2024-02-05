@@ -532,13 +532,16 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   drawRectanglesFromSelection(fill = true): void {
     this.drawSingleSelections();
 
-    const selectionBounds = this.getBoundsFromNodes(this.selectedNodes); //this.singleSelectionsGraphics.getBounds();
+    const selectionBounds = this.getBoundsFromNodes(this.selectedNodes);
     this.selectionGraphics.clear();
+    this.selectionGraphics.x = 0;
+    this.selectionGraphics.y = 0;
 
     if (fill) {
       this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
     }
 
+    /*
     this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
     this.selectionGraphics.drawRect(
       selectionBounds.x,
@@ -547,6 +550,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       selectionBounds.height,
     );
     this.selectionGraphics.endFill();
+    */
 
     this.selectionHeader.x = selectionBounds.x;
     this.selectionHeader.y = selectionBounds.y + selectionBounds.height + 4;
