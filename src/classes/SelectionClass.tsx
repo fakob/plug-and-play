@@ -134,6 +134,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
     this.sourcePoint = getCurrentCursorPosition();
     this.lastPointMovedTo = this.sourcePoint;
+    event.stopPropagation();
 
     // subscribe to pointermove
     this.listenID = InterfaceController.addListener(
@@ -484,11 +485,12 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.selectedNodes.forEach((node) => {
       //  console.trace();
       const nodeBounds = node.getSelectionBounds();
-      this.singleSelectionsGraphics.drawRect(
+      this.singleSelectionsGraphics.drawRoundedRect(
         nodeBounds.x,
         nodeBounds.y,
         nodeBounds.width,
         nodeBounds.height,
+        10,
       );
     });
   }
@@ -511,7 +513,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.focusGraphics.endFill();
   }
 
-  getBoundsFromNodes(nodes: PPNode[]): PIXI.Rectangle {
+  getBoundsFromNodes(nodes: PPNode[], margin: number = 0): PIXI.Rectangle {
     let x = Infinity;
     let y = Infinity;
     let endX = -Infinity;
@@ -523,7 +525,12 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       endX = Math.max(endX, nodeBounds.width + nodeBounds.x);
       endY = Math.max(endY, nodeBounds.height + nodeBounds.y);
     });
-    return new PIXI.Rectangle(x, y, endX - x, endY - y);
+    return new PIXI.Rectangle(
+      x - margin,
+      y - margin,
+      endX - x + margin * 2,
+      endY - y + margin * 2,
+    );
   }
 
   drawRectanglesFromSelection(fill = true): void {
@@ -539,11 +546,12 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     }
 
     this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
-    this.selectionGraphics.drawRect(
+    this.selectionGraphics.drawRoundedRect(
       selectionBounds.x,
       selectionBounds.y,
       selectionBounds.width,
       selectionBounds.height,
+      10,
     );
     this.selectionGraphics.endFill();
 
@@ -679,7 +687,7 @@ class ScaleHandle extends PIXI.Graphics {
   }
 
   protected onPointerOver(event: PIXI.FederatedPointerEvent): void {
-    event.stopPropagation();
+    //event.stopPropagation();
     this.cursor = 'nwse-resize';
   }
 
