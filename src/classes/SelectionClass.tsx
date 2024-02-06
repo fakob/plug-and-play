@@ -128,7 +128,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   };
 
   public startDragAction(event: PIXI.FederatedPointerEvent) {
-    console.log('OH IM DRAGGNI');
     this.cursor = 'move';
     this.isDraggingSelection = true;
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
