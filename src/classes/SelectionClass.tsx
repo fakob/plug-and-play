@@ -128,14 +128,12 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   };
 
   public startDragAction(event: PIXI.FederatedPointerEvent) {
+    console.log('OH IM DRAGGNI');
     this.cursor = 'move';
     this.isDraggingSelection = true;
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
     this.sourcePoint = getCurrentCursorPosition();
     this.lastPointMovedTo = this.sourcePoint;
-    //this.interactionData.getLocalPosition(
-    //  this.selectedNodes[0],
-    //);
 
     // subscribe to pointermove
     this.listenID = InterfaceController.addListener(
@@ -485,7 +483,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     // draw single selections
     this.selectedNodes.forEach((node) => {
       //  console.trace();
-      console.log('drawing single boys');
       const nodeBounds = node.getSelectionBounds();
       this.singleSelectionsGraphics.drawRect(
         nodeBounds.x,
@@ -541,7 +538,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
     }
 
-    /*
     this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
     this.selectionGraphics.drawRect(
       selectionBounds.x,
@@ -550,7 +546,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       selectionBounds.height,
     );
     this.selectionGraphics.endFill();
-    */
 
     this.selectionHeader.x = selectionBounds.x;
     this.selectionHeader.y = selectionBounds.y + selectionBounds.height + 4;
@@ -689,6 +684,7 @@ class ScaleHandle extends PIXI.Graphics {
   }
 
   protected onPointerDown(event: PIXI.FederatedPointerEvent): void {
+    console.log('pointer down moment');
     this._pointerDown = true;
     this._pointerDragging = false;
 
@@ -743,13 +739,17 @@ class ScaleHandle extends PIXI.Graphics {
 
   protected onDragStart(event: PIXI.FederatedPointerEvent): void {
     // cant use ourselves as tolocal guide, because we are moving around
-    const adjustedP = this.selection.toLocal(event.client);
+    const adjustedP = this.selection.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
     this._pointerPosition = new PIXI.Point(adjustedP.x, adjustedP.y);
     this._pointerDragging = true;
   }
 
   protected onDrag(event: PIXI.FederatedPointerEvent): void {
-    const adjustedP = this.selection.toLocal(event.client);
+    const adjustedP = this.selection.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
 
     // Callback handles the rest!
     const shiftKeyPressed = event.shiftKey;
