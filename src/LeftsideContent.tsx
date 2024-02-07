@@ -398,6 +398,7 @@ ${graph.id}`
         />
       </ListItemButton>
       <ListItemSecondaryAction
+        data-cy={`hover-${graph.name}`}
         sx={{
           visibility: 'hidden',
           '&&:hover': {
@@ -420,6 +421,7 @@ ${graph.id}`
                 writeTextToClipboard(url);
               }}
               title="Copy URL"
+              data-cy="copyURLButton"
               className={styles.menuItemButton}
             >
               <LinkIcon />
@@ -427,6 +429,7 @@ ${graph.id}`
             <IconButton
               size="small"
               title="Open in new tab"
+              data-cy="openInNewtabButton"
               className={styles.menuItemButton}
               onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 event.stopPropagation();
@@ -447,6 +450,7 @@ ${graph.id}`
                 PPStorage.getInstance().downloadGraph(graph.id);
               }}
               title="Download playground"
+              data-cy="downloadButton"
               className={styles.menuItemButton}
             >
               <DownloadIcon />
@@ -459,6 +463,7 @@ ${graph.id}`
                 InterfaceController.setShowGraphEdit(true);
               }}
               title="Rename playground"
+              data-cy="editButton"
               className={styles.menuItemButton}
             >
               <EditIcon />
@@ -466,6 +471,7 @@ ${graph.id}`
             <IconButton
               size="small"
               title="Delete playground"
+              data-cy="deleteButton"
               className={styles.menuItemButton}
               onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 event.stopPropagation();

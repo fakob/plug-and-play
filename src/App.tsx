@@ -656,7 +656,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           <EditDialog
             showEdit={showEdit}
             setShowEdit={setShowEdit}
-            graphToBeModified={graphToBeModified}
+            graphId={graphToBeModified?.id}
+            graphName={graphToBeModified?.name}
           />
           {isGraphContextMenuOpen && (
             <GraphContextMenu

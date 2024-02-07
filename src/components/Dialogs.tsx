@@ -107,6 +107,7 @@ export const ShareDialog = (props) => {
       aria-describedby="alert-dialog-description"
       fullWidth
       maxWidth="md"
+      data-cy="shareDialog"
     >
       <DialogTitle id="alert-dialog-title">{'Share Playground'}</DialogTitle>
       <form
@@ -226,6 +227,7 @@ export const DeleteConfirmationDialog = (props) => {
       aria-describedby="alert-dialog-description"
       fullWidth
       maxWidth="sm"
+      data-cy="deleteDialog"
       sx={{
         '& .MuiDialog-paper': {
           bgcolor: 'background.default',
@@ -283,7 +285,7 @@ export const EditDialog = (props) => {
       document.getElementById('playground-name-input') as HTMLInputElement
     ).value;
     props.setShowEdit(false);
-    PPStorage.getInstance().renameGraph(props.graphToBeModified.id, name);
+    PPStorage.getInstance().renameGraph(props.graphId, name);
   };
 
   return (
@@ -293,6 +295,7 @@ export const EditDialog = (props) => {
       fullWidth
       disableRestoreFocus
       maxWidth="sm"
+      data-cy="editDialog"
       sx={{
         '& .MuiDialog-paper': {
           bgcolor: 'background.default',
@@ -314,8 +317,8 @@ export const EditDialog = (props) => {
             label="Name of playground"
             fullWidth
             variant="standard"
-            defaultValue={`${props.graphToBeModified?.name}`}
-            placeholder={`${props.graphToBeModified?.name}`}
+            defaultValue={`${props.graphName}`}
+            placeholder={`${props.graphName}`}
             InputProps={{
               inputRef: inputRef,
             }}

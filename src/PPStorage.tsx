@@ -211,6 +211,13 @@ export default class PPStorage {
     }
   }
 
+  deleteAllGraphs(): void {
+    this.db.graphs_data.clear();
+    this.db.graphs_meta.clear();
+    InterfaceController.onGraphListChanged();
+    InterfaceController.showSnackBar('Playground was deleted');
+  }
+
   deleteGraph(graphId: string): void {
     this.db.graphs_data.delete(graphId);
     this.db.graphs_meta.delete(graphId);
