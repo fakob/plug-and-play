@@ -483,7 +483,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       SELECTION_COLOR_HEX,
       0.8,
     );
-    //this.singleSelectionsGraphics.beginFill(SELECTION_COLOR_HEX, 0.2);
 
     // draw single selections
     this.selectedNodes.forEach((node) => {
