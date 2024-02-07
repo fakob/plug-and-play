@@ -98,7 +98,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       InterfaceController.onRightClick(event, event.target),
     );
     this.viewport.addEventListener(
-      'moved',
+      'zoomed',
       (this as any).onViewportMoved.bind(this),
     );
 
@@ -270,9 +270,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       // this.drawSingleSelections();
     } else if (this.isDraggingSelection) {
       const targetPoint = getCurrentCursorPosition();
-      //this.interactionData.getLocalPosition(
-      //  this.selectedNodes[0],
-      //);
       const deltaX = targetPoint.x - this.lastPointMovedTo.x;
       const deltaY = targetPoint.y - this.lastPointMovedTo.y;
       this.lastPointMovedTo = targetPoint;
