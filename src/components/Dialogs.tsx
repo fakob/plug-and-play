@@ -234,7 +234,7 @@ export const DeleteConfirmationDialog = (props) => {
         },
       }}
     >
-      <DialogTitle id="alert-dialog-title">{'Delete Graph?'}</DialogTitle>
+      <DialogTitle id="alert-dialog-title">{'Delete playground?'}</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
           Are you sure you want to delete

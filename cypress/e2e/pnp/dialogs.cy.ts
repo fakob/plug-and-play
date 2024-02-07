@@ -1,4 +1,5 @@
 import {
+  clickDeleteButtonOfGraph,
   clickEditButtonOfGraph,
   controlOrMetaKey,
   doWithTestController,
@@ -12,6 +13,7 @@ describe('dialogs', () => {
   const newSecondGraphName = 'My 2nd playground';
 
   const getEditDialog = () => cy.get('[data-cy="editDialog"]');
+  const getDeleteDialog = () => cy.get('[data-cy="deleteDialog"]');
 
   before(() => {
     cy.visit('http://127.0.0.1:8080/?new=true');
@@ -126,9 +128,35 @@ describe('dialogs', () => {
   });
 
   // Delete graph dialog
-  it('Opens and closes delete graph dialog via clicking cancel', () => {});
-  it('Opens and closes delete graph dialog via clicking outside', () => {});
-  it('Deletes graph after clicking delete', () => {});
+  it('Opens and closes delete graph dialog via clicking cancel', () => {
+    clickDeleteButtonOfGraph(newGraphName);
+    getDeleteDialog().contains('Delete playground');
+    getDeleteDialog().contains('Cancel').click();
+    getDeleteDialog().should('not.exist');
+  });
+
+  it('Opens and closes delete graph dialog via clicking outside', () => {
+    clickDeleteButtonOfGraph(newGraphName);
+    getDeleteDialog().contains('Delete playground');
+    cy.get('body').click(500, 100); // click outside
+    getDeleteDialog().should('not.exist');
+  });
+
+  it('Deletes other graph after clicking delete', () => {
+    clickDeleteButtonOfGraph(newGraphName);
+    getDeleteDialog().contains('Delete playground');
+    getDeleteDialog().contains('button', 'Delete').click();
+    getDeleteDialog().should('not.exist');
+    cy.get(`[data-cy="hover-${newGraphName}"]`).should('not.exist');
+  });
+
+  it('Deletes current graph after clicking delete', () => {
+    clickDeleteButtonOfGraph(newSecondGraphName);
+    getDeleteDialog().contains('Delete playground');
+    getDeleteDialog().contains('button', 'Delete').click();
+    getDeleteDialog().should('not.exist');
+    cy.get(`[data-cy="hover-${newSecondGraphName}"]`).should('not.exist');
+  });
 
   // Share graph dialog
   it('Opens and closes share graph dialog via clicking cancel', () => {});

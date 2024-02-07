@@ -80,3 +80,11 @@ export const clickEditButtonOfGraph = (graphName) => {
     .find(`[data-cy="editButton"]`)
     .click({ force: true });
 };
+
+export const clickDeleteButtonOfGraph = (graphName) => {
+  cy.get(`[data-cy="hover-${graphName}"]`)
+    // .realHover()
+    // .wait(1000)
+    .find(`[data-cy="deleteButton"]`)
+    .click({ force: true });
+};
