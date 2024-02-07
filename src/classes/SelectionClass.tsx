@@ -30,7 +30,7 @@ import { ActionHandler } from '../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 
 export default class PPSelection extends PIXI.Container implements Tooltipable {
-  protected viewport: Viewport;
+  public viewport: Viewport;
   protected previousSelectedNodes: PPNode[];
   _selectedNodes: PPNode[];
 
@@ -471,13 +471,18 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       this.deselectAllNodesAndResetSelection();
     }
   }
+  ROUNDNESS = 5;
 
   drawSingleSelections(): void {
     this.focusGraphics.clear();
     this.singleSelectionsGraphics.clear();
     this.singleSelectionsGraphics.x = 0;
     this.singleSelectionsGraphics.y = 0;
-    this.singleSelectionsGraphics.lineStyle(1, SELECTION_COLOR_HEX, 0.8);
+    this.singleSelectionsGraphics.lineStyle(
+      1 / this.viewport.scale.x,
+      SELECTION_COLOR_HEX,
+      0.8,
+    );
     //this.singleSelectionsGraphics.beginFill(SELECTION_COLOR_HEX, 0.2);
 
     // draw single selections
@@ -489,7 +494,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
         nodeBounds.y,
         nodeBounds.width,
         nodeBounds.height,
-        10,
+        this.ROUNDNESS,
       );
     });
   }
@@ -544,23 +549,28 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
     }
 
-    this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
+    this.selectionGraphics.lineStyle(
+      1 / this.viewport.scale.x,
+      SELECTION_COLOR_HEX,
+      1,
+    );
     this.selectionGraphics.drawRoundedRect(
       selectionBounds.x,
       selectionBounds.y,
       selectionBounds.width,
       selectionBounds.height,
-      10,
+      this.ROUNDNESS,
     );
     this.selectionGraphics.endFill();
 
     this.selectionHeader.x = selectionBounds.x;
     this.selectionHeader.y = selectionBounds.y + selectionBounds.height + 4;
 
-    this.scaleHandle.x =
-      selectionBounds.x + selectionBounds.width - SCALEHANDLE_SIZE / 2;
-    this.scaleHandle.y =
-      selectionBounds.y + selectionBounds.height - SCALEHANDLE_SIZE / 2;
+    this.selectionHeader.scale.x = 1 / this.viewport.scale.x;
+    this.selectionHeader.scale.y = 1 / this.viewport.scale.y;
+
+    this.scaleHandle.x = selectionBounds.x + selectionBounds.width;
+    this.scaleHandle.y = selectionBounds.y + selectionBounds.height;
   }
 
   isNodeSelected(node: PPNode): boolean {
@@ -678,8 +688,13 @@ class ScaleHandle extends PIXI.Graphics {
   render(renderer: PIXI.Renderer): void {
     this.clear();
     this.beginFill(WHITE_HEX);
-    this.lineStyle(1, SELECTION_COLOR_HEX);
-    this.drawRect(0, 0, SCALEHANDLE_SIZE, SCALEHANDLE_SIZE);
+    this.lineStyle(1 / this.selection.viewport.scale.x, SELECTION_COLOR_HEX);
+    this.drawRect(
+      0,
+      0,
+      SCALEHANDLE_SIZE / this.selection.viewport.scale.x,
+      SCALEHANDLE_SIZE / this.selection.viewport.scale.y,
+    );
     this.endFill();
 
     super.render(renderer);
