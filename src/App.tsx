@@ -9,8 +9,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { Autocomplete, Box, Paper } from '@mui/material';
-import { useTheme } from '@mui/material';
+import { Autocomplete, Box, Paper, useTheme } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import Color from 'color';
 import {

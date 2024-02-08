@@ -19,7 +19,7 @@ describe('dialogs', () => {
   before(() => {
     cy.visit('http://127.0.0.1:8080/?new=true');
     doWithTestController((testController) => {
-      const coordinates = testController.deleteAllGraphs();
+      testController.deleteAllGraphs();
       // cy.get('body').click(coordinates[0], coordinates[1]);
     });
     cy.wait(100);
@@ -148,7 +148,7 @@ describe('dialogs', () => {
   // Share graph dialog
   it('Opens and closes share graph dialog via clicking cancel', () => {
     doWithTestController((testController) => {
-      const coordinates = testController.toggleLeftSideDrawer(true);
+      testController.toggleLeftSideDrawer(true);
     });
     cy.wait(100);
     cy.get('[data-cy="shareCurrentButton"]').click();
