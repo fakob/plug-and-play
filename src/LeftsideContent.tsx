@@ -269,6 +269,7 @@ const GraphsContent = (props) => {
             mr: 1,
           }}
           endIcon={<ShareIcon />}
+          data-cy="shareCurrentButton"
         >
           Share current
         </Button>

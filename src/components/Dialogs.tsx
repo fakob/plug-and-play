@@ -109,7 +109,7 @@ export const ShareDialog = (props) => {
       maxWidth="md"
       data-cy="shareDialog"
     >
-      <DialogTitle id="alert-dialog-title">{'Share Playground'}</DialogTitle>
+      <DialogTitle id="alert-dialog-title">{'Share playground'}</DialogTitle>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -174,7 +174,11 @@ Public gists are visible to everyone.`}
                   <Paper sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}>
                     Get a shareable link
                     <Box sx={{ m: 3 }}>
-                      <Button variant="contained" href={'/auth-with-github'}>
+                      <Button
+                        variant="contained"
+                        href={'/auth-with-github'}
+                        data-cy="loginWithGithubButton"
+                      >
                         Login with Github
                       </Button>
                     </Box>
@@ -192,6 +196,7 @@ Public gists are visible to everyone.`}
                             PPGraph.currentGraph.id,
                           );
                         }}
+                        data-cy="downloadPlaygroundButton"
                       >
                         Download playground
                       </Button>

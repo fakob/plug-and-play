@@ -181,4 +181,8 @@ export default class TestController {
   setShowUnsavedChangesWarning(show: boolean) {
     InterfaceController.showUnsavedChangesWarning = show;
   }
+
+  toggleLeftSideDrawer(open = false) {
+    InterfaceController.toggleLeftSideDrawer(open);
+  }
 }

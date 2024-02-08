@@ -14,6 +14,10 @@ export function areCoordinatesClose(x1, y1, x2, y2, marginOfError = 1) {
   return distance <= marginOfError;
 }
 
+export const getDeleteDialog = () => cy.get('[data-cy="deleteDialog"]');
+export const getEditDialog = () => cy.get('[data-cy="editDialog"]');
+export const getShareDialog = () => cy.get('[data-cy="shareDialog"]');
+
 export function saveGraph() {
   cy.get('body').type(`${controlOrMetaKey()}s`);
 }
@@ -31,6 +35,19 @@ export const dragFromAtoB = (startX, startY, endX, endY, wait = false) => {
     .realMouseMove(endX, endY)
     .realMouseUp({ x: endX, y: endY });
   cy.wait(1000);
+};
+
+export const addFirstTwoNodes = () => {
+  doWithTestController((testController) => {
+    testController.setShowUnsavedChangesWarning(false);
+    expect(testController.addNode('Constant', 'Constant1')).to.eq(true);
+    expect(testController.addNode('Constant', 'Constant2')).to.eq(true);
+  });
+  cy.wait(100);
+  doWithTestController((testController) => {
+    testController.moveNodeByID('Constant2', 230, 0);
+    testController.connectNodesByID('Constant1', 'Constant2', 'Out', 'In');
+  });
 };
 
 export const addTwoNodes = () => {
