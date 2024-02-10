@@ -212,7 +212,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
               y: bounds.y + 24,
             },
           );
-          this.selectNodes(duplicatedNodes, false, true);
+          this.selectNodes(duplicatedNodes, false, false);
         }
         this.startDragAction(event);
       }
@@ -283,8 +283,14 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       node.setPosition(deltaX, deltaY, true);
     });
 
-    // update selection position
-    this.drawRectanglesFromSelection();
+    // don't redraw from scratch, just move everything
+
+    this.selectionGraphics.x += deltaX;
+    this.selectionGraphics.y += deltaY;
+    this.scaleHandle.x += deltaX;
+    this.scaleHandle.y += deltaY;
+    this.singleSelectionsGraphics.x += deltaX;
+    this.singleSelectionsGraphics.y += deltaY;
   }
 
   async action_alignNodes(alignAndDistribute: TAlignOptions): Promise<void> {
@@ -485,12 +491,11 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.selectedNodes.forEach((node) => {
       //  console.trace();
       const nodeBounds = node.getSelectionBounds();
-      this.singleSelectionsGraphics.drawRoundedRect(
+      this.singleSelectionsGraphics.drawRect(
         nodeBounds.x,
         nodeBounds.y,
         nodeBounds.width,
         nodeBounds.height,
-        this.ROUNDNESS,
       );
     });
   }
@@ -550,12 +555,11 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       SELECTION_COLOR_HEX,
       1,
     );
-    this.selectionGraphics.drawRoundedRect(
+    this.selectionGraphics.drawRect(
       selectionBounds.x,
       selectionBounds.y,
       selectionBounds.width,
       selectionBounds.height,
-      this.ROUNDNESS,
     );
     this.selectionGraphics.endFill();
 
@@ -771,7 +775,13 @@ class ScaleHandle extends PIXI.Graphics {
 
     // Callback handles the rest!
     const shiftKeyPressed = event.shiftKey;
-    this.selection.onScaling(adjustedP, shiftKeyPressed);
+    this.selection.onScaling(
+      new PIXI.Point(
+        adjustedP.x - PPNode.EXTRA_NODE_SELECTION_MARGIN * 2,
+        adjustedP.y - PPNode.EXTRA_NODE_SELECTION_MARGIN * 2,
+      ),
+      shiftKeyPressed,
+    );
 
     this._pointerPosition = adjustedP;
   }

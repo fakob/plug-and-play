@@ -1551,14 +1551,14 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return [];
   }
 
+  static EXTRA_NODE_SELECTION_MARGIN = 30;
   getSelectionBounds() : PIXI.Rectangle{
-    const EXTRA_NODE_SELECTION_MARGIN = 30;
     const bounds = new PIXI.Rectangle(this._BackgroundGraphicsRef.x +this.x, this._BackgroundGraphicsRef.y + this.y, this._BackgroundGraphicsRef.width, this._BackgroundGraphicsRef.height);
     // dont understand this offset
-    bounds.x -= EXTRA_NODE_SELECTION_MARGIN*(3/4);
-    bounds.y -= EXTRA_NODE_SELECTION_MARGIN;
-    bounds.width += EXTRA_NODE_SELECTION_MARGIN*2;
-    bounds.height += EXTRA_NODE_SELECTION_MARGIN*2;
+    bounds.x -= PPNode.EXTRA_NODE_SELECTION_MARGIN;
+    bounds.y -= PPNode.EXTRA_NODE_SELECTION_MARGIN;
+    bounds.width += PPNode.EXTRA_NODE_SELECTION_MARGIN*2;
+    bounds.height += PPNode.EXTRA_NODE_SELECTION_MARGIN*2;
     return bounds;
 
   }
