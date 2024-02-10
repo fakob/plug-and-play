@@ -1149,33 +1149,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
     if (node.clickedSocketRef === null) {
       // start dragging the node
-
-      const shiftKey = event.shiftKey;
-      const altKey = event.altKey;
-
-      // select node if the shiftKey is pressed
-      // or the node is not yet selected
-      if (shiftKey || this.selected === false) {
-        PPGraph.currentGraph.selection.selectNodes([this], shiftKey, true);
-        this.onSpecificallySelected();
-      }
-
-      // duplicate the selection if altKey is pressed and select the duplicates for dragging
-      if (altKey) {
-        const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection({
-          x: this.x,
-          y: this.y,
-        });
-        PPGraph.currentGraph.selection.selectNodes(
-          duplicatedNodes,
-          shiftKey,
-          true,
-        );
-      }
-
-      if (PPGraph.currentGraph.selection.selectedNodes.length > 0) {
-        PPGraph.currentGraph.selection.startDragAction(event);
-      }
+      PPGraph.currentGraph.selection.selectNodes([this]);
+      PPGraph.currentGraph.selection.onPointerDown(event);
     }
     if (event.button == 2) {
       if (event.target == this) {

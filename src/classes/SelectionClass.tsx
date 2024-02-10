@@ -180,42 +180,39 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     const shiftKey = event.shiftKey;
     const altKey = event.altKey;
 
-    if (this.selectedNodes.length > 0) {
-      if (shiftKey) {
-        const targetPoint = this.toLocal(
-          new PIXI.Point(event.clientX, event.clientY),
-        );
-        const selectionRect = new PIXI.Rectangle(
-          targetPoint.x,
-          targetPoint.y,
-          1,
-          1,
-        );
-        const newlySelectedNodes = getObjectsInsideBounds(
-          Object.values(PPGraph.currentGraph.nodes),
-          selectionRect,
-        );
-        const differenceSelection = getDifferenceSelection(
-          this.selectedNodes,
-          newlySelectedNodes,
-        );
+    if (shiftKey) {
+      const targetPoint = this.toLocal(
+        new PIXI.Point(event.clientX, event.clientY),
+      );
+      const selectionRect = new PIXI.Rectangle(
+        targetPoint.x,
+        targetPoint.y,
+        1,
+        1,
+      );
+      const newlySelectedNodes = getObjectsInsideBounds(
+        Object.values(PPGraph.currentGraph.nodes),
+        selectionRect,
+      );
+      const differenceSelection = getDifferenceSelection(
+        this.selectedNodes,
+        newlySelectedNodes,
+      );
 
-        this.selectNodes(differenceSelection, false, true);
-        this.drawRectanglesFromSelection();
-      } else {
-        const sourceNodes = this.selectedNodes;
-        const bounds = getNodesBounds(sourceNodes);
-        if (altKey) {
-          const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection(
-            {
-              x: bounds.x + 24,
-              y: bounds.y + 24,
-            },
-          );
-          this.selectNodes(duplicatedNodes, false, false);
-        }
-        this.startDragAction(event);
+      this.selectNodes(differenceSelection, false, true);
+      this.drawRectanglesFromSelection();
+    } else {
+      const sourceNodes = this.selectedNodes;
+      const bounds = getNodesBounds(sourceNodes);
+      if (altKey) {
+        const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection({
+          x: bounds.x + 24,
+          y: bounds.y + 24,
+        });
+        this.selectNodes(duplicatedNodes, false, true);
       }
+
+      this.startDragAction(event);
     }
   }
 
@@ -586,26 +583,22 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     addToOrToggleSelection = false,
     notify = false,
   ): void {
-    if (nodes == null) {
-      this.deselectAllNodes();
+    if (addToOrToggleSelection) {
+      const differenceSelection = getDifferenceSelection(
+        this.selectedNodes,
+        nodes,
+      );
+      this.selectedNodes = differenceSelection;
     } else {
-      if (addToOrToggleSelection) {
-        const differenceSelection = getDifferenceSelection(
-          this.selectedNodes,
-          nodes,
-        );
-        this.selectedNodes = differenceSelection;
-      } else {
-        this.selectedNodes = nodes;
-      }
-      // show selectionHeader if there are more than 1 nodes selected
-      this.selectionHeader.visible = this.selectedNodes.length > 1;
-      // show scaleHandle if there is only 1 node selected
-      this.scaleHandle.visible =
-        (this.selectedNodes.length === 1 ||
-          this.selectedNodes[0]?.shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected()) &&
-        this.selectedNodes[0]?.allowResize();
+      this.selectedNodes = nodes;
     }
+    // show selectionHeader if there are more than 1 nodes selected
+    this.selectionHeader.visible = this.selectedNodes.length > 1;
+    // show scaleHandle if there is only 1 node selected
+    this.scaleHandle.visible =
+      (this.selectedNodes.length === 1 ||
+        this.selectedNodes[0]?.shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected()) &&
+      this.selectedNodes[0]?.allowResize();
 
     this.drawRectanglesFromSelection(this.selectedNodes.length > 1);
     if (notify) {
