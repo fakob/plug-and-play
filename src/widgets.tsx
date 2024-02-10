@@ -343,6 +343,19 @@ export const TextWidget: React.FunctionComponent<StringTypeProps> = (props) => {
     }
   }, 100);
 
+  const handleChange = (event) => {
+    const value = event.target.value;
+    potentiallyUpdateSocketData(props.property, value);
+    setLoadedData(value);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      props.property.getNode().executeOptimizedChain();
+    }
+  };
+
   return (
     <FormGroup sx={{ position: 'relative' }}>
       {!loadAll && (
@@ -361,11 +374,8 @@ export const TextWidget: React.FunctionComponent<StringTypeProps> = (props) => {
         variant="filled"
         multiline
         disabled={!loadAll}
-        onChange={(event) => {
-          const value = event.target.value;
-          potentiallyUpdateSocketData(props.property, value);
-          setLoadedData(value);
-        }}
+        onKeyDown={handleKeyDown}
+        onChange={handleChange}
         value={loadedData}
       />
     </FormGroup>
