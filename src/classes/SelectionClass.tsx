@@ -278,19 +278,22 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   moveSelection(deltaX: number, deltaY: number): void {
-    // update nodes positions
-    this.selectedNodes.forEach((node) => {
-      node.setPosition(deltaX, deltaY, true);
+    // requestanimationframe to improve performance
+    requestAnimationFrame(() => {
+      // update nodes positions
+      this.selectedNodes.forEach((node) => {
+        node.setPosition(deltaX, deltaY, true);
+      });
+
+      // don't redraw from scratch, just move everything
+
+      this.selectionGraphics.x += deltaX;
+      this.selectionGraphics.y += deltaY;
+      this.scaleHandle.x += deltaX;
+      this.scaleHandle.y += deltaY;
+      this.singleSelectionsGraphics.x += deltaX;
+      this.singleSelectionsGraphics.y += deltaY;
     });
-
-    // don't redraw from scratch, just move everything
-
-    this.selectionGraphics.x += deltaX;
-    this.selectionGraphics.y += deltaY;
-    this.scaleHandle.x += deltaX;
-    this.scaleHandle.y += deltaY;
-    this.singleSelectionsGraphics.x += deltaX;
-    this.singleSelectionsGraphics.y += deltaY;
   }
 
   async action_alignNodes(alignAndDistribute: TAlignOptions): Promise<void> {
