@@ -146,11 +146,6 @@ export type TNodeSource = (typeof NODE_SOURCE)[keyof typeof NODE_SOURCE];
 
 export type TAlignOptions = (typeof ALIGNOPTIONS)[keyof typeof ALIGNOPTIONS];
 
-export type TPastePos = {
-  x: number;
-  y: number;
-};
-
 // export type TPPType = PPSelection | PPNode | PPSocket;
 export type TPPType = PPSelection | PPSocket;
 

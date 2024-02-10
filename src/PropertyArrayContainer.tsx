@@ -21,6 +21,7 @@ import Socket from './classes/SocketClass';
 import { SourceContent } from './SourceContent';
 import { SocketContainer } from './SocketContainer';
 import InterfaceController, { ListenEvent } from './InterfaceController';
+import { Interaction } from './classes/SelectionClass';
 
 type FilterContentProps = {
   handleFilter: (
@@ -354,7 +355,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
   const [dragging, setIsDragging] = useState(
-    PPGraph.currentGraph.selection.isDraggingSelection,
+    PPGraph.currentGraph.selection.interaction == Interaction.Dragging,
   );
 
   const singleNode = props.selectedNodes.length ? props.selectedNodes[0] : null;
