@@ -548,42 +548,44 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     height: number = this.nodeHeight,
     maintainAspectRatio = false,
   ): void {
-    // set new size
-    const newNodeWidth = Math.max(width, this.getMinNodeWidth());
-    const newNodeHeight = Math.max(height, this.getMinNodeHeight());
+    requestAnimationFrame(() => {
+      // set new size
+      const newNodeWidth = Math.max(width, this.getMinNodeWidth());
+      const newNodeHeight = Math.max(height, this.getMinNodeHeight());
 
-    if (maintainAspectRatio) {
-      const oldWidth = this.nodeWidth;
-      const oldHeight = this.nodeHeight;
-      const newRect = calculateAspectRatioFit(
-        oldWidth,
-        oldHeight,
-        newNodeWidth,
-        newNodeHeight,
-        this.getMinNodeWidth(),
-        this.getMinNodeHeight(),
-      );
-      this.nodeWidth = newRect.width;
-      this.nodeHeight = newRect.height;
-    } else {
-      this.nodeWidth = newNodeWidth;
-      this.nodeHeight = newNodeHeight;
-    }
+      if (maintainAspectRatio) {
+        const oldWidth = this.nodeWidth;
+        const oldHeight = this.nodeHeight;
+        const newRect = calculateAspectRatioFit(
+          oldWidth,
+          oldHeight,
+          newNodeWidth,
+          newNodeHeight,
+          this.getMinNodeWidth(),
+          this.getMinNodeHeight(),
+        );
+        this.nodeWidth = newRect.width;
+        this.nodeHeight = newRect.height;
+      } else {
+        this.nodeWidth = newNodeWidth;
+        this.nodeHeight = newNodeHeight;
+      }
 
-    // update node shape
-    this.drawNodeShape();
+      // update node shape
+      this.drawNodeShape();
 
-    this.updateConnectionPosition();
+      this.updateConnectionPosition();
 
-    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
+      this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
 
-    this.onNodeResize(this.nodeWidth, this.nodeHeight);
+      this.onNodeResize(this.nodeWidth, this.nodeHeight);
 
-    if (this.selected) {
-      PPGraph.currentGraph.selection.drawRectanglesFromSelection(
-        PPGraph.currentGraph.selection.selectedNodes.length > 1,
-      );
-    }
+      if (this.selected) {
+        PPGraph.currentGraph.selection.drawRectanglesFromSelection(
+          PPGraph.currentGraph.selection.selectedNodes.length > 1,
+        );
+      }
+    });
   }
 
   public resetSize(): void {
@@ -1553,7 +1555,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   static EXTRA_NODE_SELECTION_MARGIN = 30;
   getSelectionBounds() : PIXI.Rectangle{
-    const bounds = new PIXI.Rectangle(this._BackgroundGraphicsRef.x +this.x, this._BackgroundGraphicsRef.y + this.y, this._BackgroundGraphicsRef.width, this._BackgroundGraphicsRef.height);
+    const bounds = new PIXI.Rectangle(this.x, this.y, this.nodeWidth, this.nodeHeight);
     // dont understand this offset
     bounds.x -= PPNode.EXTRA_NODE_SELECTION_MARGIN;
     bounds.y -= PPNode.EXTRA_NODE_SELECTION_MARGIN;

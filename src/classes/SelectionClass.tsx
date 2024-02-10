@@ -18,7 +18,7 @@ import {
   TOOLTIP_WIDTH,
   WHITE_HEX,
 } from '../utils/constants';
-import { TAlignOptions } from '../utils/interfaces';
+import { TAlignOptions, TRgba } from '../utils/interfaces';
 import { getObjectsInsideBounds, getNodesBounds } from '../pixi/utils-pixi';
 import {
   getCircularReplacer,
@@ -487,8 +487,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.singleSelectionsGraphics.lineStyle(
       1 / this.viewport.scale.x,
       SELECTION_COLOR_HEX,
-      0.8,
     );
+
+    //this.singleSelectionsGraphics.beginFill(SELECTION_COLOR_HEX);
 
     // draw single selections
     this.selectedNodes.forEach((node) => {
