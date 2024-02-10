@@ -32,7 +32,7 @@ describe('connectLogic', () => {
   it("connect nodes", () => {
     cy.wait(100);
     doWithTestController(testController => {
-      testController.connectNodesByID("Constant", "Add", "Out");
+      testController.connectNodesByID("Constant", "Add", "Out", "Addend");
       testController.connectNodesByID("Subtract", "Add", "Subtracted");
       testController.setNodeInputValue("Constant", "In", 10);
       testController.executeNodeByID("Constant");
@@ -50,7 +50,7 @@ describe('connectLogic', () => {
   it("disconnect nodes", () => {
     cy.wait(100);
     doWithTestController(testController => {
-      testController.disconnectLink("Add", "Addend 3");
+      testController.disconnectLink("Add", "Addend");
     });
 
     cy.wait(100);
@@ -76,6 +76,7 @@ describe('connectLogic', () => {
     });
 
   });
+
 
 });
 
