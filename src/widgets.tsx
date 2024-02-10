@@ -352,7 +352,6 @@ export const TextWidget: React.FunctionComponent<StringTypeProps> = (props) => {
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      props.property.getNode().executeOptimizedChain();
     }
   };
 
