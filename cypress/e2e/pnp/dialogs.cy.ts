@@ -150,7 +150,7 @@ describe('dialogs', () => {
     doWithTestController((testController) => {
       testController.toggleLeftSideDrawer(true);
     });
-    cy.wait(100);
+    cy.wait(1000);
     cy.get('[data-cy="shareCurrentButton"]').click();
     getShareDialog().contains('Share playground');
     getShareDialog().contains('button', 'Cancel').click();
