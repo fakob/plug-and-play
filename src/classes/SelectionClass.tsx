@@ -158,7 +158,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   public startDragAction(event: PIXI.FederatedPointerEvent) {
     this.setInteraction(Interaction.Dragging);
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
-    this.sourcePoint = getCurrentCursorPosition();
+    this.sourcePoint = this.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
     this.lastPointMovedTo = this.sourcePoint;
     event.stopPropagation();
 
@@ -177,14 +179,14 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.moveSelection(deltaX, deltaY);
   }
 
-  public async stopDragAction() {
+  public async stopDragAction(event) {
     this.setInteraction(Interaction.Passive);
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, false);
 
     // unsubscribe from pointermove
     InterfaceController.removeListener(this.listenID);
 
-    const endPoint = getCurrentCursorPosition();
+    const endPoint = this.toLocal(new PIXI.Point(event.clientX, event.clientY));
     const deltaX = endPoint.x - this.sourcePoint.x;
     const deltaY = endPoint.y - this.sourcePoint.y;
 
@@ -244,9 +246,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.drawRectanglesFromSelection(this.selectedNodes.length > 1);
   }
 
-  onPointerUpAndUpOutside(): void {
+  onPointerUpAndUpOutside(event): void {
     console.log('Selection: onPointerUpAndUpOutside');
-    this.stopDragAction();
+    this.stopDragAction(event);
     // we remove the fill of the selection on the nodes if its just one, so that sockets etc on it can be pressed
     if (this.selectedNodes.length === 1) {
       this.drawRectanglesFromSelection(false);
@@ -257,7 +259,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     switch (this.interaction) {
       case Interaction.Drawing: {
         // temporarily draw rectangle while dragging
-        const targetPoint = getCurrentCursorPosition(); //this.toLocal(new PIXI.Point(event.clientX,event.clientY));
+        const targetPoint = this.toLocal(
+          new PIXI.Point(event.clientX, event.clientY),
+        );
 
         const selX = Math.min(this.sourcePoint.x, targetPoint.x);
         const selY = Math.min(this.sourcePoint.y, targetPoint.y);
@@ -294,7 +298,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
         break;
       }
       case Interaction.Dragging: {
-        const targetPoint = getCurrentCursorPosition();
+        const targetPoint = this.toLocal(
+          new PIXI.Point(event.clientX, event.clientY),
+        );
         const deltaX = targetPoint.x - this.lastPointMovedTo.x;
         const deltaY = targetPoint.y - this.lastPointMovedTo.y;
         this.lastPointMovedTo = targetPoint;

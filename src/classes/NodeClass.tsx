@@ -1156,7 +1156,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       if (event.target == this) {
         InterfaceController.onRightClick(event, this);
       }
-      PPGraph.currentGraph.selection.stopDragAction();
+      PPGraph.currentGraph.selection.stopDragAction(event);
     }
   }
 
@@ -1244,7 +1244,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       PPGraph.currentGraph.selectedSourceSocket = null; // hack // ????
       this.mouseReleasedOverWithSourceSocketSelected(source);
     }
-    PPGraph.currentGraph.selection.stopDragAction();
+    PPGraph.currentGraph.selection.stopDragAction(event);
   }
 
   protected onViewportMove(): void {
