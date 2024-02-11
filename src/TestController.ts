@@ -7,6 +7,7 @@ import Socket from './classes/SocketClass';
 import { getAllNodeTypes } from './nodes/allNodes';
 import { ActionHandler } from './utils/actionHandler';
 import { STATUS_SEVERITY } from './utils/constants';
+import PPStorage from './PPStorage';
 
 export default class TestController {
   identify(): string {
@@ -143,6 +144,10 @@ export default class TestController {
     return PPGraph.currentGraph;
   }
 
+  deleteAllGraphs(): void {
+    PPStorage.getInstance().deleteAllGraphs();
+  }
+
   removeNode(nodeID: string): void {
     PPGraph.currentGraph.removeNode(PPGraph.currentGraph.nodes[nodeID]);
   }
@@ -179,5 +184,9 @@ export default class TestController {
 
   setShowUnsavedChangesWarning(show: boolean) {
     InterfaceController.showUnsavedChangesWarning = show;
+  }
+
+  toggleLeftSideDrawer(open = false) {
+    InterfaceController.toggleLeftSideDrawer(open);
   }
 }

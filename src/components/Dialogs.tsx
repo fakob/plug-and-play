@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -107,8 +107,9 @@ export const ShareDialog = (props) => {
       aria-describedby="alert-dialog-description"
       fullWidth
       maxWidth="md"
+      data-cy="shareDialog"
     >
-      <DialogTitle id="alert-dialog-title">{'Share Playground'}</DialogTitle>
+      <DialogTitle id="alert-dialog-title">{'Share playground'}</DialogTitle>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -173,7 +174,11 @@ Public gists are visible to everyone.`}
                   <Paper sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}>
                     Get a shareable link
                     <Box sx={{ m: 3 }}>
-                      <Button variant="contained" href={'/auth-with-github'}>
+                      <Button
+                        variant="contained"
+                        href={'/auth-with-github'}
+                        data-cy="loginWithGithubButton"
+                      >
                         Login with Github
                       </Button>
                     </Box>
@@ -191,6 +196,7 @@ Public gists are visible to everyone.`}
                             PPGraph.currentGraph.id,
                           );
                         }}
+                        data-cy="downloadPlaygroundButton"
                       >
                         Download playground
                       </Button>
@@ -211,6 +217,127 @@ Public gists are visible to everyone.`}
             Cancel
           </Button>
           {props.isLoggedIn && <Button type="submit">Share playground</Button>}
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
+
+export const DeleteConfirmationDialog = (props) => {
+  return (
+    <Dialog
+      open={props.showDeleteGraph}
+      onClose={() => props.setShowDeleteGraph(false)}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      fullWidth
+      maxWidth="sm"
+      data-cy="deleteDialog"
+      sx={{
+        '& .MuiDialog-paper': {
+          bgcolor: 'background.default',
+        },
+      }}
+    >
+      <DialogTitle id="alert-dialog-title">{'Delete playground?'}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          Are you sure you want to delete
+          <br />
+          <b>{`${props.graphToBeModified?.name}`}</b>?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => props.setShowDeleteGraph(false)} autoFocus>
+          Cancel
+        </Button>
+        <Button
+          onClick={() => {
+            props.setShowDeleteGraph(false);
+            const currentGraphID = PPGraph.currentGraph.id;
+            const graphToBeModifiedID = props.graphToBeModified.id;
+            PPStorage.getInstance().deleteGraph(graphToBeModifiedID);
+            if (graphToBeModifiedID == currentGraphID) {
+              PPStorage.getInstance().loadGraphFromDB();
+            }
+          }}
+        >
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export const EditDialog = (props) => {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (props.showEdit) {
+      // Slight delay to ensure the TextField is available
+      const timer = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          inputRef.current.select();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [props.showEdit]);
+
+  const submitEditDialog = (): void => {
+    const name = (
+      document.getElementById('playground-name-input') as HTMLInputElement
+    ).value;
+    props.setShowEdit(false);
+    PPStorage.getInstance().renameGraph(props.graphId, name);
+  };
+
+  return (
+    <Dialog
+      open={props.showEdit}
+      onClose={() => props.setShowEdit(false)}
+      fullWidth
+      disableRestoreFocus
+      maxWidth="sm"
+      data-cy="editDialog"
+      sx={{
+        '& .MuiDialog-paper': {
+          bgcolor: 'background.default',
+        },
+      }}
+    >
+      <DialogTitle>Edit playground details</DialogTitle>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          submitEditDialog();
+        }}
+      >
+        <DialogContent>
+          <TextField
+            id="playground-name-input"
+            autoFocus
+            margin="dense"
+            label="Name of playground"
+            fullWidth
+            variant="standard"
+            defaultValue={`${props.graphName}`}
+            placeholder={`${props.graphName}`}
+            InputProps={{
+              inputRef: inputRef,
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => props.setShowEdit(false)}>Cancel</Button>
+          <Button
+            onClick={() => {
+              submitEditDialog();
+            }}
+          >
+            Save
+          </Button>
         </DialogActions>
       </form>
     </Dialog>
