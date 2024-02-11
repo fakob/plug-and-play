@@ -548,7 +548,6 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     height: number = this.nodeHeight,
     maintainAspectRatio = false,
   ): void {
-    requestAnimationFrame(() => {
       // set new size
       const newNodeWidth = Math.max(width, this.getMinNodeWidth());
       const newNodeHeight = Math.max(height, this.getMinNodeHeight());
@@ -585,7 +584,6 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
           PPGraph.currentGraph.selection.selectedNodes.length > 1,
         );
       }
-    });
   }
 
   public resetSize(): void {
