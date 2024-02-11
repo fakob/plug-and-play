@@ -232,9 +232,7 @@ export default class PPGraph {
         this.selection.deselectAllNodesAndResetSelection();
       }
     }
-    if (this.selection.interaction == Interaction.Drawing) {
-      this.selection.drawSelectionFinish(event);
-    }
+    this.selection.drawSelectionFinish(event);
 
     this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
