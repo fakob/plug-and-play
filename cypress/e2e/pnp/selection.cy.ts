@@ -42,6 +42,19 @@ describe("selection", () => {
     });
   });
 
+  it ("deselect", () => {
+    cy.wait(100);
+    let [prevX, prevY] = [0,0];
+    doWithTestController((testController) => {
+      [prevX,prevY] = testController.getNodeCenterById("Add");
+    });
+    cy.get("body").realMouseDown({x: prevX , y: prevY - 200});
+    cy.get("body").realMouseUp();
+    doWithTestController((testController) => {
+      expect(testController.getSelectedNodes().length).to.eq(0);
+    });
+  });
+
   // TODO figure out why this doesnt work
 /*
   it ("select multiple nodes using box", () => {
