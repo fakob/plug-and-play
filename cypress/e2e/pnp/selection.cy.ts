@@ -38,7 +38,7 @@ describe("selection", () => {
     cy.wait(100);
     doWithTestController((testController) => {
       const [x] = testController.getNodeCenterById("Add");
-      expect(x).to.eq(prevX + 100);
+      expect(x - prevX).to.be.within(99,101); // avoid rounding error
     });
   });
 
