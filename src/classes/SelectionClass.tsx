@@ -117,8 +117,16 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
   onScaling = (pointerPosition: PIXI.Point, shiftKeyPressed: boolean): void => {
     this.selectedNodes[0].onBeingScaled(
-      Math.abs(pointerPosition.x - this.selectedNodes[0].x),
-      Math.abs(pointerPosition.y - this.selectedNodes[0].y),
+      Math.abs(
+        pointerPosition.x -
+          this.selectedNodes[0].x +
+          PPNode.EXTRA_NODE_SELECTION_MARGIN,
+      ),
+      Math.abs(
+        pointerPosition.y -
+          this.selectedNodes[0].y +
+          PPNode.EXTRA_NODE_SELECTION_MARGIN,
+      ),
       shiftKeyPressed,
     );
     this.drawRectanglesFromSelection();
