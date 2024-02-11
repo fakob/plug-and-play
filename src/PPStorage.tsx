@@ -4,7 +4,7 @@ import en from 'javascript-time-ago/locale/en';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import { GESTUREMODE, GET_STARTED_GRAPH } from './utils/constants';
 import { ActionHandler } from './utils/actionHandler';
-import { GraphDatabase, StoredGraph } from './utils/indexedDB';
+import { GraphDatabase } from './utils/indexedDB';
 import {
   downloadFile,
   formatDate,
@@ -13,7 +13,6 @@ import {
   getSetting,
   removeExtension,
   setGestureModeOnViewport,
-  sortByDate,
   updateLocalIdInURL,
 } from './utils/utils';
 import * as PIXI from 'pixi.js';
@@ -78,8 +77,10 @@ export default class PPStorage {
     return this.instance;
   }
 
+  debug_timesLoaded;
   constructor() {
     this.db = new GraphDatabase();
+    this.debug_timesLoaded = 0;
   }
 
   applyGestureMode(viewport: Viewport, newGestureMode = undefined) {
@@ -288,6 +289,8 @@ export default class PPStorage {
   }
 
   async loadGraphFromDB(id = PPGraph.currentGraph.id): Promise<void> {
+    this.debug_timesLoaded += 1;
+    console.trace();
     if (checkForUnsavedChanges()) {
       let foundGraphToLoad = false;
       let loadedGraphMeta = await this.db.graphs_meta.get(id); //await this.getGraphFromDB(id);

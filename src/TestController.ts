@@ -189,4 +189,11 @@ export default class TestController {
   toggleLeftSideDrawer(open = false) {
     InterfaceController.toggleLeftSideDrawer(open);
   }
+
+  getTimesLoadedFromDB() {
+    return PPStorage.getInstance().debug_timesLoaded;
+  }
+  getNodeTimesDrawn(nodeID: string) {
+    return this.getNodeByID(nodeID).debug_timesDrawn;
+  }
 }

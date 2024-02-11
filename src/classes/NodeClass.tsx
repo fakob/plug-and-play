@@ -97,6 +97,8 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
   _doubleClicked: boolean;
   listenId: string[] = [];
 
+  debug_timesDrawn;
+
   // supported callbacks
   onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.FederatedPointerEvent) => void =
@@ -234,6 +236,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
       }
       this.addSocket(IO);
     });
+    this.debug_timesDrawn = 0;
   }
 
   // GETTERS & SETTERS
@@ -797,6 +800,9 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     if (!this.hasBeenAdded) {
       return;
     }
+    this.debug_timesDrawn += 1;
+    //console.log("drawing node shape: " + this.name);
+    //console.trace();
     // update selection
 
     this._BackgroundGraphicsRef.clear();
