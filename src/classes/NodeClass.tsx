@@ -581,9 +581,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
       this.onNodeResize(this.nodeWidth, this.nodeHeight);
 
       if (this.selected) {
-        PPGraph.currentGraph.selection.drawRectanglesFromSelection(
-          PPGraph.currentGraph.selection.selectedNodes.length > 1,
-        );
+        PPGraph.currentGraph.selection.drawRectanglesFromSelection();
       }
   }
 

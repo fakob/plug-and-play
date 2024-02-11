@@ -243,16 +243,15 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   onViewportMoved(): void {
-    this.drawRectanglesFromSelection(this.selectedNodes.length > 1);
+    this.drawRectanglesFromSelection();
   }
 
   onPointerUpAndUpOutside(event): void {
     console.log('Selection: onPointerUpAndUpOutside');
     this.stopDragAction(event);
+
     // we remove the fill of the selection on the nodes if its just one, so that sockets etc on it can be pressed
-    if (this.selectedNodes.length === 1) {
-      this.drawRectanglesFromSelection(false);
-    }
+    this.drawRectanglesFromSelection();
   }
 
   onMove(event: PIXI.FederatedPointerEvent): void {
@@ -310,19 +309,23 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     }
   }
 
-  moveSelection(deltaX: number, deltaY: number): void {
+  moveSelection(deltaX: number, deltaY: number, finalPosition = false): void {
     // requestanimationframe to improve performance
     // update nodes positions
     this.selectedNodes.forEach((node) => {
       node.setPosition(deltaX, deltaY, true);
     });
 
-    // move everything
-    this.selectionGraphics.x += deltaX;
-    this.selectionGraphics.y += deltaY;
-    this.scaleHandle.x += deltaX;
-    this.scaleHandle.y += deltaY;
-    //this.singleSelectionsGraphics.x += deltaX; // looks cool with these not moving
+    if (finalPosition) {
+      this.drawRectanglesFromSelection();
+    }
+
+    // looks cool with these not moving
+    //this.selectionGraphics.x += deltaX;
+    //this.selectionGraphics.y += deltaY;
+    //this.scaleHandle.x += deltaX;
+    //this.scaleHandle.y += deltaY;
+    //this.singleSelectionsGraphics.x += deltaX;
     //this.singleSelectionsGraphics.y += deltaY;
   }
 
@@ -576,15 +579,15 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     );
   }
 
-  drawRectanglesFromSelection(fill = true): void {
+  drawRectanglesFromSelection(): void {
     this.drawSingleSelections();
-
     const selectionBounds = this.getBoundsFromNodes(this.selectedNodes);
+
     this.selectionGraphics.clear();
     this.selectionGraphics.x = 0;
     this.selectionGraphics.y = 0;
 
-    if (fill) {
+    if (this.selectedNodes.length > 1) {
       this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
     }
 
@@ -641,7 +644,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
         this.selectedNodes[0]?.shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected()) &&
       this.selectedNodes[0]?.allowResize();
 
-    this.drawRectanglesFromSelection(this.selectedNodes.length > 1);
+    this.drawRectanglesFromSelection();
     if (notify) {
       InterfaceController.notifyListeners(
         ListenEvent.SelectionChanged,
