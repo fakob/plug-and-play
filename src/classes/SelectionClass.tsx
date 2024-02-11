@@ -293,7 +293,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
         this.selectNodes(differenceSelection);
         this.drawRectanglesFromSelection();
-        // this.drawSingleSelections();
         break;
       }
       case Interaction.Dragging: {
@@ -703,7 +702,6 @@ class ScaleHandle extends PIXI.Graphics {
 
   private _pointerDown: boolean;
   private _pointerDragging: boolean;
-  private _pointerPosition: PIXI.Point;
   private _pointerMoveTarget: PIXI.Container | null;
   listenID: string;
 
@@ -717,7 +715,6 @@ class ScaleHandle extends PIXI.Graphics {
 
     this._pointerDown = false;
     this._pointerDragging = false;
-    this._pointerPosition = new PIXI.Point();
     this._pointerMoveTarget = null;
     this.addEventListener('pointerover', this.onPointerOver.bind(this));
     this.addEventListener('pointerdown', this.onPointerDown.bind(this));
@@ -805,7 +802,6 @@ class ScaleHandle extends PIXI.Graphics {
     const adjustedP = this.selection.toLocal(
       new PIXI.Point(event.clientX, event.clientY),
     );
-    this._pointerPosition = new PIXI.Point(adjustedP.x, adjustedP.y);
     this._pointerDragging = true;
   }
 
@@ -823,8 +819,6 @@ class ScaleHandle extends PIXI.Graphics {
       ),
       shiftKeyPressed,
     );
-
-    this._pointerPosition = adjustedP;
   }
 
   protected onDragEnd(_: PIXI.FederatedPointerEvent): void {
