@@ -290,6 +290,7 @@ export default class PPStorage {
 
   async loadGraphFromDB(id = PPGraph.currentGraph.id): Promise<void> {
     this.debug_timesLoaded += 1;
+    console.log('total times loaded: ' + this.debug_timesLoaded);
     console.trace();
     if (checkForUnsavedChanges()) {
       let foundGraphToLoad = false;
