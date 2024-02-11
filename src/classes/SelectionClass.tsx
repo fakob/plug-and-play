@@ -514,11 +514,12 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.selectedNodes.forEach((node) => {
       //  console.trace();
       const nodeBounds = node.getSelectionBounds();
-      this.singleSelectionsGraphics.drawRect(
+      this.singleSelectionsGraphics.drawRoundedRect(
         nodeBounds.x,
         nodeBounds.y,
         nodeBounds.width,
         nodeBounds.height,
+        this.ROUNDNESS,
       );
     });
   }
@@ -532,11 +533,12 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
     // draw single selections
     const nodeBounds = node.getSelectionBounds();
-    this.focusGraphics.drawRect(
+    this.focusGraphics.drawRoundedRect(
       nodeBounds.x - 4,
       nodeBounds.y - 4,
       nodeBounds.width + 8,
       nodeBounds.height + 8,
+      this.ROUNDNESS,
     );
     this.focusGraphics.endFill();
   }
@@ -578,11 +580,12 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       SELECTION_COLOR_HEX,
       1,
     );
-    this.selectionGraphics.drawRect(
+    this.selectionGraphics.drawRoundedRect(
       selectionBounds.x,
       selectionBounds.y,
       selectionBounds.width,
       selectionBounds.height,
+      this.ROUNDNESS,
     );
     this.selectionGraphics.endFill();
 
