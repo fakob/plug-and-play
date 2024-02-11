@@ -27,7 +27,7 @@ import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
-import PPSelection from './SelectionClass';
+import PPSelection, { Interaction } from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { ExecuteMacro, Macro } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
@@ -232,7 +232,9 @@ export default class PPGraph {
         this.selection.deselectAllNodesAndResetSelection();
       }
     }
-    this.selection.drawSelectionFinish(event);
+    if (this.selection.interaction == Interaction.Drawing) {
+      this.selection.drawSelectionFinish(event);
+    }
 
     this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
@@ -250,8 +252,8 @@ export default class PPGraph {
   }
 
   async onViewportMove(event: PIXI.FederatedPointerEvent): Promise<void> {
-
     // draw connection
+    this.tempConnection.clear();
     if (this.selectedSourceSocket) {
       if (this.clickPoint) {
         const threshold = calculateDistance(this.clickPoint, event.global);
