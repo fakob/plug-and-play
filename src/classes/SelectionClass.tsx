@@ -623,6 +623,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     addToOrToggleSelection = false,
     notify = false,
   ): void {
+    if (nodes.length == 1) {
+      nodes = nodes.concat(nodes[0].getExtraSelectedWhenSelected());
+    }
     if (addToOrToggleSelection) {
       const differenceSelection = getDifferenceSelection(
         this.selectedNodes,

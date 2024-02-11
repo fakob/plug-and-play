@@ -1493,8 +1493,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   // observers
 
   // called when this node specifically is clicked (not just when part of the current selection)
-  public onSpecificallySelected(): void {
-    // override if you care about this event
+  public getExtraSelectedWhenSelected(): PPNode[] {
+    return [];
   }
   public socketTypeChanged(): void {
     // override if you care about this event
