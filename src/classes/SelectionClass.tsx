@@ -115,23 +115,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this._selectedNodes = newNodes;
   }
 
-  onScaling = (pointerPosition: PIXI.Point, shiftKeyPressed: boolean): void => {
-    this.selectedNodes[0].onBeingScaled(
-      Math.abs(
-        pointerPosition.x -
-          this.selectedNodes[0].x +
-          PPNode.EXTRA_NODE_SELECTION_MARGIN,
-      ),
-      Math.abs(
-        pointerPosition.y -
-          this.selectedNodes[0].y +
-          PPNode.EXTRA_NODE_SELECTION_MARGIN,
-      ),
-      shiftKeyPressed,
-    );
-    this.drawRectanglesFromSelection();
-  };
-
   onScaleReset = (): void => {
     this.selectedNodes[0].resetSize();
     this.drawRectanglesFromSelection();
@@ -798,10 +781,6 @@ class ScaleHandle extends PIXI.Graphics {
   }
 
   protected onDragStart(event: PIXI.FederatedPointerEvent): void {
-    // cant use ourselves as tolocal guide, because we are moving around
-    const adjustedP = this.selection.toLocal(
-      new PIXI.Point(event.clientX, event.clientY),
-    );
     this._pointerDragging = true;
   }
 
@@ -810,13 +789,14 @@ class ScaleHandle extends PIXI.Graphics {
       new PIXI.Point(event.clientX, event.clientY),
     );
 
-    // Callback handles the rest!
+    const pointerPosition = new PIXI.Point(
+      adjustedP.x - PPNode.EXTRA_NODE_SELECTION_MARGIN,
+      adjustedP.y - PPNode.EXTRA_NODE_SELECTION_MARGIN,
+    );
     const shiftKeyPressed = event.shiftKey;
-    this.selection.onScaling(
-      new PIXI.Point(
-        adjustedP.x - PPNode.EXTRA_NODE_SELECTION_MARGIN * 2,
-        adjustedP.y - PPNode.EXTRA_NODE_SELECTION_MARGIN * 2,
-      ),
+    this.selection.selectedNodes[0].onBeingScaled(
+      Math.abs(pointerPosition.x - this.selection.selectedNodes[0].x),
+      Math.abs(pointerPosition.y - this.selection.selectedNodes[0].y),
       shiftKeyPressed,
     );
   }
