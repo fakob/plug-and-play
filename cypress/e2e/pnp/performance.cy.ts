@@ -19,7 +19,7 @@ describe('performance', () => {
     });
   });
   it ("see that we didnt draw the nodes more than once", () => {
-    cy.wait(100);
+    cy.wait(500);
     doWithTestController((testController) => {
       expect(testController.getNodeTimesDrawn("Add")).to.eq(1);
     });
