@@ -137,7 +137,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.drawRectanglesFromSelection();
   };
 
-  protected setInteraction(interaction: Interaction) {
+  public setInteraction(interaction: Interaction) {
     switch (interaction) {
       case Interaction.Dragging: {
         this.cursor = 'move';
@@ -312,8 +312,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
         node.setPosition(deltaX, deltaY, true);
       });
 
-      // don't redraw from scratch, just move everything
-
+      // move everything
       this.selectionGraphics.x += deltaX;
       this.selectionGraphics.y += deltaY;
       this.scaleHandle.x += deltaX;
@@ -473,6 +472,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   drawSelectionFinish(event: PIXI.FederatedPointerEvent): void {
+    const interactionPre = this.interaction;
     this.setInteraction(Interaction.Passive);
     this.selectionIntendGraphics.clear();
 
@@ -498,7 +498,8 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     );
     if (
       this.sourcePoint.x === adjustedP.x &&
-      this.sourcePoint.y === adjustedP.y
+      this.sourcePoint.y === adjustedP.y &&
+      interactionPre == Interaction.Drawing
     ) {
       console.log('deselectAllNodesAndResetSelection');
       this.deselectAllNodesAndResetSelection();

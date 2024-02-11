@@ -57,6 +57,7 @@ import {
   PNPStatus,
   PNPSuccess,
 } from './ErrorClass';
+import { Interaction } from './SelectionClass';
 
 // export default class PPNode extends PIXI.Container implements Tooltipable {
 export default class PPNode extends PIXI.Container implements IWarningHandler {
@@ -1148,6 +1149,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (node.clickedSocketRef === null) {
       // start dragging the node
       PPGraph.currentGraph.selection.selectNodes([this]);
+    PPGraph.currentGraph.selection.setInteraction(Interaction.Dragging);
       PPGraph.currentGraph.selection.onPointerDown(event);
     }
     if (event.button == 2) {
