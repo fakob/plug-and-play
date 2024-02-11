@@ -323,8 +323,8 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       this.selectionGraphics.y += deltaY;
       this.scaleHandle.x += deltaX;
       this.scaleHandle.y += deltaY;
-      this.singleSelectionsGraphics.x += deltaX;
-      this.singleSelectionsGraphics.y += deltaY;
+      //this.singleSelectionsGraphics.x += deltaX; // looks cool with these not moving
+      //this.singleSelectionsGraphics.y += deltaY;
     });
   }
 
