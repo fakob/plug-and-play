@@ -74,4 +74,11 @@ describe('macro', () => {
       cy.get('body').type('{enter}');
     });
   });
+  it('See that everything is selected when graph is selected', () => {
+  doWithTestController((testController) => {
+      testController.selectNodesById(['Macro']);
+    expect(testController.getSelectedNodes().length).to.eq(3);
+  });
+  });
+
 });

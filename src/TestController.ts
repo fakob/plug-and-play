@@ -14,8 +14,12 @@ export default class TestController {
     return 'its testcontroller';
   }
 
-  addNode(nodeType: string, id = hri.random()): boolean {
-    PPGraph.currentGraph.addNewNode(nodeType, { overrideId: id });
+  addNode(nodeType: string, id = hri.random(), x = 0, y = 0): boolean {
+    PPGraph.currentGraph
+      .addNewNode(nodeType, { overrideId: id })
+      .then((node) => {
+        (node.x += x), (node.y += y);
+      });
     return true;
   }
 

@@ -30,6 +30,7 @@ import {
   STATUS_SEVERITY,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
+  SOCKET_WIDTH,
 } from '../utils/constants';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
 import NodeHeaderClass from './NodeHeaderClass';
@@ -56,6 +57,7 @@ import {
   PNPStatus,
   PNPSuccess,
 } from './ErrorClass';
+import { Interaction } from './SelectionClass';
 
 // export default class PPNode extends PIXI.Container implements Tooltipable {
 export default class PPNode extends PIXI.Container implements IWarningHandler {
@@ -547,42 +549,42 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     height: number = this.nodeHeight,
     maintainAspectRatio = false,
   ): void {
-    // set new size
-    const newNodeWidth = Math.max(width, this.getMinNodeWidth());
-    const newNodeHeight = Math.max(height, this.getMinNodeHeight());
+      // set new size
+      const newNodeWidth = Math.max(width, this.getMinNodeWidth());
+      const newNodeHeight = Math.max(height, this.getMinNodeHeight());
 
-    if (maintainAspectRatio) {
-      const oldWidth = this.nodeWidth;
-      const oldHeight = this.nodeHeight;
-      const newRect = calculateAspectRatioFit(
-        oldWidth,
-        oldHeight,
-        newNodeWidth,
-        newNodeHeight,
-        this.getMinNodeWidth(),
-        this.getMinNodeHeight(),
-      );
-      this.nodeWidth = newRect.width;
-      this.nodeHeight = newRect.height;
-    } else {
-      this.nodeWidth = newNodeWidth;
-      this.nodeHeight = newNodeHeight;
-    }
+      if (maintainAspectRatio) {
+        const oldWidth = this.nodeWidth;
+        const oldHeight = this.nodeHeight;
+        const newRect = calculateAspectRatioFit(
+          oldWidth,
+          oldHeight,
+          newNodeWidth,
+          newNodeHeight,
+          this.getMinNodeWidth(),
+          this.getMinNodeHeight(),
+        );
+        this.nodeWidth = newRect.width;
+        this.nodeHeight = newRect.height;
+      } else {
+        this.nodeWidth = newNodeWidth;
+        this.nodeHeight = newNodeHeight;
+      }
 
-    // update node shape
-    this.drawNodeShape();
+      // update node shape
+      this.drawNodeShape();
 
-    this.updateConnectionPosition();
+      this.updateConnectionPosition();
 
-    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
+      this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
 
-    this.onNodeResize(this.nodeWidth, this.nodeHeight);
+      this.onNodeResize(this.nodeWidth, this.nodeHeight);
 
-    if (this.selected) {
-      PPGraph.currentGraph.selection.drawRectanglesFromSelection(
-        PPGraph.currentGraph.selection.selectedNodes.length > 1,
-      );
-    }
+      if (this.selected) {
+        PPGraph.currentGraph.selection.drawRectanglesFromSelection(
+          PPGraph.currentGraph.selection.selectedNodes.length > 1,
+        );
+      }
   }
 
   public resetSize(): void {
@@ -1146,39 +1148,15 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
     if (node.clickedSocketRef === null) {
       // start dragging the node
-
-      const shiftKey = event.shiftKey;
-      const altKey = event.altKey;
-
-      // select node if the shiftKey is pressed
-      // or the node is not yet selected
-      if (shiftKey || this.selected === false) {
-        PPGraph.currentGraph.selection.selectNodes([this], shiftKey, true);
-        this.onSpecificallySelected();
-      }
-
-      // duplicate the selection if altKey is pressed and select the duplicates for dragging
-      if (altKey) {
-        const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection({
-          x: this.x,
-          y: this.y,
-        });
-        PPGraph.currentGraph.selection.selectNodes(
-          duplicatedNodes,
-          shiftKey,
-          true,
-        );
-      }
-
-      if (PPGraph.currentGraph.selection.selectedNodes.length > 0) {
-        PPGraph.currentGraph.selection.startDragAction(event);
-      }
+      PPGraph.currentGraph.selection.selectNodes([this]);
+    PPGraph.currentGraph.selection.setInteraction(Interaction.Dragging);
+      PPGraph.currentGraph.selection.onPointerDown(event);
     }
     if (event.button == 2) {
       if (event.target == this) {
         InterfaceController.onRightClick(event, this);
       }
-      PPGraph.currentGraph.selection.stopDragAction();
+      PPGraph.currentGraph.selection.stopDragAction(event);
     }
   }
 
@@ -1266,7 +1244,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       PPGraph.currentGraph.selectedSourceSocket = null; // hack // ????
       this.mouseReleasedOverWithSourceSocketSelected(source);
     }
-    PPGraph.currentGraph.selection.stopDragAction();
+    PPGraph.currentGraph.selection.stopDragAction(event);
   }
 
   protected onViewportMove(): void {
@@ -1515,8 +1493,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   // observers
 
   // called when this node specifically is clicked (not just when part of the current selection)
-  public onSpecificallySelected(): void {
-    // override if you care about this event
+  public getExtraSelectedWhenSelected(): PPNode[] {
+    return [];
   }
   public socketTypeChanged(): void {
     // override if you care about this event
@@ -1548,5 +1526,17 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   // these are imported before node is added to the graph
   public getDynamicImports(): string[] {
     return [];
+  }
+
+  static EXTRA_NODE_SELECTION_MARGIN = 30;
+  getSelectionBounds() : PIXI.Rectangle{
+    const bounds = new PIXI.Rectangle(this.x, this.y, this.nodeWidth, this.nodeHeight);
+    // dont understand this offset
+    bounds.x -= PPNode.EXTRA_NODE_SELECTION_MARGIN;
+    bounds.y -= PPNode.EXTRA_NODE_SELECTION_MARGIN;
+    bounds.width += PPNode.EXTRA_NODE_SELECTION_MARGIN*2;
+    bounds.height += PPNode.EXTRA_NODE_SELECTION_MARGIN*2;
+    return bounds;
+
   }
 }

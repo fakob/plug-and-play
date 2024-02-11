@@ -154,8 +154,10 @@ export default abstract class HybridNode2 extends PPNode {
   protected onHybridNodeExit(): void {}
 
   setPosition(x: number, y: number, isRelative = false): void {
-    super.setPosition(x, y, isRelative);
-    this.onViewportMove(); // trigger this once, so the react components get positioned properly
+    requestAnimationFrame(() => {
+      super.setPosition(x, y, isRelative);
+      this.onViewportMove(); // trigger this once, so the react components get positioned properly
+    });
   }
 
   resizeAndDraw(

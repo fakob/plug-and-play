@@ -95,7 +95,6 @@ export default class InterfaceController {
   ) => void = () => {}; // called when a drawer is toggled or resized
   static onAddToDashboard: (data: Socket) => void = () => {}; // called when socket inspector should be opened
   static onRemoveFromDashboard: (socketId: TSocketId) => void = () => {}; // called when socket inspector should be opened
-  static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
   static onGraphListChanged: () => void = () => {};
 
   // these were previously only in app.tsx and are still being set from there, but they can be accessed from anywhere

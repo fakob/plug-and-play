@@ -17,7 +17,6 @@ import {
   SerializedSelection,
   INodeSearch,
   TNodeSource,
-  TPastePos,
 } from '../utils/interfaces';
 import {
   calculateDistance,
@@ -28,7 +27,7 @@ import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
-import PPSelection from './SelectionClass';
+import PPSelection, { Interaction } from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { ExecuteMacro, Macro } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
@@ -113,7 +112,7 @@ export default class PPGraph {
     this.backgroundTempContainer.addChild(this.tempConnection);
 
     this.selection = new PPSelection(this.viewport);
-    this.app.stage.addChild(this.selection);
+    this.viewport.addChild(this.selection);
 
     this.viewport.cursor = 'default';
 
@@ -233,9 +232,7 @@ export default class PPGraph {
         this.selection.deselectAllNodesAndResetSelection();
       }
     }
-    if (this.selection.isDrawingSelection) {
-      this.selection.drawSelectionFinish(event);
-    }
+    this.selection.drawSelectionFinish(event);
 
     this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
@@ -253,9 +250,8 @@ export default class PPGraph {
   }
 
   async onViewportMove(event: PIXI.FederatedPointerEvent): Promise<void> {
-    this.tempConnection.clear();
-
     // draw connection
+    this.tempConnection.clear();
     if (this.selectedSourceSocket) {
       if (this.clickPoint) {
         const threshold = calculateDistance(this.clickPoint, event.global);
@@ -908,7 +904,9 @@ export default class PPGraph {
     this.allowExecution = true;
   }
 
-  async duplicateSelection(pastePos: TPastePos = undefined): Promise<PPNode[]> {
+  async duplicateSelection(
+    pastePos: PIXI.Point = new PIXI.Point(0, 0),
+  ): Promise<PPNode[]> {
     const serializeSelection = this.serializeSelection();
     const pastedNodes = await this.action_pasteNodes(
       serializeSelection,
@@ -919,7 +917,7 @@ export default class PPGraph {
 
   async action_pasteNodes(
     data: SerializedSelection,
-    pastePos?: TPastePos,
+    pastePos: PIXI.Point = new PIXI.Point(0, 0),
   ): Promise<PPNode[]> {
     const newNodes: PPNode[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
@@ -931,24 +929,16 @@ export default class PPGraph {
       const originalNodes: SerializedSelection = data;
       newNodes.length = 0;
       //create nodes
-      const offset = new PIXI.Point();
       try {
         await Promise.all(
           originalNodes.nodes.map(async (node, index) => {
-            if (index === 0) {
-              if (pastePos) {
-                offset.set(pastePos.x - node.x, pastePos.y - node.y);
-              } else {
-                offset.set(node.width + 40, 0);
-              }
-            }
             // add node and carry over its configuration
             const newNode = await this.addSerializedNode(node, {
               overrideId: arrayOfRandomIds[index],
             });
 
             // offset pasted node
-            newNode.setPosition(offset.x, offset.y, true);
+            newNode.setPosition(pastePos.x + node.x, pastePos.y + node.y);
 
             mappingOfOldAndNewNodes[node.id] = newNode;
             newNodes.push(newNode);
@@ -1004,6 +994,7 @@ export default class PPGraph {
     const sourceNodes = this.selection.selectedNodes;
     const newNodes = await this.action_pasteNodes(
       this.serializeNodes(sourceNodes),
+      new PIXI.Point(0, 0),
     );
 
     const forwardMapping: Record<string, PPNode> = {};

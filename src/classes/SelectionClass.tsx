@@ -10,7 +10,6 @@ import { Tooltipable } from '../components/Tooltip';
 import {
   ALIGNOPTIONS,
   ERROR_COLOR,
-  NODE_MARGIN,
   ONCLICK_DOUBLECLICK,
   SCALEHANDLE_SIZE,
   SELECTION_COLOR_HEX,
@@ -19,7 +18,7 @@ import {
   WHITE_HEX,
 } from '../utils/constants';
 import { TAlignOptions } from '../utils/interfaces';
-import { getObjectsInsideBounds, getNodesBounds } from '../pixi/utils-pixi';
+import { getObjectsInsideBounds } from '../pixi/utils-pixi';
 import {
   getCircularReplacer,
   getCurrentCursorPosition,
@@ -29,8 +28,14 @@ import PPGraph from './GraphClass';
 import { ActionHandler } from '../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 
+export enum Interaction {
+  Passive,
+  Drawing,
+  Dragging,
+}
+
 export default class PPSelection extends PIXI.Container implements Tooltipable {
-  protected viewport: Viewport;
+  public viewport: Viewport;
   protected previousSelectedNodes: PPNode[];
   _selectedNodes: PPNode[];
 
@@ -42,10 +47,8 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   selectionHeader: SelectionHeaderClass;
 
   protected sourcePoint: PIXI.Point;
-  private nodePosBeforeMovement: PIXI.Point;
-  isDrawingSelection: boolean;
-  isDraggingSelection: boolean;
-  interactionData: PIXI.FederatedPointerEvent | null;
+  protected lastPointMovedTo: PIXI.Point;
+  interaction: Interaction = Interaction.Passive;
   listenID: string;
 
   protected onMoveHandler: (event?: PIXI.FederatedPointerEvent) => void;
@@ -55,11 +58,8 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     globalThis.__PPSELECTION__ = this;
     this.viewport = viewport;
     this.sourcePoint = new PIXI.Point(0, 0);
-    this.isDrawingSelection = false;
-    this.isDraggingSelection = false;
     this.previousSelectedNodes = [];
     this._selectedNodes = [];
-    this.interactionData = null;
     this.listenID = '';
 
     this.name = 'selectionContainer';
@@ -100,7 +100,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       InterfaceController.onRightClick(event, event.target),
     );
     this.viewport.addEventListener(
-      'moved',
+      'zoomed',
       (this as any).onViewportMoved.bind(this),
     );
 
@@ -116,14 +116,17 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   onScaling = (pointerPosition: PIXI.Point, shiftKeyPressed: boolean): void => {
-    const worldPosition = this.viewport.toWorld(
-      pointerPosition.x,
-      pointerPosition.y,
-    );
-
     this.selectedNodes[0].onBeingScaled(
-      Math.abs(worldPosition.x - this.selectedNodes[0].x),
-      Math.abs(worldPosition.y - this.selectedNodes[0].y),
+      Math.abs(
+        pointerPosition.x -
+          this.selectedNodes[0].x +
+          PPNode.EXTRA_NODE_SELECTION_MARGIN,
+      ),
+      Math.abs(
+        pointerPosition.y -
+          this.selectedNodes[0].y +
+          PPNode.EXTRA_NODE_SELECTION_MARGIN,
+      ),
       shiftKeyPressed,
     );
     this.drawRectanglesFromSelection();
@@ -134,16 +137,32 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.drawRectanglesFromSelection();
   };
 
-  public startDragAction(event: PIXI.FederatedPointerEvent) {
-    this.cursor = 'move';
-    this.isDraggingSelection = true;
-    InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
-    this.interactionData = event;
-    this.sourcePoint = this.interactionData.getLocalPosition(
-      this.selectedNodes[0],
-    );
+  public setInteraction(interaction: Interaction) {
+    switch (interaction) {
+      case Interaction.Dragging: {
+        this.cursor = 'move';
+        break;
+      }
+      case Interaction.Drawing: {
+        this.cursor = 'default';
+        break;
+      }
+      case Interaction.Passive: {
+        this.cursor = 'default';
+        break;
+      }
+    }
+    this.interaction = interaction;
+  }
 
-    this.nodePosBeforeMovement = getCurrentCursorPosition();
+  public startDragAction(event: PIXI.FederatedPointerEvent) {
+    this.setInteraction(Interaction.Dragging);
+    InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
+    this.sourcePoint = this.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
+    this.lastPointMovedTo = this.sourcePoint;
+    event.stopPropagation();
 
     // subscribe to pointermove
     this.listenID = InterfaceController.addListener(
@@ -160,21 +179,16 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.moveSelection(deltaX, deltaY);
   }
 
-  public async stopDragAction() {
-    if (!this.isDraggingSelection) {
-      return;
-    }
-    this.cursor = 'default';
-    this.isDraggingSelection = false;
-    this.interactionData = null;
+  public async stopDragAction(event) {
+    this.setInteraction(Interaction.Passive);
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, false);
 
     // unsubscribe from pointermove
     InterfaceController.removeListener(this.listenID);
 
-    const endPoint = getCurrentCursorPosition();
-    const deltaX = endPoint.x - this.nodePosBeforeMovement.x;
-    const deltaY = endPoint.y - this.nodePosBeforeMovement.y;
+    const endPoint = this.toLocal(new PIXI.Point(event.clientX, event.clientY));
+    const deltaX = endPoint.x - this.sourcePoint.x;
+    const deltaY = endPoint.y - this.sourcePoint.y;
 
     const nodeIDs = this.selectedNodes.map((node) => node.id);
     const doMove = async () => {
@@ -191,40 +205,36 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     const shiftKey = event.shiftKey;
     const altKey = event.altKey;
 
-    if (this.selectedNodes.length > 0) {
-      if (shiftKey) {
-        const targetPoint = new PIXI.Point(event.clientX, event.clientY);
-        const selectionRect = new PIXI.Rectangle(
-          targetPoint.x,
-          targetPoint.y,
-          1,
-          1,
-        );
-        const newlySelectedNodes = getObjectsInsideBounds(
-          Object.values(PPGraph.currentGraph.nodes),
-          selectionRect,
-        );
-        const differenceSelection = getDifferenceSelection(
-          this.selectedNodes,
-          newlySelectedNodes,
-        );
+    if (shiftKey) {
+      const targetPoint = this.toLocal(
+        new PIXI.Point(event.clientX, event.clientY),
+      );
+      const selectionRect = new PIXI.Rectangle(
+        targetPoint.x,
+        targetPoint.y,
+        1,
+        1,
+      );
+      const newlySelectedNodes = getObjectsInsideBounds(
+        Object.values(PPGraph.currentGraph.nodes),
+        selectionRect,
+      );
+      const differenceSelection = getDifferenceSelection(
+        this.selectedNodes,
+        newlySelectedNodes,
+      );
 
-        this.selectNodes(differenceSelection, false, true);
-        this.drawRectanglesFromSelection();
-      } else {
-        const sourceNodes = this.selectedNodes;
-        const bounds = getNodesBounds(sourceNodes);
-        if (altKey) {
-          const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection(
-            {
-              x: bounds.x + 24,
-              y: bounds.y + 24,
-            },
-          );
-          this.selectNodes(duplicatedNodes, false, true);
-        }
-        this.startDragAction(event);
+      this.selectNodes(differenceSelection, false, true);
+      this.drawRectanglesFromSelection();
+    } else {
+      if (altKey) {
+        const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection(
+          new PIXI.Point(24, 24),
+        );
+        this.selectNodes(duplicatedNodes, false, true);
       }
+
+      this.startDragAction(event);
     }
   }
 
@@ -236,9 +246,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.drawRectanglesFromSelection(this.selectedNodes.length > 1);
   }
 
-  onPointerUpAndUpOutside(): void {
+  onPointerUpAndUpOutside(event): void {
     console.log('Selection: onPointerUpAndUpOutside');
-    this.stopDragAction();
+    this.stopDragAction(event);
     // we remove the fill of the selection on the nodes if its just one, so that sockets etc on it can be pressed
     if (this.selectedNodes.length === 1) {
       this.drawRectanglesFromSelection(false);
@@ -246,54 +256,76 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   onMove(event: PIXI.FederatedPointerEvent): void {
-    if (this.isDrawingSelection) {
-      // temporarily draw rectangle while dragging
-      const targetPoint = new PIXI.Point(event.clientX, event.clientY);
-      const selX = Math.min(this.sourcePoint.x, targetPoint.x);
-      const selY = Math.min(this.sourcePoint.y, targetPoint.y);
-      const selWidth = Math.max(this.sourcePoint.x, targetPoint.x) - selX;
-      const selHeight = Math.max(this.sourcePoint.y, targetPoint.y) - selY;
+    switch (this.interaction) {
+      case Interaction.Drawing: {
+        // temporarily draw rectangle while dragging
+        const targetPoint = this.toLocal(
+          new PIXI.Point(event.clientX, event.clientY),
+        );
 
-      this.selectionIntendGraphics.clear();
-      this.selectionIntendGraphics.beginFill(SELECTION_COLOR_HEX, 0.05);
-      this.selectionIntendGraphics.lineStyle(1, SELECTION_COLOR_HEX, 0.8);
-      this.selectionIntendGraphics.drawRect(selX, selY, selWidth, selHeight);
+        const selX = Math.min(this.sourcePoint.x, targetPoint.x);
+        const selY = Math.min(this.sourcePoint.y, targetPoint.y);
+        const selWidth = Math.max(this.sourcePoint.x, targetPoint.x) - selX;
+        const selHeight = Math.max(this.sourcePoint.y, targetPoint.y) - selY;
 
-      // bring drawing rect into node nodeContainer space
-      const selectionRect = new PIXI.Rectangle(selX, selY, selWidth, selHeight);
+        this.selectionIntendGraphics.clear();
+        this.selectionIntendGraphics.beginFill(SELECTION_COLOR_HEX, 0.05);
+        this.selectionIntendGraphics.lineStyle(1, SELECTION_COLOR_HEX, 0.8);
+        this.selectionIntendGraphics.drawRect(selX, selY, selWidth, selHeight);
 
-      // get differenceSelection of newlySelectedNodes and
-      // previousSelectedNodes (is empty if not addToOrToggleSelection)
-      const newlySelectedNodes = getObjectsInsideBounds(
-        Object.values(PPGraph.currentGraph.nodes),
-        selectionRect,
-      );
-      const differenceSelection = getDifferenceSelection(
-        this.previousSelectedNodes,
-        newlySelectedNodes,
-      );
+        // bring drawing rect into node nodeContainer space
+        const selectionRect = new PIXI.Rectangle(
+          selX,
+          selY,
+          selWidth,
+          selHeight,
+        );
 
-      this.selectNodes(differenceSelection);
-      this.drawRectanglesFromSelection();
-      // this.drawSingleSelections();
-    } else if (this.isDraggingSelection && this.interactionData) {
-      const targetPoint = this.interactionData.getLocalPosition(
-        this.selectedNodes[0],
-      );
-      const deltaX = targetPoint.x - this.sourcePoint.x;
-      const deltaY = targetPoint.y - this.sourcePoint.y;
-      this.moveSelection(deltaX, deltaY);
+        // get differenceSelection of newlySelectedNodes and
+        // previousSelectedNodes (is empty if not addToOrToggleSelection)
+        const newlySelectedNodes = getObjectsInsideBounds(
+          Object.values(PPGraph.currentGraph.nodes),
+          selectionRect,
+        );
+        const differenceSelection = getDifferenceSelection(
+          this.previousSelectedNodes,
+          newlySelectedNodes,
+        );
+
+        this.selectNodes(differenceSelection);
+        this.drawRectanglesFromSelection();
+        // this.drawSingleSelections();
+        break;
+      }
+      case Interaction.Dragging: {
+        const targetPoint = this.toLocal(
+          new PIXI.Point(event.clientX, event.clientY),
+        );
+        const deltaX = targetPoint.x - this.lastPointMovedTo.x;
+        const deltaY = targetPoint.y - this.lastPointMovedTo.y;
+        this.lastPointMovedTo = targetPoint;
+        this.moveSelection(deltaX, deltaY);
+        break;
+      }
     }
   }
 
   moveSelection(deltaX: number, deltaY: number): void {
-    // update nodes positions
-    this.selectedNodes.forEach((node) => {
-      node.setPosition(deltaX, deltaY, true);
-    });
+    // requestanimationframe to improve performance
+    requestAnimationFrame(() => {
+      // update nodes positions
+      this.selectedNodes.forEach((node) => {
+        node.setPosition(deltaX, deltaY, true);
+      });
 
-    // update selection position
-    this.drawRectanglesFromSelection();
+      // move everything
+      this.selectionGraphics.x += deltaX;
+      this.selectionGraphics.y += deltaY;
+      this.scaleHandle.x += deltaX;
+      this.scaleHandle.y += deltaY;
+      this.singleSelectionsGraphics.x += deltaX;
+      this.singleSelectionsGraphics.y += deltaY;
+    });
   }
 
   async action_alignNodes(alignAndDistribute: TAlignOptions): Promise<void> {
@@ -432,9 +464,11 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     addToOrToggleSelection || this.resetGraphics(this.focusGraphics);
     addToOrToggleSelection || this.resetGraphics(this.selectionGraphics);
 
-    this.isDrawingSelection = true;
-    this.interactionData = event;
-    this.sourcePoint = new PIXI.Point(event.clientX, event.clientY);
+    this.setInteraction(Interaction.Drawing);
+    this.sourcePoint = this.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
+    this.lastPointMovedTo = this.sourcePoint;
 
     // subscribe to pointermove
     this.listenID = InterfaceController.addListener(
@@ -444,7 +478,8 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   drawSelectionFinish(event: PIXI.FederatedPointerEvent): void {
-    this.isDrawingSelection = false;
+    const interactionPre = this.interaction;
+    this.setInteraction(Interaction.Passive);
     this.selectionIntendGraphics.clear();
 
     // reset previousSelectedNodes
@@ -464,31 +499,42 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     );
 
     // only trigger deselect if the mouse was not moved and onMove was not called
-    const targetPoint = new PIXI.Point(event.clientX, event.clientY);
+    const adjustedP = this.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
     if (
-      this.sourcePoint.x === targetPoint.x &&
-      this.sourcePoint.y === targetPoint.y
+      this.sourcePoint.x === adjustedP.x &&
+      this.sourcePoint.y === adjustedP.y &&
+      interactionPre == Interaction.Drawing
     ) {
       console.log('deselectAllNodesAndResetSelection');
       this.deselectAllNodesAndResetSelection();
     }
   }
+  ROUNDNESS = 5;
 
   drawSingleSelections(): void {
     this.focusGraphics.clear();
     this.singleSelectionsGraphics.clear();
     this.singleSelectionsGraphics.x = 0;
     this.singleSelectionsGraphics.y = 0;
-    this.singleSelectionsGraphics.lineStyle(1, SELECTION_COLOR_HEX, 0.8);
+    this.singleSelectionsGraphics.lineStyle(
+      1 / this.viewport.scale.x,
+      SELECTION_COLOR_HEX,
+    );
+
+    //this.singleSelectionsGraphics.beginFill(SELECTION_COLOR_HEX);
 
     // draw single selections
     this.selectedNodes.forEach((node) => {
-      const nodeBounds = node._BackgroundGraphicsRef.getBounds();
-      this.singleSelectionsGraphics.drawRect(
+      //  console.trace();
+      const nodeBounds = node.getSelectionBounds();
+      this.singleSelectionsGraphics.drawRoundedRect(
         nodeBounds.x,
         nodeBounds.y,
         nodeBounds.width,
         nodeBounds.height,
+        this.ROUNDNESS,
       );
     });
   }
@@ -501,20 +547,41 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.focusGraphics.beginFill(ERROR_COLOR.hexNumber(), 0.15);
 
     // draw single selections
-    const nodeBounds = node._BackgroundGraphicsRef.getBounds();
-    this.focusGraphics.drawRect(
+    const nodeBounds = node.getSelectionBounds();
+    this.focusGraphics.drawRoundedRect(
       nodeBounds.x - 4,
       nodeBounds.y - 4,
       nodeBounds.width + 8,
       nodeBounds.height + 8,
+      this.ROUNDNESS,
     );
     this.focusGraphics.endFill();
+  }
+
+  getBoundsFromNodes(nodes: PPNode[], margin: number = 0): PIXI.Rectangle {
+    let x = Infinity;
+    let y = Infinity;
+    let endX = -Infinity;
+    let endY = -Infinity;
+    nodes.forEach((node) => {
+      const nodeBounds = node.getSelectionBounds();
+      x = Math.min(x, nodeBounds.x);
+      y = Math.min(y, nodeBounds.y);
+      endX = Math.max(endX, nodeBounds.width + nodeBounds.x);
+      endY = Math.max(endY, nodeBounds.height + nodeBounds.y);
+    });
+    return new PIXI.Rectangle(
+      x - margin,
+      y - margin,
+      endX - x + margin * 2,
+      endY - y + margin * 2,
+    );
   }
 
   drawRectanglesFromSelection(fill = true): void {
     this.drawSingleSelections();
 
-    const selectionBounds = this.singleSelectionsGraphics.getBounds();
+    const selectionBounds = this.getBoundsFromNodes(this.selectedNodes);
     this.selectionGraphics.clear();
     this.selectionGraphics.x = 0;
     this.selectionGraphics.y = 0;
@@ -523,35 +590,32 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
     }
 
-    this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
-    this.selectionGraphics.drawRect(
+    this.selectionGraphics.lineStyle(
+      1 / this.viewport.scale.x,
+      SELECTION_COLOR_HEX,
+      1,
+    );
+    this.selectionGraphics.drawRoundedRect(
       selectionBounds.x,
       selectionBounds.y,
       selectionBounds.width,
       selectionBounds.height,
+      this.ROUNDNESS,
     );
     this.selectionGraphics.endFill();
 
     this.selectionHeader.x = selectionBounds.x;
     this.selectionHeader.y = selectionBounds.y + selectionBounds.height + 4;
 
-    this.scaleHandle.x =
-      selectionBounds.x + selectionBounds.width - SCALEHANDLE_SIZE / 2;
-    this.scaleHandle.y =
-      selectionBounds.y + selectionBounds.height - SCALEHANDLE_SIZE / 2;
+    this.selectionHeader.scale.x = 1 / this.viewport.scale.x;
+    this.selectionHeader.scale.y = 1 / this.viewport.scale.y;
 
-    InterfaceController.selectionRedrawn(this.screenPoint());
+    this.scaleHandle.x = selectionBounds.x + selectionBounds.width;
+    this.scaleHandle.y = selectionBounds.y + selectionBounds.height;
   }
 
   isNodeSelected(node: PPNode): boolean {
     return this.selectedNodes.includes(node);
-  }
-
-  screenPoint(): PIXI.Point {
-    return new PIXI.Point(
-      this.selectionGraphics.getBounds().x + NODE_MARGIN,
-      this.selectionGraphics.getBounds().y,
-    );
   }
 
   selectNodes(
@@ -559,26 +623,25 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     addToOrToggleSelection = false,
     notify = false,
   ): void {
-    if (nodes == null) {
-      this.deselectAllNodes();
-    } else {
-      if (addToOrToggleSelection) {
-        const differenceSelection = getDifferenceSelection(
-          this.selectedNodes,
-          nodes,
-        );
-        this.selectedNodes = differenceSelection;
-      } else {
-        this.selectedNodes = nodes;
-      }
-      // show selectionHeader if there are more than 1 nodes selected
-      this.selectionHeader.visible = this.selectedNodes.length > 1;
-      // show scaleHandle if there is only 1 node selected
-      this.scaleHandle.visible =
-        (this.selectedNodes.length === 1 ||
-          this.selectedNodes[0]?.shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected()) &&
-        this.selectedNodes[0]?.allowResize();
+    if (nodes.length == 1) {
+      nodes = nodes.concat(nodes[0].getExtraSelectedWhenSelected());
     }
+    if (addToOrToggleSelection) {
+      const differenceSelection = getDifferenceSelection(
+        this.selectedNodes,
+        nodes,
+      );
+      this.selectedNodes = differenceSelection;
+    } else {
+      this.selectedNodes = nodes;
+    }
+    // show selectionHeader if there are more than 1 nodes selected
+    this.selectionHeader.visible = this.selectedNodes.length > 1;
+    // show scaleHandle if there is only 1 node selected
+    this.scaleHandle.visible =
+      (this.selectedNodes.length === 1 ||
+        this.selectedNodes[0]?.shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected()) &&
+      this.selectedNodes[0]?.allowResize();
 
     this.drawRectanglesFromSelection(this.selectedNodes.length > 1);
     if (notify) {
@@ -626,7 +689,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   getTooltipPosition(): PIXI.Point {
-    const absPos = this.selectionGraphics.getBounds();
+    const absPos = this.getBoundsFromNodes(this.selectedNodes);
     return new PIXI.Point(
       Math.max(0, absPos.x - TOOLTIP_WIDTH - TOOLTIP_DISTANCE),
       absPos.y,
@@ -665,19 +728,25 @@ class ScaleHandle extends PIXI.Graphics {
   render(renderer: PIXI.Renderer): void {
     this.clear();
     this.beginFill(WHITE_HEX);
-    this.lineStyle(1, SELECTION_COLOR_HEX);
-    this.drawRect(0, 0, SCALEHANDLE_SIZE, SCALEHANDLE_SIZE);
+    this.lineStyle(1 / this.selection.viewport.scale.x, SELECTION_COLOR_HEX);
+    this.drawRect(
+      0,
+      0,
+      SCALEHANDLE_SIZE / this.selection.viewport.scale.x,
+      SCALEHANDLE_SIZE / this.selection.viewport.scale.y,
+    );
     this.endFill();
 
     super.render(renderer);
   }
 
   protected onPointerOver(event: PIXI.FederatedPointerEvent): void {
-    event.stopPropagation();
+    //event.stopPropagation();
     this.cursor = 'nwse-resize';
   }
 
   protected onPointerDown(event: PIXI.FederatedPointerEvent): void {
+    console.log('pointer down moment');
     this._pointerDown = true;
     this._pointerDragging = false;
 
@@ -731,18 +800,30 @@ class ScaleHandle extends PIXI.Graphics {
   }
 
   protected onDragStart(event: PIXI.FederatedPointerEvent): void {
-    this._pointerPosition = new PIXI.Point(event.clientX, event.clientY);
+    // cant use ourselves as tolocal guide, because we are moving around
+    const adjustedP = this.selection.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
+    this._pointerPosition = new PIXI.Point(adjustedP.x, adjustedP.y);
     this._pointerDragging = true;
   }
 
   protected onDrag(event: PIXI.FederatedPointerEvent): void {
-    const currentPosition = new PIXI.Point(event.clientX, event.clientY);
+    const adjustedP = this.selection.toLocal(
+      new PIXI.Point(event.clientX, event.clientY),
+    );
 
     // Callback handles the rest!
     const shiftKeyPressed = event.shiftKey;
-    this.selection.onScaling(currentPosition, shiftKeyPressed);
+    this.selection.onScaling(
+      new PIXI.Point(
+        adjustedP.x - PPNode.EXTRA_NODE_SELECTION_MARGIN * 2,
+        adjustedP.y - PPNode.EXTRA_NODE_SELECTION_MARGIN * 2,
+      ),
+      shiftKeyPressed,
+    );
 
-    this._pointerPosition = currentPosition;
+    this._pointerPosition = adjustedP;
   }
 
   protected onDragEnd(_: PIXI.FederatedPointerEvent): void {

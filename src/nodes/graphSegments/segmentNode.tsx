@@ -3,6 +3,7 @@ import PPNode from '../../classes/NodeClass';
 import { TNodeSource } from '../../utils/interfaces';
 import { getNodeDataFromText } from '../../utils/utils';
 import { Segment } from './segment';
+import * as PIXI from 'pixi.js';
 
 export abstract class SegmentNode extends PPNode {
   getName() {
@@ -25,7 +26,7 @@ export abstract class SegmentNode extends PPNode {
   public async addAndDestroy() {
     await PPGraph.currentGraph.action_pasteNodes(
       getNodeDataFromText(this.getSegment().getData()),
-      { x: this.x, y: this.y },
+      new PIXI.Point(this.x, this.y),
     );
 
     PPGraph.currentGraph.removeNode(this);
