@@ -244,7 +244,7 @@ export class Macro extends PPNode {
 
   public getInsideNodes(): PPNode[] {
     // get all nodes that are within the bounds
-    const myBounds = this.getBounds();
+    const myBounds = this.getSelectionBounds();
     const nodesInside: PPNode[] = getObjectsInsideBounds(
       Object.values(PPGraph.currentGraph.nodes),
       myBounds,
