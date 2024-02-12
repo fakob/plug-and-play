@@ -8,8 +8,9 @@ describe('performance', () => {
     doWithTestController((testController) => {
       expect(testController.addNode('Add', 'Add')).to.eq(true);
     });
-    saveGraph();
     cy.wait(100);
+    saveGraph();
+    cy.wait(200);
   });
   it('see that we didnt load from DB more than once', () => {
     cy.visit('http://127.0.0.1:8080');
