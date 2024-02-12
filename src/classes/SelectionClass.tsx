@@ -121,8 +121,26 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   };
 
   public setInteraction(interaction: Interaction) {
+    const prevInteraction = this.interaction;
+    switch (prevInteraction) {
+      case Interaction.Dragging: {
+        if (interaction !== Interaction.Dragging) {
+          InterfaceController.notifyListeners(
+            ListenEvent.SelectionDragging,
+            false,
+          );
+        }
+        break;
+      }
+    }
     switch (interaction) {
       case Interaction.Dragging: {
+        if (prevInteraction !== Interaction.Dragging) {
+          InterfaceController.notifyListeners(
+            ListenEvent.SelectionDragging,
+            true,
+          );
+        }
         this.cursor = 'move';
         break;
       }
@@ -140,7 +158,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
   public startDragAction(event: PIXI.FederatedPointerEvent) {
     this.setInteraction(Interaction.Dragging);
-    InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
     this.sourcePoint = this.toLocal(
       new PIXI.Point(event.clientX, event.clientY),
     );
@@ -164,7 +181,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
   public async stopDragAction(event) {
     this.setInteraction(Interaction.Passive);
-    InterfaceController.notifyListeners(ListenEvent.SelectionDragging, false);
 
     // unsubscribe from pointermove
     InterfaceController.removeListener(this.listenID);
@@ -176,9 +192,11 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     const nodeIDs = this.selectedNodes.map((node) => node.id);
     const doMove = async () => {
       this.moveNodesByID(nodeIDs, deltaX, deltaY);
+      this.drawRectanglesFromSelection();
     };
     const undoMove = async () => {
       this.moveNodesByID(nodeIDs, -deltaX, -deltaY);
+      this.drawRectanglesFromSelection();
     };
     await ActionHandler.performAction(doMove, undoMove, 'Move node(s)', false);
   }
@@ -476,11 +494,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     } else {
       this.resetAllGraphics();
     }
-    InterfaceController.notifyListeners(
-      ListenEvent.SelectionChanged,
-      this.selectedNodes,
-    );
-
     // only trigger deselect if the mouse was not moved and onMove was not called
     const adjustedP = this.toLocal(
       new PIXI.Point(event.clientX, event.clientY),
@@ -606,6 +619,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     addToOrToggleSelection = false,
     notify = false,
   ): void {
+    const prevNodes = this.selectedNodes.map((node) => node.id).join();
     if (nodes.length == 1) {
       nodes = nodes.concat(nodes[0].getExtraSelectedWhenSelected());
     }
@@ -627,7 +641,10 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       this.selectedNodes[0]?.allowResize();
 
     this.drawRectanglesFromSelection();
-    if (notify) {
+    if (
+      notify &&
+      prevNodes !== this.selectedNodes.map((node) => node.id).join()
+    ) {
       InterfaceController.notifyListeners(
         ListenEvent.SelectionChanged,
         this.selectedNodes,

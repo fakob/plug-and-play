@@ -158,6 +158,17 @@ export default abstract class HybridNode2 extends PPNode {
     this.onViewportMove(); // trigger this once, so the react components get positioned properly
   }
 
+  onPointerClick(event: PIXI.FederatedPointerEvent): void {
+    this.listenId.push(
+      InterfaceController.addListener(
+        ListenEvent.GlobalPointerUp,
+        this.onViewportPointerUpHandler,
+      ),
+    );
+
+    super.onPointerClick(event);
+  }
+
   resizeAndDraw(
     width = this.nodeWidth,
     height = this.nodeHeight,

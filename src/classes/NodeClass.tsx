@@ -583,9 +583,9 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
 
       this.onNodeResize(this.nodeWidth, this.nodeHeight);
 
-      if (this.selected) {
-        PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-      }
+      //if (this.selected) {
+      //  PPGraph.currentGraph.selection.drawRectanglesFromSelection();
+      //}
   }
 
   public resetSize(): void {
@@ -1152,8 +1152,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
     if (node.clickedSocketRef === null) {
       // start dragging the node
-      PPGraph.currentGraph.selection.selectNodes([this]);
-    PPGraph.currentGraph.selection.setInteraction(Interaction.Dragging);
+      PPGraph.currentGraph.selection.selectNodes([this], false, false);
+      PPGraph.currentGraph.selection.setInteraction(Interaction.Dragging);
       PPGraph.currentGraph.selection.onPointerDown(event);
     }
     if (event.button == 2) {
@@ -1304,12 +1304,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onPointerClick(event: PIXI.FederatedPointerEvent): void {
-    this.listenId.push(
-      InterfaceController.addListener(
-        ListenEvent.GlobalPointerUp,
-        this.onViewportPointerUpHandler,
-      ),
-    );
+
     // check if double clicked
     if (event.detail === ONCLICK_DOUBLECLICK) {
       this.doubleClicked = true;
