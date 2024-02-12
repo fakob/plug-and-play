@@ -50,7 +50,7 @@ export default class PPGraph {
   _showComments: boolean;
   _showExecutionVisualisation: boolean;
   socketToInspect: null | PPSocket;
-  selectedSourceSocket: null | PPSocket;
+  selectedSourceSocket: null | PPSocket | PPLink;
   clickPoint: null | PIXI.Point;
   lastSelectedSocketWasInput = false;
   overrideNodeCursorPosition: null | PIXI.Point = null;

@@ -163,38 +163,38 @@ describe('mouseInteractions1', () => {
     });
   });
 
-  // it('Does nothing on clicking connected and dynamic input socket without or minimal dragging', () => {
-  //   const moveX = 0;
-  //   const moveY = 0;
-  //   doWithTestController((testController) => {
-  //     expect(testController.addNode('Add', 'Add')).to.eq(true);
-  //   });
-  //   cy.wait(100);
-  //   doWithTestController((testController) => {
-  //     testController.moveNodeByID('Add', 230, -100);
-  //   });
-  //   cy.wait(100);
-  //   doWithTestController((testController) => {
-  //     const [startX, startY] =
-  //       testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
-  //     const [endX, endY] = testController.getNodeCenterById('Add');
-  //     dragFromAtoB(startX, startY, endX, endY, true);
-  //   });
+  it('Does nothing on clicking connected and dynamic input socket without or minimal dragging', () => {
+    const moveX = 5;
+    const moveY = 5;
+    doWithTestController((testController) => {
+      expect(testController.addNode('Add', 'Add')).to.eq(true);
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      testController.moveNodeByID('Add', 230, -100);
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
+      const [endX, endY] = testController.getNodeCenterById('Add');
+      dragFromAtoB(startX, startY, endX, endY, true);
+    });
 
-  //   doWithTestController((testController) => {
-  //     const [startX, startY] =
-  //       testController.getSocketCenterByNodeIDAndSocketName('Add', 'Out');
-  //     dragFromAtoB(startX, startY, startX + moveX, startY + moveY, true);
-  //   });
-  //   cy.wait(1000);
-  //   doWithTestController((testController) => {
-  //     cy.get('#node-search[placeholder*="Search nodes"]').should(
-  //       'not.be.visible',
-  //     );
-  //     expect(testController.getSocketLinks('Constant1', 'Out').length).to.eq(2);
-  //     expect(testController.getSocketLinks('Constant2', 'In').length).to.eq(1);
-  //   });
-  // });
+    doWithTestController((testController) => {
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Add', 'Added');
+      dragFromAtoB(startX, startY, startX + moveX, startY + moveY, true);
+    });
+    cy.wait(1000);
+    doWithTestController((testController) => {
+      cy.get('#node-search[placeholder*="Search nodes"]').should(
+        'not.be.visible',
+      );
+      expect(testController.getSocketLinks('Constant1', 'Out').length).to.eq(2);
+      expect(testController.getSocketLinks('Constant2', 'In').length).to.eq(1);
+    });
+  });
 
   // Context menu
   it('Opens graph context menu on right-clicking graph', () => {
