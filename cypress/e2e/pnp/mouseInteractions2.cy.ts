@@ -355,7 +355,7 @@ describe('mouseInteractions2', () => {
   });
 
   // Input socket with connection
-  it.only('Removes connection on dragging from connected input socket to graph', () => {
+  it('Removes connection on dragging from connected input socket to graph', () => {
     const endX = 660;
     const endY = 200;
 
