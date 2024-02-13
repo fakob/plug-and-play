@@ -1261,9 +1261,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onPointerUp(event: PIXI.FederatedPointerEvent): void {
-    const source = PPGraph.currentGraph.selectedSourceSocket;
+    const source = PPGraph.currentGraph.selectedSocket;
     if (source && this !== source.getNode()) {
-      PPGraph.currentGraph.selectedSourceSocket = null; // hack // ????
+      PPGraph.currentGraph.selectedSocket = null; // hack // ????
       this.mouseReleasedOverWithSourceSocketSelected(source);
     }
     PPGraph.currentGraph.selection.stopDragAction();

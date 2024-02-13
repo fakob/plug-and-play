@@ -583,7 +583,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const nodeSearchInputBlurred = () => {
     console.log('nodeSearchInputBlurred');
     setIsNodeSearchVisible(false);
-    PPGraph.currentGraph.selectedSourceSocket = null;
+    PPGraph.currentGraph.selectedSocket = null;
   };
 
   const ResultsWithHeader = ({ children, ...other }) => {
