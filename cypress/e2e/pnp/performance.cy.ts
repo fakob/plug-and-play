@@ -8,9 +8,9 @@ describe('performance', () => {
     doWithTestController((testController) => {
       expect(testController.addNode('Add', 'Add')).to.eq(true);
     });
-    cy.wait(100);
+    cy.wait(300);
     saveGraph();
-    cy.wait(200);
+    cy.wait(300);
   });
   it('see that we didnt load from DB more than once', () => {
     cy.visit('http://127.0.0.1:8080');
@@ -20,7 +20,7 @@ describe('performance', () => {
     });
   });
   it ("see that we didnt draw the nodes more than once", () => {
-    cy.wait(500);
+    cy.wait(200);
     doWithTestController((testController) => {
       expect(testController.getNodeTimesDrawn("Add")).to.eq(1);
     });

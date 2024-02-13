@@ -320,13 +320,12 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       this.drawRectanglesFromSelection();
     }
 
-    // looks cool with these not moving
-    //this.selectionGraphics.x += deltaX;
-    //this.selectionGraphics.y += deltaY;
-    //this.scaleHandle.x += deltaX;
-    //this.scaleHandle.y += deltaY;
-    //this.singleSelectionsGraphics.x += deltaX;
-    //this.singleSelectionsGraphics.y += deltaY;
+    this.selectionGraphics.x += deltaX;
+    this.selectionGraphics.y += deltaY;
+    this.scaleHandle.x += deltaX;
+    this.scaleHandle.y += deltaY;
+    this.singleSelectionsGraphics.x += deltaX;
+    this.singleSelectionsGraphics.y += deltaY;
   }
 
   async action_alignNodes(alignAndDistribute: TAlignOptions): Promise<void> {
