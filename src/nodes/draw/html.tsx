@@ -168,39 +168,49 @@ const MyFunctionalComponent = (props): React.ReactElement => {
     </ErrorBoundary>
   );
 };
+interface MemoizedComponentProps {
+  id: string;
+  theme: any;
+  iframeRef: React.RefObject<HTMLIFrameElement>;
+  headerData: any;
+  htmlData: any;
+  reload: any;
+}
 
-const MemoizedComponent = memo<any>(function MemoizedComponent({
-  id,
-  iframeRef,
-  theme,
-  headerData,
-  htmlData,
-  reload,
-}) {
-  return (
-    <Frame
-      key={reload}
-      id={id}
-      ref={iframeRef}
-      style={{
-        width: '100%',
-        height: '100%',
-        borderWidth: 0,
-      }}
-      initialContent={`<!DOCTYPE html><html><head><style>* {border: none;}</style>${headerData}</head><body style='overflow:auto; border-width: 0px; background: white;'><div></div></body></html>`}
-    >
-      <ThemeProvider theme={theme}>
-        <Box
-          style={{
-            position: 'relative',
-            height: 'calc(100vh - 16px)',
-          }}
-          dangerouslySetInnerHTML={{ __html: htmlData }}
-        />
-      </ThemeProvider>
-    </Frame>
-  );
-});
+const MemoizedComponent = memo<MemoizedComponentProps>(
+  function MemoizedComponent({
+    id,
+    iframeRef,
+    theme,
+    headerData,
+    htmlData,
+    reload,
+  }) {
+    return (
+      <Frame
+        key={reload}
+        id={id}
+        ref={iframeRef}
+        style={{
+          width: '100%',
+          height: '100%',
+          borderWidth: 0,
+        }}
+        initialContent={`<!DOCTYPE html><html><head><style>* {border: none;}</style>${headerData}</head><body style='overflow:auto; border-width: 0px; background: white;'><div></div></body></html>`}
+      >
+        <ThemeProvider theme={theme}>
+          <Box
+            style={{
+              position: 'relative',
+              height: 'calc(100vh - 16px)',
+            }}
+            dangerouslySetInnerHTML={{ __html: htmlData }}
+          />
+        </ThemeProvider>
+      </Frame>
+    );
+  },
+);
 
 export class EmbedWebsite extends HtmlRenderer {
   public getName(): string {
