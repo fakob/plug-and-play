@@ -178,9 +178,12 @@ module.exports = (env, argv) => {
 
         return middlewares;
       },
-      proxy: {
-        '/dist': '/assets',
-      },
+      proxy: [
+        {
+          context: ['/dist'],
+          target: '/assets',
+        },
+      ],
     },
   });
 
