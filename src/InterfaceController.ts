@@ -12,7 +12,7 @@ import {
 import PPGraph from './classes/GraphClass';
 import PPStorage from './PPStorage';
 import { ActionHandler } from './utils/actionHandler';
-import { zoomToFitNodes } from './pixi/utils-pixi';
+import { zoomInOutViewport, zoomToFitNodes } from './pixi/utils-pixi';
 import { IGraphSearch, INodeSearch, TSocketId } from './utils/interfaces';
 
 export enum ListenEvent {
@@ -160,6 +160,14 @@ export default class InterfaceController {
               break;
             case 'z':
               ActionHandler.undo();
+              e.preventDefault();
+              break;
+            case '=':
+              zoomInOutViewport(true);
+              e.preventDefault();
+              break;
+            case '-':
+              zoomInOutViewport(false);
               e.preventDefault();
               break;
           }

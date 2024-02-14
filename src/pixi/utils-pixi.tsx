@@ -127,10 +127,7 @@ export const zoomToFitNodes = (
   currentGraph.viewport.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
   currentGraph.viewport.zoomPercent(initZoomOutFactor || zoomOutFactor, true); // zoom out a bit more
   currentGraph.selection.drawRectanglesFromSelection();
-  currentGraph.viewport.emit('moved', {
-    viewport: currentGraph.viewport,
-    type: 'pinch',
-  });
+  emitMoved();
 };
 
 export function smoothMoveViewport(point: PIXI.Point, scale: number) {
@@ -140,6 +137,15 @@ export function smoothMoveViewport(point: PIXI.Point, scale: number) {
     ease: 'easeOutExpo',
     time: 750,
   });
+  emitMoved();
+}
+
+export function zoomInOutViewport(zoomIn) {
+  PPGraph.currentGraph.viewport.zoomPercent(zoomIn ? 0.2 : -0.2, true);
+  emitMoved();
+}
+
+export function emitMoved() {
   PPGraph.currentGraph.viewport.emit('moved', {
     viewport: PPGraph.currentGraph.viewport,
     type: 'pinch',
