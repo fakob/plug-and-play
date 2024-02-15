@@ -247,6 +247,7 @@ export default class PPGraph {
   }
 
   async onViewportMove(event: PIXI.FederatedPointerEvent): Promise<void> {
+    this.tempConnection.clear();
     // draw connection
     if (this.selectedSocket) {
       // is connected Input
