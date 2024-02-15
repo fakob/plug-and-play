@@ -48,7 +48,9 @@ export const getObjectsInsideBounds = (
   // console.log(selectionRect);
   return nodes
     .filter((node) => node.selectableViaBounds())
-    .filter((node) => doRectsIntersect(selectionRect, node.getBounds()));
+    .filter((node) =>
+      doRectsIntersect(selectionRect, node.getSelectionBounds()),
+    );
 };
 
 export const doRectsIntersect = (
