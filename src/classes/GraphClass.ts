@@ -49,9 +49,9 @@ export default class PPGraph {
   _showComments: boolean;
   _showExecutionVisualisation: boolean;
   socketToInspect: null | PPSocket;
-  selectedSourceSocket: null | PPSocket;
+  selectedSocket: null | PPSocket;
   clickPoint: null | PIXI.Point;
-  lastSelectedSocketWasInput = false;
+  lastSelectedSocketWasOutput = false;
   overrideNodeCursorPosition: null | PIXI.Point = null;
   overInputRef: null | PPSocket;
   pointerEvent: PIXI.FederatedPointerEvent = null; // lets try to get rid of this
@@ -84,7 +84,7 @@ export default class PPGraph {
 
     this._showComments = true;
     this._showExecutionVisualisation = true;
-    this.selectedSourceSocket = null;
+    this.selectedSocket = null;
     this.clickPoint = null;
 
     this.backgroundTempContainer = new PIXI.Container();
@@ -209,13 +209,10 @@ export default class PPGraph {
   }
 
   onPointerUpAndUpOutside(event: PIXI.FederatedPointerEvent): void {
-    if (!this.overInputRef && this.selectedSourceSocket) {
+    if (!this.overInputRef && this.selectedSocket) {
       if (!this.overrideNodeCursorPosition) {
         this.overrideNodeCursorPosition = this.viewport.toWorld(event.global);
-        if (
-          this.lastSelectedSocketWasInput ||
-          this.selectedSourceSocket.isInput()
-        ) {
+        if (this.lastSelectedSocketWasOutput || this.selectedSocket.isInput()) {
           InterfaceController.openNodeSearch();
         } else {
           this.stopConnecting();
@@ -251,22 +248,25 @@ export default class PPGraph {
 
   async onViewportMove(event: PIXI.FederatedPointerEvent): Promise<void> {
     // draw connection
-    this.tempConnection.clear();
-    if (this.selectedSourceSocket) {
-      if (this.clickPoint) {
+    if (this.selectedSocket) {
+      // is connected Input
+      if (this.selectedSocket.isInput() && this.clickPoint) {
+        const sourceSocket = this.selectedSocket.links[0].getSource();
         const threshold = calculateDistance(this.clickPoint, event.global);
         // only disconnect if the mouse movement was intentional/more than threshold
         if (threshold > 5) {
           await Promise.all(
-            this.selectedSourceSocket.links.map(
+            this.selectedSocket.links.map(
               async (link) => await this.action_Disconnect(link),
             ),
           );
+          // swap socket after link deletion
+          this.selectedSocket = sourceSocket;
           this.clickPoint = null;
         }
       }
       // draw connection while dragging
-      let socketCenter = this.getSocketCenter(this.selectedSourceSocket);
+      let socketCenter = this.getSocketCenter(this.selectedSocket);
 
       // change mouse coordinates from screen to world space
       let targetPoint = new PIXI.Point();
@@ -280,7 +280,7 @@ export default class PPGraph {
       }
 
       // swap points if i grabbed an input, to make curve look nice
-      if (this.selectedSourceSocket.isInput()) {
+      if (this.selectedSocket.isInput()) {
         const temp: PIXI.Point = targetPoint;
         targetPoint = socketCenter;
         socketCenter = temp;
@@ -299,7 +299,7 @@ export default class PPGraph {
 
       this.tempConnection.lineStyle(
         2,
-        this.selectedSourceSocket.dataType.getColor().multiply(0.9).hexNumber(),
+        this.selectedSocket.dataType.getColor().multiply(0.9).hexNumber(),
         1,
       );
       this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
@@ -322,20 +322,13 @@ export default class PPGraph {
     socket: PPSocket,
     event: PIXI.FederatedPointerEvent,
   ): Promise<void> {
-    const overOutput = socket.isOutput();
-    this.lastSelectedSocketWasInput = overOutput;
-    if (overOutput) {
-      this.selectedSourceSocket = socket;
-    } else {
-      // if input socket selected, either make a new link from here backwards or re-link old existing link
-      const hasLink = socket.links.length > 0;
-      if (hasLink) {
-        this.selectedSourceSocket = socket.links[0].getSource();
-        this.clickPoint = new PIXI.Point(event.global.x, event.global.y);
-        this.onViewportMove(event);
-      } else {
-        this.selectedSourceSocket = socket;
-      }
+    this.lastSelectedSocketWasOutput = socket.isOutput();
+    this.selectedSocket = socket;
+    const hasLink = socket.links.length > 0;
+    if (socket.isInput() && hasLink) {
+      // store clickPoint for threshold check
+      this.clickPoint = new PIXI.Point(event.global.x, event.global.y);
+      this.onViewportMove(event);
     }
   }
 
@@ -343,9 +336,9 @@ export default class PPGraph {
     socket: PPSocket,
     event: PIXI.FederatedPointerEvent,
   ): Promise<void> {
-    const source = this.selectedSourceSocket;
+    const source = this.selectedSocket;
     this.stopConnecting();
-    if (source && socket !== this.selectedSourceSocket) {
+    if (source && socket !== this.selectedSocket) {
       if (source.isInput() && socket.isOutput()) {
         await this.action_Connect(socket, source);
       } else if (source.isOutput() && socket.isInput()) {
@@ -703,14 +696,14 @@ export default class PPGraph {
   stopConnecting() {
     this.clearTempConnection();
     this.overrideNodeCursorPosition = null;
-    this.selectedSourceSocket = null;
+    this.selectedSocket = null;
   }
 
   addOrReplaceNode = async (event, selected: INodeSearch) => {
     if (!selected) return;
 
     const referenceID = hri.random();
-    const addLink = PPGraph.currentGraph.selectedSourceSocket;
+    const addLink = PPGraph.currentGraph.selectedSocket;
     const setActiveItemArray = () =>
       InterfaceController.setNodeSearchActiveItem((oldArray: INodeSearch[]) => {
         selected.group = 'Latest';

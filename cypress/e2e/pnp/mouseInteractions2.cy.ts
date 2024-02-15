@@ -1,4 +1,4 @@
-/*import {
+import {
   addTwoNodes,
   afterEachMouseInteraction,
   beforeEachMouseInteraction,
@@ -360,6 +360,21 @@ describe('mouseInteractions2', () => {
     const endY = 200;
 
     doWithTestController((testController) => {
+      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      testController.moveNodeByID('Constant4', 230, -100);
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
+      const [endX, endY] = testController.getNodeCenterById('Constant4');
+      dragFromAtoB(startX, startY, endX, endY, true);
+    });
+
+    doWithTestController((testController) => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'In');
       dragFromAtoB(startX, startY, endX, endY, true);
@@ -368,7 +383,7 @@ describe('mouseInteractions2', () => {
       cy.get('#node-search[placeholder*="Search nodes"]').should(
         'not.be.visible',
       );
-      expect(testController.getSocketLinks('Constant1', 'Out').length).to.eq(0);
+      expect(testController.getSocketLinks('Constant1', 'Out').length).to.eq(1);
       expect(testController.getSocketLinks('Constant2', 'In').length).to.eq(0);
     });
   });
@@ -516,4 +531,3 @@ describe('mouseInteractions2', () => {
     });
   });
 });
-*/

@@ -284,7 +284,7 @@ const findAndResetGroup = (
 let nodesCached = undefined;
 
 export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
-  const sourceSocket = PPGraph.currentGraph.selectedSourceSocket;
+  const sourceSocket = PPGraph.currentGraph.selectedSocket;
   if (!nodesCached) {
     nodesCached = Object.entries(getAllNodeTypes())
       .map(([title, obj]) => {
