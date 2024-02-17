@@ -89,7 +89,6 @@ export default class Socket
 
   visibilityCondition: () => boolean = () => true;
 
-  // TODO get rid of custom here it is very ugly
   constructor(
     socketType: TSocketType,
     name: string,
@@ -103,7 +102,6 @@ export default class Socket
     super();
     if (socketType !== SOCKET_TYPE.OUT) {
       // define defaultData for different types
-      //data = data || dataType.getDefaultValue();
       if (data == null && dataType) {
         data = dataType.getDefaultValue();
       }

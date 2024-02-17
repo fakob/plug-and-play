@@ -33,7 +33,7 @@ describe('connectLogic', () => {
     cy.wait(100);
     doWithTestController(testController => {
       testController.connectNodesByID("Constant", "Add", "Out", "Addend");
-      testController.connectNodesByID("Subtract", "Add", "Subtracted");
+      testController.connectNodesByID("Subtract", "Add", "Subtracted", "Addend 2");
       testController.setNodeInputValue("Constant", "In", 10);
       testController.executeNodeByID("Constant");
 
