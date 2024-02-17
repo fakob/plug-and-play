@@ -5695,6 +5695,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"compression-webpack-plugin@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "compression-webpack-plugin@npm:11.0.0"
+  dependencies:
+    schema-utils: ^4.2.0
+    serialize-javascript: ^6.0.2
+  peerDependencies:
+    webpack: ^5.1.0
+  checksum: cbb2c3c647d7a7a4f5c3576863215a4d19718bee2bf61bd368ba2ab5b3451eb77cfa9f61f700976136efefb5b79b02637242325e88dca08dc8fd87fdc6f76a5e
+  languageName: node
+  linkType: hard
+
 "compression@npm:^1.7.4":
   version: 1.7.4
   resolution: "compression@npm:1.7.4"
@@ -11388,6 +11400,7 @@ __metadata:
     clean-webpack-plugin: ^4.0.0
     color: ^4.2.3
     compression: ^1.7.4
+    compression-webpack-plugin: ^11.0.0
     cookie-parser: ^1.4.6
     copy-webpack-plugin: 12.0.2
     core-js: ^3.36.0

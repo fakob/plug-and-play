@@ -3,6 +3,7 @@ import * as path from 'path';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import Dotenv from 'dotenv-webpack';
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = () => {
   /** @type {import('webpack').Configuration} */
@@ -33,6 +34,9 @@ module.exports = () => {
       new ESLintPlugin(),
       new MiniCssExtractPlugin({
         filename: '[name].css',
+      }),
+      new CompressionPlugin({
+        algorithm: 'gzip', // Or 'brotliCompress' for Brotli
       }),
       new webpack.HotModuleReplacementPlugin(),
       new Dotenv(),

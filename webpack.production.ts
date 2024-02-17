@@ -5,6 +5,8 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 import Dotenv from 'dotenv-webpack';
+const CompressionPlugin = require('compression-webpack-plugin');
+
 
 module.exports = () => {
   return {
@@ -31,8 +33,8 @@ module.exports = () => {
 
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: '[name].[chunkhash].js',
-      chunkFilename: '[name].[chunkhash].chunk.js',
+      filename: '[name].[fullhash].js',
+      chunkFilename: '[name].[fullhash].chunk.js',
       clean: true,
     },
 
@@ -46,6 +48,9 @@ module.exports = () => {
       }),
       new MiniCssExtractPlugin({
         filename: '[name].[fullhash].css',
+      }),
+      new CompressionPlugin({
+        algorithm: 'gzip', // Or 'brotliCompress' for Brotli
       }),
       new Dotenv({ systemvars: true }),
 
