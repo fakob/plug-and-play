@@ -450,7 +450,10 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
               matchingSocket.data = item.data;
               matchingSocket.defaultData = item.defaultData ?? item.data;
             }
-            matchingSocket.dataType = deSerializeType(item.dataType);
+            const dataType = deSerializeType(item.dataType);
+            if (dataType.configureOnLoad()) {
+              matchingSocket.dataType = deSerializeType(item.dataType);
+            }
             matchingSocket.visible = item.visible;
           } else {
             // add socket if it does not exist yet
