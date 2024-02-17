@@ -111,6 +111,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
   (positions: { screenX: number; screenY: number; scale: number }) => void =
     () => {};
   hasBeenAdded = false;
+  hasBeenDrawn = false;
 
   // called when the node is added to the graph
   public async onNodeAdded(source: TNodeSource): Promise<void> {
@@ -553,8 +554,8 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     maintainAspectRatio = false,
   ): void {
       // set new size
-      const newNodeWidth = Math.max(width, this.getMinNodeWidth());
-      const newNodeHeight = Math.max(height, this.getMinNodeHeight());
+      let newNodeWidth = Math.max(width, this.getMinNodeWidth());
+      let newNodeHeight = Math.max(height, this.getMinNodeHeight());
 
       if (maintainAspectRatio) {
         const oldWidth = this.nodeWidth;
@@ -567,11 +568,16 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
           this.getMinNodeWidth(),
           this.getMinNodeHeight(),
         );
-        this.nodeWidth = newRect.width;
-        this.nodeHeight = newRect.height;
-      } else {
-        this.nodeWidth = newNodeWidth;
+        newNodeWidth = newRect.width;
+        newNodeHeight = newRect.height;
+      }
+
+      if (newNodeHeight == this.nodeHeight && newNodeWidth == this.nodeWidth && this.hasBeenDrawn){
+        // dont need to draw again
+        return;
+      } else{
         this.nodeHeight = newNodeHeight;
+        this.nodeWidth = newNodeWidth
       }
 
       // update node shape
@@ -583,9 +589,9 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
 
       this.onNodeResize(this.nodeWidth, this.nodeHeight);
 
-      //if (this.selected) {
-      //  PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-      //}
+      if (this.selected) {
+        PPGraph.currentGraph.selection.drawRectanglesFromSelection();
+      }
   }
 
   public resetSize(): void {
@@ -814,6 +820,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     this.drawComment();
     this.drawStatuses();
     this._NodeTextStringRef.text = this.getNodeTextString();
+    this.hasBeenDrawn = true;
   }
 
   constructSocketName(prefix: string, existing: Socket[]): string {
