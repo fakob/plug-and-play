@@ -501,6 +501,10 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       console.log('deselectAllNodesAndResetSelection');
       this.deselectAllNodesAndResetSelection();
     }
+    InterfaceController.notifyListeners(
+      ListenEvent.SelectionChanged,
+      this.selectedNodes,
+    );
   }
   ROUNDNESS = 5;
 
