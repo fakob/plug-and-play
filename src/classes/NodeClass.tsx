@@ -610,6 +610,11 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     return nonDefault;
   }
 
+  // this is a little bit ugly, but some nodes really want to look through all input sockets, and exclude something like the "Meta" one
+  public getAllInterestingInputSockets(): Socket[] {
+    return this.inputSocketArray.filter(socket => socket.name !== "Meta");
+  }
+
   public getAllInputSockets(): Socket[] {
     return this.inputSocketArray.concat(this.nodeTriggerSocketArray);
   }

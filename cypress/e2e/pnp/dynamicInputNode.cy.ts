@@ -15,14 +15,28 @@ describe('dynamic input node', () => {
     doWithTestController((testController) => {
       expect(testController.getVisibleInputSockets("Add").length).to.eq(2);
     });
-    cy.wait(100);
   });
   it('connect to the add node, expect there to still only be 2 inputs (because it should connect to one of the existing sockets)', () => {
     cy.wait(100);
     doWithTestController((testController) => {
       testController.connectNodesByID("Constant","Add");
-      expect(testController.getVisibleInputSockets("Add").length).to.eq(2);
     });
     cy.wait(100);
+    doWithTestController((testController) => {
+      expect(testController.getVisibleInputSockets("Add").length).to.eq(2);
+      expect(testController.getSocketLinks("Constant", "Out").length).to.eq(1);
+    });
+  });
+
+  it('disconnecting link should not cause any sockets to disappear', () => {
+    cy.wait(100);
+    doWithTestController((testController) => {
+      testController.disconnectLink("Add", "Addend");
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      expect(testController.getVisibleInputSockets("Add").length).to.eq(2);
+      expect(testController.getSocketLinks("Constant", "Out").length).to.eq(0);
+    });
   });
 });

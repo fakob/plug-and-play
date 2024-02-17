@@ -144,12 +144,8 @@ export class Add extends DynamicInputNode {
     return super.getNewInputSocketName('Addend');
   }
 
-  public getAllNonDefaultInputSockets() {
-    return this.getAllInputSockets().filter((socket) => socket.name !== 'Meta');
-  }
-
   protected async onExecute(input, output): Promise<void> {
-    output[addedOutputName] = this.getAllNonDefaultInputSockets().reduce(
+    output[addedOutputName] = this.getAllInterestingInputSockets().reduce(
       (prevValue, socket) => socket.data + prevValue,
       0,
     );
@@ -214,12 +210,8 @@ export class Multiply extends DynamicInputNode {
     return true;
   }
 
-  public getAllNonDefaultInputSockets() {
-    return this.getAllInputSockets().filter((socket) => socket.name !== 'Meta');
-  }
-
   protected async onExecute(input, output): Promise<void> {
-    output[multipliedOutputName] = this.getAllNonDefaultInputSockets().reduce(
+    output[multipliedOutputName] = this.getAllInterestingInputSockets().reduce(
       (prevValue, socket) => socket.data * prevValue,
       1,
     );

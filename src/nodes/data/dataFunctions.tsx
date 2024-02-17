@@ -413,7 +413,7 @@ export class CustomFunction extends PPNode {
   protected adaptInputs(code: string): boolean {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
-    const currentInputSockets = this.getAllNonDefaultInputSockets();
+    const currentInputSockets = this.getAllInterestingInputSockets();
     const socketsToBeRemoved = currentInputSockets.filter(
       (socket) => !codeArguments.some((argument) => socket.name === argument),
     );
@@ -592,7 +592,7 @@ export class Concatenate extends DynamicInputNode {
   }
 
   protected async onExecute(input, output): Promise<void> {
-    output[concatStringName] = this.getAllNonDefaultInputSockets()
+    output[concatStringName] = this.getAllInterestingInputSockets()
       .map((socket) => socket.data)
       .reduce((prev, current) => prev + current, '');
   }
@@ -612,7 +612,7 @@ export class ArrayCreate extends DynamicInputNode {
   }
 
   protected async onExecute(input, output): Promise<void> {
-    output[arrayName] = this.getAllNonDefaultInputSockets().map(
+    output[arrayName] = this.getAllInterestingInputSockets().map(
       (socket) => socket.data,
     );
   }

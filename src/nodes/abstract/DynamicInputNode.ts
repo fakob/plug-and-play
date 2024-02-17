@@ -21,14 +21,21 @@ export class DynamicInputNodeFunctions {
     if (socket.isInput()) {
       return node.getSocketForNewConnection(socket);
     } else {
-      const newSocket = new Socket(
-        SOCKET_TYPE.IN,
-        node.getNewInputSocketName(socket.name),
-        socket.dataType,
-      );
-      node.addSocket(newSocket);
-      node.resizeAndDraw();
-      return newSocket;
+      const possibleConnection = node
+        .getAllInterestingInputSockets()
+        .find((socket) => socket.links.length == 0);
+      if (possibleConnection !== undefined) {
+        return possibleConnection;
+      } else {
+        const newSocket = new Socket(
+          SOCKET_TYPE.IN,
+          node.getNewInputSocketName(socket.name),
+          socket.dataType,
+        );
+        node.addSocket(newSocket);
+        node.resizeAndDraw();
+        return newSocket;
+      }
     }
   }
 
@@ -37,6 +44,7 @@ export class DynamicInputNodeFunctions {
     const toRemove = node
       .getAllNonDefaultInputSockets()
       .filter((socket) => !socket.links.length);
+
     toRemove.forEach((socket) => node.removeSocket(socket));
     await node.executeOptimizedChain();
   }
