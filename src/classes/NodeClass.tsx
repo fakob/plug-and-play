@@ -1046,31 +1046,26 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   });
 
   private renderOutline(iterations = 30, interval = 16.67): void {
-    // const iterations = 30;
-    // const interval = 16.67;
     const activeExecution = new PIXI.Graphics();
     this._BackgroundRef.addChild(activeExecution);
+    activeExecution.beginFill(
+      this.status.node.getColor().hexNumber(),
+      0.4,
+    );
+    activeExecution.drawRoundedRect(
+      NODE_MARGIN,
+      0,
+      this.nodeWidth,
+      this.nodeHeight,
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
+    );
+    activeExecution.endFill();
     for (let i = 1; i <= iterations; i++) {
       setTimeout(() => {
-        activeExecution.clear();
-        activeExecution.beginFill(
-          this.status.node.getColor().hexNumber(),
-          0.4 - i * (0.4 / iterations),
-        );
-
-        activeExecution.drawRoundedRect(
-          NODE_MARGIN,
-          0,
-          this.nodeWidth,
-          this.nodeHeight,
-          this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
-        );
-        activeExecution.endFill();
-        if (i == iterations) {
-          this._BackgroundRef.removeChild(activeExecution);
-        }
+        activeExecution.alpha = 0.4 - i * (0.4 / iterations);
       }, i * interval);
     }
+    this._BackgroundRef.removeChild(activeExecution);
   }
 
   // Don't call this from outside unless you know very well what you are doing, you are probably looking for executeOptimizedChain()
