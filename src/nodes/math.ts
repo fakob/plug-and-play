@@ -18,48 +18,39 @@ const singleNumberName = 'Number';
 const number1Name = 'Number 1';
 const number2Name = 'Number 2';
 
+const inputOptionName = 'Option';
+const parameterName1 = 'Input';
+const parameterName2 = 'Input2';
+const outputName = 'Output';
+
 export class MathFunction extends PPNode {
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
     });
 
-    const staticProperties = [
-      'E',
-      'LN10',
-      'LN2',
-      'LOG2E',
-      'LOG10E',
-      'PI',
-      'SQRT1_2',
-      'SQRT2',
-    ];
-    const staticMethodsWith0Parameters = ['random'];
-    const staticMethodsWith2Parameters = [
-      'atan2',
-      'hypot',
-      'max',
-      'min',
-      'imul',
-      'pow',
-    ];
-
     this.onExecute = async function (input) {
-      const mathOption = input['Option'];
-      if (staticProperties.includes(mathOption)) {
-        // check for properties
-        this.setOutputData('Output', Math[mathOption]);
-      } else if (staticMethodsWith0Parameters.includes(mathOption)) {
-        // check for staticMethodsWith0Parameters
-        this.setOutputData('Output', Math[mathOption]());
-      } else if (staticMethodsWith2Parameters.includes(mathOption)) {
-        // check for staticMethodsWith2Parameters
-        this.setOutputData(
-          'Output',
-          Math[mathOption](input['Input'], input['Input2']),
-        );
-      } else {
-        this.setOutputData('Output', Math[mathOption](input['Input']));
+      const mathOption = input[inputOptionName];
+      const parameterCount = Math[mathOption].length;
+      switch (parameterCount) {
+        case 0:
+          this.setOutputData(outputName, Math[mathOption]());
+          break;
+        case 1:
+          this.setOutputData(
+            outputName,
+            Math[mathOption](input[parameterName1]),
+          );
+          break;
+        case 2:
+          this.setOutputData(
+            outputName,
+            Math[mathOption](input[parameterName1], input[parameterName2]),
+          );
+          break;
+        default:
+          this.setOutputData(outputName, Math[mathOption]);
+          break;
       }
     };
   }
@@ -90,31 +81,30 @@ export class MathFunction extends PPNode {
         text: methodName,
       };
     });
-    console.log(mathOptions);
 
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        'Input',
+        parameterName1,
         new NumberType(false, -10, 10),
         0,
         true,
       ),
       new Socket(
         SOCKET_TYPE.IN,
-        'Input2',
+        parameterName2,
         new NumberType(false, -10, 10),
         0,
         true,
       ),
       new Socket(
         SOCKET_TYPE.IN,
-        'Option',
+        inputOptionName,
         new EnumType(mathOptions, (value) => onOptionChange(value)),
         'abs',
         false,
       ),
-      new Socket(SOCKET_TYPE.OUT, 'Output', new NumberType()),
+      new Socket(SOCKET_TYPE.OUT, outputName, new NumberType()),
     ];
   }
 }

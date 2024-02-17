@@ -8,6 +8,7 @@ import { EnumType } from './datatypes/enumType';
 
 const concatStringName = 'Concatenated';
 const inputName = 'Input';
+const inputOptionName = 'Option';
 const parameterName1 = 'Parameter1';
 const parameterName2 = 'Parameter2';
 const outputName = 'Output';
@@ -20,7 +21,7 @@ export class StringFunction extends PPNode {
 
     this.onExecute = async function (input) {
       const inputString = input[inputName];
-      const strOption = input['Option'];
+      const strOption = input[inputOptionName];
       const parameterCount = String.prototype[strOption].length;
       switch (parameterCount) {
         case 0:
@@ -41,7 +42,6 @@ export class StringFunction extends PPNode {
             ),
           );
           break;
-
         default:
           this.setOutputData(outputName, inputString[strOption]);
           break;
@@ -80,7 +80,7 @@ export class StringFunction extends PPNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        'Option',
+        inputOptionName,
         new EnumType(strOptions, (value) => onOptionChange(value)),
         'replace',
         false,
