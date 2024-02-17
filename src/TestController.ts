@@ -48,12 +48,15 @@ export default class TestController {
   connectNodesByID(
     node1ID: string,
     node2ID: string,
-    node1Socket: string,
-    node2Socket: string,
+    node1Socket: string | undefined = undefined,
+    node2Socket: string | undefined = undefined,
   ) {
     const n1 = this.getNodeByID(node1ID);
     const n2 = this.getNodeByID(node2ID);
-    const originSocket = n1.getOutputSocketByName(node1Socket);
+    const originSocket =
+      node1Socket == undefined
+        ? n1.outputSocketArray[0]
+        : n1.getOutputSocketByName(node1Socket);
     const targetSocket =
       node2Socket === undefined
         ? n2.getSocketForNewConnection(originSocket)
@@ -97,6 +100,12 @@ export default class TestController {
   }
   getOutputSockets(id: string) {
     return this.getNodeByID(id).outputSocketArray;
+  }
+  getInputSockets(id: string) {
+    return this.getNodeByID(id).inputSocketArray;
+  }
+  getVisibleInputSockets(id: string) {
+    return this.getInputSockets(id).filter((socket) => socket.visible);
   }
   getInputSocketByIDandName(id: string, socketName: string): Socket {
     return this.getNodeByID(id).getInputSocketByName(socketName);
