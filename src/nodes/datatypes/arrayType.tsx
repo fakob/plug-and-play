@@ -44,7 +44,7 @@ export class ArrayType extends AbstractType {
     );
   }
   dataIsCompatible(data: any): boolean {
-    return Array.isArray(data) || typeof data === 'string';
+    return this.parse(data).warnings.length == 0;
   }
 
   parse(data: any): TParseType {

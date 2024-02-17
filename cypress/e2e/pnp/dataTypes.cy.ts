@@ -16,6 +16,8 @@ describe('dataTypes', () => {
       expect(testController.addNode('CustomFunction', 'CustomFunction')).to.eq(
         true,
       );
+      testController.addNode("ArrayCreate","ArrayCreate", 0, -200);
+      testController.addNode("Concatenate","Concatenate", 200, -200);
     });
   });
   it('expose label output', () => {
@@ -98,6 +100,24 @@ describe('dataTypes', () => {
     });
   });
 
+  it("see that we adapt as expected to changing between array and string input", () => {
+    doWithTestController((testController) => {
+      testController.connectNodesByID('ArrayCreate', 'Concatenate', 'Array');
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      testController.connectNodesByID('Label', 'Concatenate', 'Output', "Array");
+    });
+    cy.wait(100);
+
+    doWithTestController((testController) => {
+      expect(
+        testController.getInputSocketType('Concatenate', 'Array'),
+      ).to.eq('String');
+    });
+  })
+
+
   it('see that macro adapts as expected when changing the type going out of it', () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
     cy.wait(200);
@@ -145,4 +165,5 @@ describe('dataTypes', () => {
       );
     });
   });
+
 });
