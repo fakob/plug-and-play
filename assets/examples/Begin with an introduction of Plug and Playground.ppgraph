@@ -278,7 +278,7 @@
           "socketType": "in",
           "name": "Input",
           "dataType": "{\"class\":\"StringType\",\"type\":{}}",
-          "data": "Plug and Playground let's you",
+          "data": "Plug and Playground lets you",
           "visible": false
         },
         {
