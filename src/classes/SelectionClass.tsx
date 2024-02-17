@@ -111,10 +111,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     return this._selectedNodes;
   }
 
-  set selectedNodes(newNodes: PPNode[]) {
-    this._selectedNodes = newNodes;
-  }
-
   onScaleReset = (): void => {
     this.selectedNodes[0].resetSize();
     this.drawRectanglesFromSelection();
@@ -175,7 +171,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     const instantiated = nodeIDs
       .map((id) => PPGraph.currentGraph.nodes[id])
       .filter(Boolean);
-    this.selectedNodes = instantiated;
+    this.selectNodes(instantiated);
     this.moveSelection(deltaX, deltaY);
   }
 
@@ -618,7 +614,14 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     addToOrToggleSelection = false,
     notify = false,
   ): void {
-    const prevNodes = this.selectedNodes.map((node) => node.id).join();
+    const selectionChanged =
+      this.selectedNodes.find(
+        (selectedNode) => !nodes.includes(selectedNode),
+      ) || nodes.find((node) => !this.selectedNodes.includes(node));
+    if (!selectionChanged && !addToOrToggleSelection) {
+      // nothing to do here
+      return;
+    }
     if (nodes.length == 1) {
       nodes = nodes.concat(nodes[0].getExtraSelectedWhenSelected());
     }
@@ -627,9 +630,9 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
         this.selectedNodes,
         nodes,
       );
-      this.selectedNodes = differenceSelection;
+      this._selectedNodes = differenceSelection;
     } else {
-      this.selectedNodes = nodes;
+      this._selectedNodes = nodes;
     }
     // show selectionHeader if there are more than 1 nodes selected
     this.selectionHeader.visible = this.selectedNodes.length > 1;
@@ -640,10 +643,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
       this.selectedNodes[0]?.allowResize();
 
     this.drawRectanglesFromSelection();
-    if (
-      notify &&
-      prevNodes !== this.selectedNodes.map((node) => node.id).join()
-    ) {
+    if (notify) {
       InterfaceController.notifyListeners(
         ListenEvent.SelectionChanged,
         this.selectedNodes,

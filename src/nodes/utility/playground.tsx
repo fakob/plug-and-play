@@ -80,31 +80,31 @@ export class Playground extends PPNode {
         SOCKET_TYPE.IN,
         'Add all nodes',
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'addAllNodes'),
-        0
+        0,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         'List all nodes',
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'listAllNodes'),
-        0
+        0,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         'Output graph JSON',
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'outputGraphJSON'),
-        0
+        0,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         'Output all added nodes',
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'outputAllAddedNodes'),
-        0
+        0,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         'Zoom to fit selected nodes',
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'zoomToFitNodes'),
-        0
+        0,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
@@ -113,7 +113,7 @@ export class Playground extends PPNode {
           const methodName = this.getInputData('Trigger graph method');
           this.setOutputData('output', PPGraph.currentGraph[methodName]());
         }),
-        0
+        0,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
@@ -122,10 +122,10 @@ export class Playground extends PPNode {
           const methodName = this.getInputData('Trigger node method');
           this.setOutputData(
             'output',
-            PPGraph.currentGraph.selection.selectedNodes?.[0]?.[methodName]()
+            PPGraph.currentGraph.selection.selectedNodes?.[0]?.[methodName](),
           );
         }),
-        0
+        0,
       ),
     ].concat(super.getDefaultIO());
   }
@@ -143,9 +143,9 @@ export class Playground extends PPNode {
         newNode.setPosition(lastNodePosX, lastNodePosY, false);
         lastNodePosX += newNode.width + 40;
         addedNodes.push(newNode);
-      })
+      }),
     );
-    PPGraph.currentGraph.selection.selectedNodes = addedNodes;
+    PPGraph.currentGraph.selection.selectNodes(addedNodes);
     this.arrangeSelectedNodesByType();
     this.setOutputData('output', allNodeTypes);
     this.executeChildren();
@@ -160,7 +160,7 @@ export class Playground extends PPNode {
   arrangeSelectedNodesByType(): void {
     const selectedNodes = PPGraph.currentGraph.selection.selectedNodes;
     selectedNodes.sort((a, b) =>
-      sortCompare(a.getColor().hex(), b.getColor().hex(), true)
+      sortCompare(a.getColor().hex(), b.getColor().hex(), true),
     );
     console.log(selectedNodes);
     if (selectedNodes.length > 0) {
