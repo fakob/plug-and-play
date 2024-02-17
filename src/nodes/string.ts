@@ -2,8 +2,15 @@ import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
+import { DynamicInputNode } from './abstract/DynamicInputNode';
 import { StringType } from './datatypes/stringType';
 import { EnumType } from './datatypes/enumType';
+
+const concatStringName = 'Concatenated';
+const inputName = 'Input';
+const parameterName1 = 'Parameter1';
+const parameterName2 = 'Parameter2';
+const outputName = 'Output';
 
 export class StringFunction extends PPNode {
   constructor(name: string, customArgs: CustomArgs) {
@@ -12,28 +19,31 @@ export class StringFunction extends PPNode {
     });
 
     this.onExecute = async function (input) {
-      const inputString = input['Input'];
+      const inputString = input[inputName];
       const strOption = input['Option'];
       const parameterCount = String.prototype[strOption].length;
       switch (parameterCount) {
         case 0:
-          this.setOutputData('Output', inputString[strOption]());
+          this.setOutputData(outputName, inputString[strOption]());
           break;
         case 1:
           this.setOutputData(
-            'Output',
-            inputString[strOption](input['Parameter1']),
+            outputName,
+            inputString[strOption](input[parameterName1]),
           );
           break;
         case 2:
           this.setOutputData(
-            'Output',
-            inputString[strOption](input['Parameter1'], input['Parameter2']),
+            outputName,
+            inputString[strOption](
+              input[parameterName1],
+              input[parameterName2],
+            ),
           );
           break;
 
         default:
-          this.setOutputData('Output', inputString[strOption]);
+          this.setOutputData(outputName, inputString[strOption]);
           break;
       }
     };
@@ -63,7 +73,6 @@ export class StringFunction extends PPNode {
     const strOptions = str
       .filter((name) => name !== 'constructor')
       .map((methodName) => {
-        console.log(methodName, String.prototype[methodName].length);
         return {
           text: methodName,
         };
@@ -76,10 +85,36 @@ export class StringFunction extends PPNode {
         'replace',
         false,
       ),
-      new Socket(SOCKET_TYPE.IN, 'Input', new StringType(), '', true),
-      new Socket(SOCKET_TYPE.IN, 'Parameter1', new StringType(), '', true),
-      new Socket(SOCKET_TYPE.IN, 'Parameter2', new StringType(), '', true),
-      new Socket(SOCKET_TYPE.OUT, 'Output', new StringType()),
+      new Socket(SOCKET_TYPE.IN, inputName, new StringType(), '', true),
+      new Socket(SOCKET_TYPE.IN, parameterName1, new StringType(), '', true),
+      new Socket(SOCKET_TYPE.IN, parameterName2, new StringType(), '', true),
+      new Socket(SOCKET_TYPE.OUT, outputName, new StringType()),
     ];
+  }
+}
+
+export class Concatenate extends DynamicInputNode {
+  public getName(): string {
+    return 'Concatenate strings';
+  }
+
+  public getDescription(): string {
+    return 'Combines all input text into one';
+  }
+
+  public getTags(): string[] {
+    return ['String'].concat(super.getTags());
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.OUT, concatStringName, new StringType(), []),
+    ];
+  }
+
+  protected async onExecute(input, output): Promise<void> {
+    output[concatStringName] = this.getAllNonDefaultInputSockets()
+      .map((socket) => socket.data)
+      .reduce((prev, current) => prev + current, '');
   }
 }

@@ -559,18 +559,22 @@ export class IsValid extends PPNode {
   }
 }
 
+const offValueName = 'Off';
+const onValueName = 'On';
 const durationName = 'Duration (ms)';
+const outputName = 'Output';
+
 export class Pulse extends PPNode {
   public getName(): string {
     return 'Pulse';
   }
 
   public getDescription(): string {
-    return 'Sends a pulse';
+    return 'Sends a pulse or trigger of a certain duration';
   }
 
   public getTags(): string[] {
-    return ['Animation'].concat(super.getTags());
+    return ['Trigger'].concat(super.getTags());
   }
 
   getColor(): TRgba {
@@ -581,11 +585,19 @@ export class Pulse extends PPNode {
     return [
       new PPSocket(
         SOCKET_TYPE.IN,
+        offValueName,
+        new NumberType(true),
+        0,
+        false,
+      ),
+      new PPSocket(SOCKET_TYPE.IN, onValueName, new NumberType(true), 1, false),
+      new PPSocket(
+        SOCKET_TYPE.IN,
         durationName,
         new NumberType(true, 0, 10000),
         1000,
       ),
-      new PPSocket(SOCKET_TYPE.OUT, 'Output', new NumberType()),
+      new PPSocket(SOCKET_TYPE.OUT, outputName, new NumberType()),
     ];
   }
 
@@ -593,22 +605,11 @@ export class Pulse extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
-    const generatePulse = (duration = 1000, callback) => {
-      // Initially set the value to 1
-      callback(1);
+    outputObject[outputName] = inputObject[onValueName];
 
-      // After 'duration' milliseconds, set the value back to 0
-      setTimeout(() => {
-        callback(0);
-      }, duration);
-    };
-
-    const duration = inputObject[durationName];
-    generatePulse(duration, (value) => {
-      console.log(value); // This will log 1 immediately, and then 0 after 1 second
-      // outputObject['Output'] = value;
-      this.setOutputData('Output', value);
+    setTimeout(() => {
+      this.setOutputData(outputName, inputObject[offValueName]);
       this.executeChildren();
-    });
+    }, inputObject[durationName]);
   }
 }

@@ -450,6 +450,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
               matchingSocket.data = item.data;
               matchingSocket.defaultData = item.defaultData ?? item.data;
             }
+            matchingSocket.dataType = deSerializeType(item.dataType);
             matchingSocket.visible = item.visible;
           } else {
             // add socket if it does not exist yet
@@ -553,45 +554,49 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     height: number = this.nodeHeight,
     maintainAspectRatio = false,
   ): void {
-      // set new size
-      let newNodeWidth = Math.max(width, this.getMinNodeWidth());
-      let newNodeHeight = Math.max(height, this.getMinNodeHeight());
+    // set new size
+    let newNodeWidth = Math.max(width, this.getMinNodeWidth());
+    let newNodeHeight = Math.max(height, this.getMinNodeHeight());
 
-      if (maintainAspectRatio) {
-        const oldWidth = this.nodeWidth;
-        const oldHeight = this.nodeHeight;
-        const newRect = calculateAspectRatioFit(
-          oldWidth,
-          oldHeight,
-          newNodeWidth,
-          newNodeHeight,
-          this.getMinNodeWidth(),
-          this.getMinNodeHeight(),
-        );
-        newNodeWidth = newRect.width;
-        newNodeHeight = newRect.height;
-      }
+    if (maintainAspectRatio) {
+      const oldWidth = this.nodeWidth;
+      const oldHeight = this.nodeHeight;
+      const newRect = calculateAspectRatioFit(
+        oldWidth,
+        oldHeight,
+        newNodeWidth,
+        newNodeHeight,
+        this.getMinNodeWidth(),
+        this.getMinNodeHeight(),
+      );
+      newNodeWidth = newRect.width;
+      newNodeHeight = newRect.height;
+    }
 
-      if (newNodeHeight == this.nodeHeight && newNodeWidth == this.nodeWidth && this.hasBeenDrawn){
-        // dont need to draw again
-        return;
-      } else{
-        this.nodeHeight = newNodeHeight;
-        this.nodeWidth = newNodeWidth
-      }
+    if (
+      newNodeHeight == this.nodeHeight &&
+      newNodeWidth == this.nodeWidth &&
+      this.hasBeenDrawn
+    ) {
+      // dont need to draw again
+      return;
+    } else {
+      this.nodeHeight = newNodeHeight;
+      this.nodeWidth = newNodeWidth;
+    }
 
-      // update node shape
-      this.drawNodeShape();
+    // update node shape
+    this.drawNodeShape();
 
-      this.updateConnectionPosition();
+    this.updateConnectionPosition();
 
-      this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
+    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
 
-      this.onNodeResize(this.nodeWidth, this.nodeHeight);
+    this.onNodeResize(this.nodeWidth, this.nodeHeight);
 
-      if (this.selected) {
-        PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-      }
+    if (this.selected) {
+      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
+    }
   }
 
   public resetSize(): void {
@@ -1316,7 +1321,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onPointerClick(event: PIXI.FederatedPointerEvent): void {
-
     // check if double clicked
     if (event.detail === ONCLICK_DOUBLECLICK) {
       this.doubleClicked = true;
@@ -1540,14 +1544,18 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   static EXTRA_NODE_SELECTION_MARGIN = 30;
-  getSelectionBounds() : PIXI.Rectangle{
-    const bounds = new PIXI.Rectangle(this.x, this.y, this.nodeWidth, this.nodeHeight);
+  getSelectionBounds(): PIXI.Rectangle {
+    const bounds = new PIXI.Rectangle(
+      this.x,
+      this.y,
+      this.nodeWidth,
+      this.nodeHeight,
+    );
     // dont understand this offset
     bounds.x -= PPNode.EXTRA_NODE_SELECTION_MARGIN;
     bounds.y -= PPNode.EXTRA_NODE_SELECTION_MARGIN;
-    bounds.width += PPNode.EXTRA_NODE_SELECTION_MARGIN*2;
-    bounds.height += PPNode.EXTRA_NODE_SELECTION_MARGIN*2;
+    bounds.width += PPNode.EXTRA_NODE_SELECTION_MARGIN * 2;
+    bounds.height += PPNode.EXTRA_NODE_SELECTION_MARGIN * 2;
     return bounds;
-
   }
 }
