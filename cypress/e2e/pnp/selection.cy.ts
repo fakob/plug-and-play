@@ -26,6 +26,14 @@ describe("selection", () => {
       expect(testController.getSelectedNodes().length).to.eq(1);
     });
   });
+
+  it ("see that properties are accessible in inspectorcontainer", () => {
+    cy.get('[data-cy="inspector-container-toggle-button"]').click();
+    cy.get("body").contains("Addend").should("exist");
+    cy.get('#inspector-filter-out').should("exist");
+    cy.get('#inspector-filter-in').should("exist");
+
+  });
   it ("move it", () => {
     cy.wait(100);
     let [prevX, prevY] = [0,0];
@@ -53,6 +61,10 @@ describe("selection", () => {
     doWithTestController((testController) => {
       expect(testController.getSelectedNodes().length).to.eq(0);
     });
+    // see that inspectorcontainer also lost it
+    cy.get("body").contains("Addend").should("not.exist");
+    cy.get('#inspector-filter-out').should("not.exist");
+    cy.get('#inspector-filter-in').should("not.exist");
   });
 
   // TODO figure out why this doesnt work
