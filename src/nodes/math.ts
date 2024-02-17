@@ -1,19 +1,9 @@
 import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
-import {
-  COLOR_MAIN,
-  NODE_CORNERRADIUS,
-  NODE_MARGIN,
-  NODE_TYPE_COLOR,
-  SOCKET_TYPE,
-} from '../utils/constants';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
-import { CustomFunction } from './data/dataFunctions';
-import { AbstractType } from './datatypes/abstractType';
-import * as PIXI from 'pixi.js';
-import { TextStyle } from 'pixi.js';
 import { DynamicInputNode } from './abstract/DynamicInputNode';
 
 const addendName = 'Addend';
@@ -128,6 +118,7 @@ export class MathFunction extends PPNode {
     ];
   }
 }
+
 export class Add extends DynamicInputNode {
   public getName(): string {
     return 'Add (+)';

@@ -13,6 +13,7 @@ import { JSONType } from '../datatypes/jsonType';
 import { TriggerType } from './../datatypes/triggerType';
 import { getAllNodeTypes, getAllNodesInDetail } from '../../nodes/allNodes';
 import { EnumType } from '../datatypes/enumType';
+import PPStorage from '../../PPStorage';
 
 export class Playground extends PPNode {
   public getName(): string {
@@ -102,6 +103,15 @@ export class Playground extends PPNode {
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
+        'List all remote playgrounds',
+        new TriggerType(
+          TRIGGER_TYPE_OPTIONS[0].text,
+          'getAllRemotePlaygrounds',
+        ),
+        0,
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
         'Zoom to fit selected nodes',
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'zoomToFitNodes'),
         0,
@@ -181,6 +191,13 @@ export class Playground extends PPNode {
         nodesFromLastRow.push(node);
       });
     }
+  }
+
+  async getAllRemotePlaygrounds(): Promise<void> {
+    const remoteGraphs: any[] =
+      await PPStorage.getInstance().getRemoteGraphsList();
+    this.setOutputData('output', remoteGraphs);
+    this.executeChildren();
   }
 
   outputGraphJSON(): void {

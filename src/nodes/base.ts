@@ -558,3 +558,57 @@ export class IsValid extends PPNode {
     outputObject['Output'] = isVariable(inputA, condition);
   }
 }
+
+const durationName = 'Duration (ms)';
+export class Pulse extends PPNode {
+  public getName(): string {
+    return 'Pulse';
+  }
+
+  public getDescription(): string {
+    return 'Sends a pulse';
+  }
+
+  public getTags(): string[] {
+    return ['Animation'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        durationName,
+        new NumberType(true, 0, 10000),
+        1000,
+      ),
+      new PPSocket(SOCKET_TYPE.OUT, 'Output', new NumberType()),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>,
+  ): Promise<void> {
+    const generatePulse = (duration = 1000, callback) => {
+      // Initially set the value to 1
+      callback(1);
+
+      // After 'duration' milliseconds, set the value back to 0
+      setTimeout(() => {
+        callback(0);
+      }, duration);
+    };
+
+    const duration = inputObject[durationName];
+    generatePulse(duration, (value) => {
+      console.log(value); // This will log 1 immediately, and then 0 after 1 second
+      // outputObject['Output'] = value;
+      this.setOutputData('Output', value);
+      this.executeChildren();
+    });
+  }
+}
