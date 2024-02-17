@@ -167,8 +167,6 @@ module.exports = (env, argv) => {
               'Learn about node update behaviour.ppgraph',
               'Share your playgrounds.ppgraph',
               'Work with shaders.ppgraph',
-              'help',
-              'nodes',
               'z missing nodes, sockets and links.ppgraph',
               'z test node.ppgraph',
               'z test nodelist.ppgraph',
