@@ -67,6 +67,15 @@ describe("selection", () => {
     cy.get('#inspector-filter-in').should("not.exist");
   });
 
+  it("select socket", () => {
+    doWithTestController((testController) => {
+      const [x,y] = testController.getSocketCenterByNodeIDAndSocketName("Constant", "In");
+      cy.get("body")
+    });
+    cy.wait(100);
+
+  })
+
   // TODO figure out why this doesnt work
 /*
   it ("select multiple nodes using box", () => {
