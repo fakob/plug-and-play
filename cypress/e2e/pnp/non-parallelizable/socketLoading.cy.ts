@@ -1,4 +1,4 @@
-import { doWithTestController, saveGraph } from './helpers';
+import { doWithTestController, saveGraph } from '../helpers';
 
 describe('socketLoading', () => {
   let serialized = undefined;
