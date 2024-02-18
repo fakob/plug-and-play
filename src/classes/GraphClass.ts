@@ -323,6 +323,7 @@ export default class PPGraph {
     socket: PPSocket,
     event: PIXI.FederatedPointerEvent,
   ): Promise<void> {
+    this.selection.selectNodes([socket.getNode()]);
     this.lastSelectedSocketWasOutput = socket.isOutput();
     this.selectedSocket = socket;
     const hasLink = socket.links.length > 0;
