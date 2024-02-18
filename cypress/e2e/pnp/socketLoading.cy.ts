@@ -54,7 +54,7 @@ describe('socketLoading', () => {
     cy.visit('http://127.0.0.1:8080');
     cy.wait(100);
     doWithTestController((testController) => {
-      const coordinates = testController.getNodeCenterById(['TestDataTypes']);
+      const coordinates = testController.getNodeCenterById('TestDataTypes');
       cy.wait(100);
       cy.get('body').click(coordinates[0], coordinates[1]);
       cy.wait(100);
