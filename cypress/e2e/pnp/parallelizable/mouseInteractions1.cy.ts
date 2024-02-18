@@ -4,7 +4,7 @@ import {
   beforeEachMouseInteraction,
   doWithTestController,
   dragFromAtoB,
-} from './helpers';
+} from '../helpers';
 
 describe('mouseInteractions1', () => {
   beforeEach(() => {

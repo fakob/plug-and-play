@@ -1,4 +1,4 @@
-import { controlOrMetaKey, doWithTestController, saveGraph, waitForGraphToBeLoaded } from './helpers';
+import { controlOrMetaKey, doWithTestController, saveGraph, waitForGraphToBeLoaded } from '../helpers';
 
 describe('macro', () => {
   const checkDropdownWorks = () => {

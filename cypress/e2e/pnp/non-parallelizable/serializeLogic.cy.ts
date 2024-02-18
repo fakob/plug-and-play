@@ -1,5 +1,5 @@
 // TODO flesh out
-import { doWithTestController } from "./helpers"
+import { doWithTestController } from "../helpers"
 describe('serializeLogic', () => {
 
     let serialized = undefined;

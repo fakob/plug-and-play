@@ -1,4 +1,4 @@
-import { controlOrMetaKey, doWithTestController, saveGraph, waitForGraphToBeLoaded } from './helpers';
+import { controlOrMetaKey, doWithTestController, saveGraph, waitForGraphToBeLoaded } from '../helpers';
 
 describe('draw', () => {
   it('add draw shape and multiply nodes, connect them', () => {

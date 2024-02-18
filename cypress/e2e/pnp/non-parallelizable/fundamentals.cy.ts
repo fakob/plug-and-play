@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { controlOrMetaKey, saveGraph } from './helpers';
+import { controlOrMetaKey, saveGraph } from '../helpers';
 
 describe('fundamentals', () => {
   const myGraphName = 'Bingus';
