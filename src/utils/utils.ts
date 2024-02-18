@@ -31,6 +31,7 @@ import {
 import { Viewport } from 'pixi-viewport';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { PNPSuccess, SocketParsingWarning } from '../classes/ErrorClass';
+import { getNodesUpperLeftCorner } from '../pixi/utils-pixi';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -708,8 +709,8 @@ export const pasteClipboard = async (e: ClipboardEvent): Promise<void> => {
 
     const tryGettingDataAndAdd = async (mimeType) => {
       const mouseWorld = getCurrentCursorPosition();
-      let data;
       try {
+        let data: SerializedSelection | undefined = undefined;
         // check if it is node data
         if (mimeType === 'text/html') {
           data = getNodeDataFromHtml(clipboardBlobs[mimeType]);
@@ -717,16 +718,20 @@ export const pasteClipboard = async (e: ClipboardEvent): Promise<void> => {
           data = getNodeDataFromText(clipboardBlobs[mimeType]);
         }
         e.preventDefault();
+        const upperLeft = getNodesUpperLeftCorner(data.nodes);
         await PPGraph.currentGraph.action_pasteNodes(
           data,
-          new PIXI.Point(mouseWorld.x, mouseWorld.y),
+          new PIXI.Point(
+            mouseWorld.x - upperLeft.x,
+            mouseWorld.y - upperLeft.y,
+          ),
         );
         return true;
       } catch (e) {
         console.log(`No node data in ${mimeType}`, e);
       }
       try {
-        data = clipboardBlobs[mimeType];
+        const data = clipboardBlobs[mimeType];
         e.preventDefault();
         if (PPGraph.currentGraph.selection.selectedNodes.length < 1) {
           if (isUrl(data)) {

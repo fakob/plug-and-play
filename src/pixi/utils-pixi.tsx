@@ -3,6 +3,7 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { ActionHandler } from '../utils/actionHandler';
 import { getCurrentCursorPosition } from '../utils/utils';
+import { SerializedNode } from '../utils/interfaces';
 
 export const getTextWithLineBreaks = (node: any): string => {
   // we only deal with TextNodes
@@ -90,6 +91,20 @@ export function drawDottedLine(
     );
   }
 }
+
+export const getNodesUpperLeftCorner = (
+  nodes: PPNode[] | SerializedNode[],
+): PIXI.Point => {
+  const x = nodes.reduce(
+    (prevX, newNode) => Math.min(prevX, newNode.x),
+    Infinity,
+  );
+  const y = nodes.reduce(
+    (prevX, newNode) => Math.min(prevX, newNode.y),
+    Infinity,
+  );
+  return new PIXI.Point(x, y);
+};
 
 export const getNodesBounds = (nodes: PPNode[]): PIXI.Rectangle => {
   let bounds = new PIXI.Rectangle();
