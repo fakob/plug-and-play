@@ -17,7 +17,7 @@ import {
   compare,
   getCurrentButtons,
   getCurrentCursorPosition,
-  getMethods,
+  getPropertyNames,
   isVariable,
 } from '../utils/utils';
 import { NumberType } from './datatypes/numberType';
@@ -386,7 +386,10 @@ export class DateAndTime extends PPNode {
   }
 
   protected getDefaultIO(): PPSocket[] {
-    const dateMethodsArray = getMethods(new Date());
+    const dateMethodsArray = getPropertyNames(new Date(), {
+      includePrototype: true,
+      onlyFunctions: true,
+    });
     const dateMethodsArrayOptions = dateMethodsArray
       .filter((methodName) => {
         // do not expose constructor and setters

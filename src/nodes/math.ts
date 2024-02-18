@@ -1,7 +1,8 @@
 import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
-import { CustomArgs, TRgba } from '../utils/interfaces';
+import { TRgba } from '../utils/interfaces';
+import { getPropertyNames } from '../utils/utils';
 import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
 import { DynamicInputNode } from './abstract/DynamicInputNode';
@@ -69,7 +70,10 @@ export class MathFunction extends PPNode {
     const onOptionChange = (value) => {
       this.setNodeName('Math.' + value);
     };
-    const math = Object.getOwnPropertyNames(Math);
+    const math = getPropertyNames(Math, {
+      includePrototype: false,
+      onlyFunctions: false,
+    });
     const mathOptions = math.map((methodName) => {
       return {
         text: methodName,

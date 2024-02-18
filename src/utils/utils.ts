@@ -290,10 +290,29 @@ export function setGestureModeOnViewport(
   });
 }
 
-export const getMethods = (o): string[] => {
-  return Object.getOwnPropertyNames(Object.getPrototypeOf(o)).filter(
-    (m) => 'function' === typeof o[m],
+export const getPropertyNames = (
+  obj,
+  { includePrototype = true, onlyFunctions = false } = {},
+) => {
+  let propertyNames = Object.getOwnPropertyNames(obj);
+
+  if (includePrototype) {
+    const proto = Object.getPrototypeOf(obj);
+    propertyNames = propertyNames.concat(Object.getOwnPropertyNames(proto));
+  }
+
+  if (onlyFunctions) {
+    propertyNames = propertyNames.filter(
+      (name) => typeof obj[name] === 'function',
+    );
+  }
+
+  // Remove duplicates and constructor
+  propertyNames = [...new Set(propertyNames)].filter(
+    (name) => name !== 'constructor',
   );
+
+  return propertyNames;
 };
 
 export const writeTextToClipboard = (newClip: string): void => {

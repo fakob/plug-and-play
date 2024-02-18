@@ -2,6 +2,7 @@ import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 import { TRgba } from '../utils/interfaces';
+import { getPropertyNames } from '../utils/utils';
 import { DynamicInputNode } from './abstract/DynamicInputNode';
 import { StringType } from './datatypes/stringType';
 import { EnumType } from './datatypes/enumType';
@@ -20,7 +21,7 @@ export class StringFunction extends PPNode {
   ): Promise<void> {
     const inputString = input[inputName];
     const strOption = input[inputOptionName];
-    const parameterCount = String.prototype[strOption].length;
+    const parameterCount = ''[strOption].length;
     switch (parameterCount) {
       case 0:
         output[outputName] = inputString[strOption]();
@@ -60,14 +61,12 @@ export class StringFunction extends PPNode {
     const onOptionChange = (value) => {
       this.setNodeName('String.' + value);
     };
-    const str = Object.getOwnPropertyNames(String.prototype);
-    const strOptions = str
-      .filter((name) => name !== 'constructor')
-      .map((methodName) => {
-        return {
-          text: methodName,
-        };
-      });
+    const str = getPropertyNames('');
+    const strOptions = str.map((methodName) => {
+      return {
+        text: methodName,
+      };
+    });
     return [
       new Socket(
         SOCKET_TYPE.IN,
