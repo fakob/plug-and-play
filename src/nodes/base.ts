@@ -17,7 +17,7 @@ import {
   compare,
   getCurrentButtons,
   getCurrentCursorPosition,
-  getMethods,
+  getPropertyNames,
   isVariable,
 } from '../utils/utils';
 import { NumberType } from './datatypes/numberType';
@@ -386,7 +386,10 @@ export class DateAndTime extends PPNode {
   }
 
   protected getDefaultIO(): PPSocket[] {
-    const dateMethodsArray = getMethods(new Date());
+    const dateMethodsArray = getPropertyNames(new Date(), {
+      includePrototype: true,
+      onlyFunctions: true,
+    });
     const dateMethodsArrayOptions = dateMethodsArray
       .filter((methodName) => {
         // do not expose constructor and setters
@@ -556,5 +559,60 @@ export class IsValid extends PPNode {
     const inputA = inputObject['A'];
     const condition = inputObject['Condition'];
     outputObject['Output'] = isVariable(inputA, condition);
+  }
+}
+
+const offValueName = 'Off';
+const onValueName = 'On';
+const durationName = 'Duration (ms)';
+const outputName = 'Output';
+
+export class Pulse extends PPNode {
+  public getName(): string {
+    return 'Pulse';
+  }
+
+  public getDescription(): string {
+    return 'Sends a pulse or trigger of a certain duration';
+  }
+
+  public getTags(): string[] {
+    return ['Trigger'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        offValueName,
+        new NumberType(true),
+        0,
+        false,
+      ),
+      new PPSocket(SOCKET_TYPE.IN, onValueName, new NumberType(true), 1, false),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        durationName,
+        new NumberType(true, 0, 10000),
+        1000,
+      ),
+      new PPSocket(SOCKET_TYPE.OUT, outputName, new NumberType()),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>,
+  ): Promise<void> {
+    outputObject[outputName] = inputObject[onValueName];
+
+    setTimeout(() => {
+      this.setOutputData(outputName, inputObject[offValueName]);
+      this.executeChildren();
+    }, inputObject[durationName]);
   }
 }

@@ -7,7 +7,7 @@ import { CodeType } from '../datatypes/codeType';
 import { EnumType } from '../datatypes/enumType';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { NODE_TYPE_COLOR } from '../../utils/constants';
-import { getMethods } from '../../utils/utils';
+import { getPropertyNames } from '../../utils/utils';
 
 export class ArrayMethod extends PPNode {
   onOptionChange?: (value: string) => void;
@@ -48,7 +48,10 @@ export class ArrayMethod extends PPNode {
   }
 
   protected getDefaultIO(): PPSocket[] {
-    const arrayMethodsArray = getMethods(new Array(1));
+    const arrayMethodsArray = getPropertyNames(new Array(1), {
+      includePrototype: true,
+      onlyFunctions: true,
+    });
     const arrayMethodsArrayOptions = arrayMethodsArray
       .sort()
       .map((methodName) => {

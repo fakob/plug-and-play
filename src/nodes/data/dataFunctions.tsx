@@ -18,7 +18,6 @@ import { NumberType } from '../datatypes/numberType';
 import * as PIXI from 'pixi.js';
 import { DynamicInputNode } from '../abstract/DynamicInputNode';
 
-const concatStringName = 'Concatenated';
 const arrayName = 'Array';
 const typeName = 'Type';
 const arrayOutName = 'Out';
@@ -576,27 +575,6 @@ export class ArraySlice extends ArrayFunction {
     return '(ArrayIn) => {\n\treturn ArrayIn.slice(0,10);\n}';
   }
 }
-export class Concatenate extends DynamicInputNode {
-  public getName(): string {
-    return 'Concatenate Strings';
-  }
-
-  public getDescription(): string {
-    return 'Combines all input strings into one';
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.OUT, concatStringName, new StringType(), []),
-    ];
-  }
-
-  protected async onExecute(input, output): Promise<void> {
-    output[concatStringName] = this.getAllInterestingInputSockets()
-      .map((socket) => socket.data)
-      .reduce((prev, current) => prev + current, '');
-  }
-}
 
 export class ArrayCreate extends DynamicInputNode {
   public getName(): string {
@@ -605,6 +583,10 @@ export class ArrayCreate extends DynamicInputNode {
 
   public getDescription(): string {
     return 'Creates an array from selected values';
+  }
+
+  public getTags(): string[] {
+    return ['Array'].concat(super.getTags());
   }
 
   protected getDefaultIO(): Socket[] {

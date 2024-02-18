@@ -15,7 +15,8 @@ export const URL_PARAMETER_NAME = {
   FETCHLOCALGRAPH: 'fetchLocalGraph',
 };
 
-export const GET_STARTED_GRAPH = 'Get started - Welcome to Plug and Playground';
+export const GET_STARTED_GRAPH =
+  'Begin with an introduction of Plug and Playground';
 
 export const GESTUREMODE = {
   MOUSE: 'Mouse',

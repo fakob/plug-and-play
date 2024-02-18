@@ -6,13 +6,14 @@ import {
   SOCKET_TYPE,
   TRIGGER_TYPE_OPTIONS,
 } from '../../utils/constants';
-import { sortCompare } from '../../utils/utils';
+import { getPropertyNames, sortCompare } from '../../utils/utils';
 import { getNodesBounds, zoomToFitNodes } from '../../pixi/utils-pixi';
 import { TRgba } from '../../utils/interfaces';
 import { JSONType } from '../datatypes/jsonType';
 import { TriggerType } from './../datatypes/triggerType';
 import { getAllNodeTypes, getAllNodesInDetail } from '../../nodes/allNodes';
 import { EnumType } from '../datatypes/enumType';
+import PPStorage from '../../PPStorage';
 
 export class Playground extends PPNode {
   public getName(): string {
@@ -32,27 +33,13 @@ export class Playground extends PPNode {
   }
 
   protected getDefaultIO(): PPSocket[] {
-    const STRIP_COMMENTS =
-      /(\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s*=[^,\)]*(('(?:\\'|[^'\r\n])*')|("(?:\\"|[^"\r\n])*"))|(\s*=[^,\)]*))/gm;
-    const ARGUMENT_NAMES = /([^\s,]+)/g;
-    function getParamNames(func) {
-      let result;
-      if (typeof func === 'function') {
-        const fnStr = func.toString().replace(STRIP_COMMENTS, '');
-        result = fnStr
-          .slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')'))
-          .match(ARGUMENT_NAMES);
-      }
-      if (result === null) result = [];
-      return result;
-    }
-    const graphMethods = Object.getOwnPropertyNames(PPGraph.currentGraph);
-    const prototype = Object.getPrototypeOf(PPGraph.currentGraph);
-    const inheritedMethods = Object.getOwnPropertyNames(prototype);
+    const graphMethods = getPropertyNames(PPGraph.currentGraph, {
+      includePrototype: true,
+      onlyFunctions: false,
+    });
     const graphOptions = graphMethods
-      .concat(inheritedMethods)
       .filter((methodName: string) => {
-        return getParamNames(PPGraph.currentGraph[methodName])?.length === 0;
+        return this[methodName]?.length === 0;
       })
       .map((methodName) => {
         return {
@@ -60,14 +47,15 @@ export class Playground extends PPNode {
         };
       });
 
-    const nodeMethods = Object.getOwnPropertyNames(this);
-    const nodePrototype = Object.getPrototypeOf(this);
-    const inheritedNodeMethods = Object.getOwnPropertyNames(nodePrototype);
+    const nodeMethods = getPropertyNames(this, {
+      includePrototype: true,
+      onlyFunctions: false,
+    });
+
     const nodeOptions = nodeMethods
-      .concat(inheritedNodeMethods)
-      // .filter((methodName: string) => {
-      //   return getParamNames(this[methodName])?.length === 0;
-      // })
+      .filter((methodName: string) => {
+        return this[methodName]?.length === 0;
+      })
       .map((methodName) => {
         return {
           text: methodName,
@@ -98,6 +86,15 @@ export class Playground extends PPNode {
         SOCKET_TYPE.IN,
         'Output all added nodes',
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'outputAllAddedNodes'),
+        0,
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'List all remote playgrounds',
+        new TriggerType(
+          TRIGGER_TYPE_OPTIONS[0].text,
+          'getAllRemotePlaygrounds',
+        ),
         0,
       ),
       new PPSocket(
@@ -181,6 +178,13 @@ export class Playground extends PPNode {
         nodesFromLastRow.push(node);
       });
     }
+  }
+
+  async getAllRemotePlaygrounds(): Promise<void> {
+    const remoteGraphs: any[] =
+      await PPStorage.getInstance().getRemoteGraphsList();
+    this.setOutputData('output', remoteGraphs);
+    this.executeChildren();
   }
 
   outputGraphJSON(): void {

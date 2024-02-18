@@ -23,6 +23,7 @@ import * as playground from './utility/playground';
 import * as pixotopegateway from './api/pixotopeGateway';
 import * as shader from './image/shader';
 import * as stateNodes from './state/stateNodes';
+import * as string from './string';
 import * as table from './table/table';
 import * as tableHelpers from './table/tableHelpers';
 import * as test from './data/test';
@@ -68,6 +69,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       pixotopegateway,
       shader,
       stateNodes,
+      string,
       table,
       tableHelpers,
       test,

@@ -41,4 +41,8 @@ export class DynamicEnumType extends AbstractType {
   recommendedInputNodeWidgets(): string[] {
     return ['CodeEditor', 'Constant'];
   }
+
+  configureOnLoad(): boolean {
+    return false;
+  }
 }

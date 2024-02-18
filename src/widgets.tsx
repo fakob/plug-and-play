@@ -165,6 +165,7 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
         <TextField
           variant="filled"
           label="Value"
+          data-cy={`${props.property.name}-value`}
           sx={{
             flexGrow: 1,
           }}
@@ -185,6 +186,7 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
         <TextField
           variant="filled"
           label="Min"
+          data-cy={`${props.property.name}-min`}
           sx={{
             width: '104px',
           }}
@@ -203,6 +205,7 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
         <TextField
           variant="filled"
           label="Max"
+          data-cy={`${props.property.name}-max`}
           sx={{
             width: '104px',
           }}
@@ -615,6 +618,7 @@ export const TriggerWidget: React.FunctionComponent<TriggerTypeProps> = (
         <Select
           variant="filled"
           value={triggerType}
+          data-cy={`${props.property.name}-trigger-method`}
           onChange={onChangeTriggerType}
           MenuProps={{
             style: { zIndex: 1500 },

@@ -1,19 +1,10 @@
 import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
-import {
-  COLOR_MAIN,
-  NODE_CORNERRADIUS,
-  NODE_MARGIN,
-  NODE_TYPE_COLOR,
-  SOCKET_TYPE,
-} from '../utils/constants';
-import { CustomArgs, TRgba } from '../utils/interfaces';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
+import { TRgba } from '../utils/interfaces';
+import { getPropertyNames } from '../utils/utils';
 import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
-import { CustomFunction } from './data/dataFunctions';
-import { AbstractType } from './datatypes/abstractType';
-import * as PIXI from 'pixi.js';
-import { TextStyle } from 'pixi.js';
 import { DynamicInputNode } from './abstract/DynamicInputNode';
 
 const addendName = 'Addend';
@@ -28,50 +19,35 @@ const singleNumberName = 'Number';
 const number1Name = 'Number 1';
 const number2Name = 'Number 2';
 
+const inputOptionName = 'Option';
+const parameterName1 = 'Input';
+const parameterName2 = 'Input2';
+const outputName = 'Output';
+
 export class MathFunction extends PPNode {
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    const staticProperties = [
-      'E',
-      'LN10',
-      'LN2',
-      'LOG2E',
-      'LOG10E',
-      'PI',
-      'SQRT1_2',
-      'SQRT2',
-    ];
-    const staticMethodsWith0Parameters = ['random'];
-    const staticMethodsWith2Parameters = [
-      'atan2',
-      'hypot',
-      'max',
-      'min',
-      'imul',
-      'pow',
-    ];
-
-    this.onExecute = async function (input) {
-      const mathOption = input['Option'];
-      if (staticProperties.includes(mathOption)) {
-        // check for properties
-        this.setOutputData('Output', Math[mathOption]);
-      } else if (staticMethodsWith0Parameters.includes(mathOption)) {
-        // check for staticMethodsWith0Parameters
-        this.setOutputData('Output', Math[mathOption]());
-      } else if (staticMethodsWith2Parameters.includes(mathOption)) {
-        // check for staticMethodsWith2Parameters
-        this.setOutputData(
-          'Output',
-          Math[mathOption](input['Input'], input['Input2']),
+  protected async onExecute(
+    input: any,
+    output: Record<string, unknown>,
+  ): Promise<void> {
+    const mathOption = input[inputOptionName];
+    const parameterCount = Math[mathOption].length;
+    switch (parameterCount) {
+      case 0:
+        output[outputName] = Math[mathOption]();
+        break;
+      case 1:
+        output[outputName] = Math[mathOption](input[parameterName1]);
+        break;
+      case 2:
+        output[outputName] = Math[mathOption](
+          input[parameterName1],
+          input[parameterName2],
         );
-      } else {
-        this.setOutputData('Output', Math[mathOption](input['Input']));
-      }
-    };
+        break;
+      default:
+        output[outputName] = Math[mathOption];
+        break;
+    }
   }
 
   public getName(): string {
@@ -94,40 +70,43 @@ export class MathFunction extends PPNode {
     const onOptionChange = (value) => {
       this.setNodeName('Math.' + value);
     };
-    const math = Object.getOwnPropertyNames(Math);
+    const math = getPropertyNames(Math, {
+      includePrototype: false,
+      onlyFunctions: false,
+    });
     const mathOptions = math.map((methodName) => {
       return {
         text: methodName,
       };
     });
-    console.log(mathOptions);
 
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        'Input',
+        parameterName1,
         new NumberType(false, -10, 10),
         0,
         true,
       ),
       new Socket(
         SOCKET_TYPE.IN,
-        'Input2',
+        parameterName2,
         new NumberType(false, -10, 10),
         0,
         true,
       ),
       new Socket(
         SOCKET_TYPE.IN,
-        'Option',
+        inputOptionName,
         new EnumType(mathOptions, (value) => onOptionChange(value)),
         'abs',
         false,
       ),
-      new Socket(SOCKET_TYPE.OUT, 'Output', new NumberType()),
+      new Socket(SOCKET_TYPE.OUT, outputName, new NumberType()),
     ];
   }
 }
+
 export class Add extends DynamicInputNode {
   public getName(): string {
     return 'Add (+)';

@@ -114,6 +114,11 @@ export class AbstractType {
     return true;
   }
 
+  // load the saved dataType on configure
+  configureOnLoad(): boolean {
+    return true;
+  }
+
   prepareDataForSaving(data: any) {
     return data;
   }
