@@ -52,13 +52,13 @@ describe('socketLoading', () => {
 
   it('See that socket data type parameters are still there after reload', () => {
     cy.visit('http://127.0.0.1:8080');
-    cy.wait(400);
+    cy.wait(1000);
     doWithTestController((testController) => {
       const coordinates = testController.getNodeCenterById('TestDataTypes');
       cy.wait(100);
-      cy.get('body').click(coordinates[0], coordinates[1]);
-      cy.wait(100);
       cy.get('[data-cy="inspector-container-toggle-button"]').click();
+      cy.wait(100);
+      cy.get('body').click(coordinates[0], coordinates[1]);
       cy.wait(100);
       cy.get('[data-cy="Number (int)-min"] input').should('have.value', '3');
       cy.get('[data-cy="Number (int)-max"] input').should('have.value', '66');
