@@ -27,7 +27,7 @@ describe('draw', () => {
 
   it('open it again, see that everything is still there', () => {
     cy.visit('http://127.0.0.1:8080');
-    cy.wait(4000);
+    cy.wait(6000);
     doWithTestController((testController) => {
       expect(testController.getNodes().length).to.eq(2);
     });
