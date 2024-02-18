@@ -375,7 +375,7 @@ export class DRAW_Combine extends DRAW_Base {
   }
 
   public getSocketForNewConnection = (socket: Socket): Socket =>
-    DynamicInputNodeFunctions.getSocketForNewConnection(socket, this);
+    DynamicInputNodeFunctions.getSocketForNewConnection(socket, this, true);
 
   public async inputUnplugged() {
     return DynamicInputNodeFunctions.inputUnplugged(this);

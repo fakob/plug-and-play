@@ -17,14 +17,18 @@ export class DynamicInputNode extends PPNode {
 
 // i structured it like this so that classes that cannot directly inherit from DynamicInputNode (because JS/TS doesn't allow multiple inheritance) can still use these
 export class DynamicInputNodeFunctions {
-  static getSocketForNewConnection(socket: Socket, node: PPNode): Socket {
+  static getSocketForNewConnection(
+    socket: Socket,
+    node: PPNode,
+    alwaysNewSocket = false,
+  ): Socket {
     if (socket.isInput()) {
       return node.getSocketForNewConnection(socket);
     } else {
       const possibleConnection = node
         .getAllInterestingInputSockets()
         .find((socket) => socket.links.length == 0);
-      if (possibleConnection !== undefined) {
+      if (possibleConnection !== undefined && !alwaysNewSocket) {
         return possibleConnection;
       } else {
         const newSocket = new Socket(
