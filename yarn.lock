@@ -3034,9 +3034,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pixi/ui@npm:^0.10.5":
-  version: 0.10.5
-  resolution: "@pixi/ui@npm:0.10.5"
+"@pixi/ui@npm:0.9.1":
+  version: 0.9.1
+  resolution: "@pixi/ui@npm:0.9.1"
   dependencies:
     tweedle.js: ^2.1.0
     typed-signals: ^2.5.0
@@ -3049,7 +3049,7 @@ __metadata:
     "@pixi/text": ^7.3.1
     "@pixi/text-bitmap": ^7.3.1
     "@pixi/text-html": ^7.3.1
-  checksum: 7fe25d68ef728c134313f5a354ef0cf566ffdff79c50eef5e934b463a4e6a03416d4a142714e58ece4a24b3faea60e5fad33e048ccdb0c8465a700c5ed03468c
+  checksum: d7a1fca0476a19c7cc0a3e7141284f805ae9192610517618dde5c37b66a8830ccb7715a635e25b66f9879a7ba138cf124df34df8af0f146ccaf09dac6f767404
   languageName: node
   linkType: hard
 
@@ -11379,7 +11379,7 @@ __metadata:
     "@mui/icons-material": ^5.15.10
     "@mui/material": ^5.15.10
     "@mui/styles": ^5.15.10
-    "@pixi/ui": ^0.10.5
+    "@pixi/ui": 0.9.1
     "@types/copy-webpack-plugin": ^10.1.0
     "@types/cypress": ^1.1.3
     "@types/html-webpack-plugin": ^3.2.9

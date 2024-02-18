@@ -11,7 +11,7 @@
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
     "@mui/styles": "^5.15.10",
-    "@pixi/ui": "^0.10.5",
+    "@pixi/ui": "0.9.1",
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.6.7",
     "color": "^4.2.3",
