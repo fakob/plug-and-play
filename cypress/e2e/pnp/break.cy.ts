@@ -1,4 +1,4 @@
-import { controlOrMetaKey, doWithTestController, saveGraph } from './helpers';
+import { controlOrMetaKey, doWithTestController, saveGraph, waitForGraphToBeLoaded } from './helpers';
 
 describe('break', () => {
   it('add break nodes', () => {
@@ -94,8 +94,7 @@ describe('break', () => {
 
   it('load it again', () => {
     cy.visit('http://127.0.0.1:8080');
-
-    cy.wait(5000);
+    waitForGraphToBeLoaded();
     doWithTestController((testController) => {
       // see that we get an object out
       expect(testController.getNodes().length).to.eq(4);

@@ -105,3 +105,7 @@ export const clickDeleteButtonOfGraph = (graphName) => {
     .find(`[data-cy="deleteButton"]`)
     .click({ force: true });
 };
+
+export const waitForGraphToBeLoaded = () => {
+  cy.get("body").contains("was loaded").should("exist");
+}

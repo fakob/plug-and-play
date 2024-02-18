@@ -1,4 +1,4 @@
-import { controlOrMetaKey, doWithTestController, saveGraph } from './helpers';
+import { controlOrMetaKey, doWithTestController, saveGraph, waitForGraphToBeLoaded } from './helpers';
 
 describe('macro', () => {
   const checkDropdownWorks = () => {
@@ -66,7 +66,7 @@ describe('macro', () => {
 
   it('See that dropdown still works after reload', () => {
     cy.visit('http://127.0.0.1:8080');
-    cy.wait(4000);
+    waitForGraphToBeLoaded();
     doWithTestController((testController) => {
       testController.selectNodesById(['ExecuteMacro']);
       cy.get('[data-cy="inspector-container-toggle-button"]').click();

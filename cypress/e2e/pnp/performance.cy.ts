@@ -1,4 +1,4 @@
-import { doWithTestController, saveGraph } from "./helpers";
+import { doWithTestController, saveGraph, waitForGraphToBeLoaded } from "./helpers";
 
 describe('performance', () => {
   it('Add node', () => {
@@ -14,7 +14,7 @@ describe('performance', () => {
   });
   it('see that we didnt load from DB more than once', () => {
     cy.visit('http://127.0.0.1:8080');
-    cy.wait(1000);
+    waitForGraphToBeLoaded();
     doWithTestController((testController) => {
       expect(testController.getTimesLoadedFromDB()).to.eq(1);
     });

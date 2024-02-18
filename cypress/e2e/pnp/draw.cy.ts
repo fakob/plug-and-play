@@ -1,4 +1,4 @@
-import { controlOrMetaKey, doWithTestController, saveGraph } from './helpers';
+import { controlOrMetaKey, doWithTestController, saveGraph, waitForGraphToBeLoaded } from './helpers';
 
 describe('draw', () => {
   it('add draw shape and multiply nodes, connect them', () => {
@@ -27,7 +27,7 @@ describe('draw', () => {
 
   it('open it again, see that everything is still there', () => {
     cy.visit('http://127.0.0.1:8080');
-    cy.wait(6000);
+    waitForGraphToBeLoaded();
     doWithTestController((testController) => {
       expect(testController.getNodes().length).to.eq(2);
     });
