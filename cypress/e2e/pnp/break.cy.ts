@@ -89,7 +89,6 @@ describe('break', () => {
 
   it("save graph", () => {
     saveGraph();
-    cy.wait(100);
   });
 
   it('load it again', () => {

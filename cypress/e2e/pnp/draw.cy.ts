@@ -22,7 +22,6 @@ describe('draw', () => {
   it('save the graph', () => {
     cy.wait(100);
     saveGraph();
-    cy.wait(100);
   });
 
   it('open it again, see that everything is still there', () => {

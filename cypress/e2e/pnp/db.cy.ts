@@ -14,7 +14,6 @@ describe('database', () => {
   it ("save graph", () => {
     cy.wait(100);
     saveGraph();
-    cy.wait(100);
   });
   it ("add large and stupid data", () => {
     doWithTestController(testController => {
@@ -29,7 +28,6 @@ describe('database', () => {
   it ("save graph", () => {
     cy.wait(200);
     saveGraph();
-    cy.wait(500);
   });
   it ("see that its there when opened again (and didnt take too long to load)", () => {
     cy.visit('http://127.0.0.1:8080');

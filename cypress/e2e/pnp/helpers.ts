@@ -20,6 +20,7 @@ export const getShareDialog = () => cy.get('[data-cy="shareDialog"]');
 
 export function saveGraph() {
   cy.get('body').type(`${controlOrMetaKey()}s`);
+  cy.get("body").contains("was saved").should("exist");
 }
 
 export function openEditGraph() {
