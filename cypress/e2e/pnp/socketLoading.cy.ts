@@ -52,7 +52,7 @@ describe('socketLoading', () => {
 
   it('See that socket data type parameters are still there after reload', () => {
     cy.visit('http://127.0.0.1:8080');
-    cy.wait(100);
+    cy.wait(400);
     doWithTestController((testController) => {
       const coordinates = testController.getNodeCenterById('TestDataTypes');
       cy.wait(100);
