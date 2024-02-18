@@ -1,6 +1,9 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { PNPCustomStatus } from '../../classes/ErrorClass';
+import {
+  NodeExecutionWarning,
+  PNPCustomStatus,
+} from '../../classes/ErrorClass';
 import { wrapDownloadLink } from '../../utils/utils';
 import {
   ERROR_COLOR,
@@ -182,6 +185,12 @@ export class HTTPNode extends PPNode {
       console.trace(error);
       // something went terribly wrong with the request
       this.pushStatusCode(400);
+      this.setStatus(
+        new NodeExecutionWarning(`${error}
+This might be due to the endpoints CORS policy, which prevents other websites from accessing this URL.
+Select the HTTP node and in the Info tab on the right download and run the Plug and Play Companion app.
+Then in the HTTP node enable "Send Through Companion"`),
+      );
       return {};
     }
   }
