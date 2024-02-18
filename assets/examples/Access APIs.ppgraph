@@ -3,10 +3,10 @@
   "graphSettings": {
     "showExecutionVisualisation": true,
     "viewportCenterPosition": {
-      "x": 934.8240695639711,
-      "y": 603.3041691210112
+      "x": 704.4903063376005,
+      "y": 645.649686227725
     },
-    "viewportScale": 0.6321950114437392
+    "viewportScale": 0.5880218038529706
   },
   "nodes": [
     {
@@ -355,7 +355,7 @@
       "x": 829.6508005495554,
       "y": 663.3352475080388,
       "width": 565.7021690357302,
-      "height": 171.96875,
+      "height": 255.9375,
       "socketArray": [
         {
           "socketType": "in",
@@ -396,7 +396,7 @@
                       "text": ""
                     }
                   ],
-                  "reactiveText": "The Ancient Egyptian word for cat was mau, which means \"to see\"."
+                  "reactiveText": "In Ancient Egypt, when a person's house cat passed away, the owner would shave their eyebrows to reflect their grief."
                 },
                 {
                   "text": ""
@@ -514,7 +514,7 @@
                       "text": ""
                     }
                   ],
-                  "reactiveText": "Imraan"
+                  "reactiveText": "Hunter"
                 },
                 {
                   "text": " "
@@ -545,7 +545,7 @@
                       "text": ""
                     }
                   ],
-                  "reactiveText": "null"
+                  "reactiveText": "34"
                 },
                 {
                   "text": ""
@@ -861,11 +861,11 @@
       }
     },
     {
-      "id": "average-fox-22",
-      "name": "Add (+)",
-      "type": "Add",
-      "x": 880.2688760728165,
-      "y": 380.89651356343836,
+      "id": "witty-badger-11",
+      "name": "Concatenate strings",
+      "type": "Concatenate",
+      "x": 887.8310008382623,
+      "y": 381.5379898954579,
       "width": 160,
       "height": 112,
       "socketArray": [
@@ -885,14 +885,14 @@
         },
         {
           "socketType": "in",
-          "name": "Output_2",
-          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
-          "defaultData": "",
+          "name": "Value",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "defaultData": {},
           "visible": true
         },
         {
           "socketType": "out",
-          "name": "Added",
+          "name": "Concatenated",
           "dataType": "{\"class\":\"StringType\",\"type\":{}}",
           "visible": true
         }
@@ -907,81 +907,81 @@
   ],
   "links": [
     {
-      "id": "7a2e8c54-8a91-4772-abca-c6b370c7dd76",
+      "id": "80e7d76c-66ff-4567-b4a3-d786096ddba4",
       "sourceNodeId": "modern-cat-65",
       "sourceSocketName": "Content",
       "targetNodeId": "short-elephant-91",
       "targetSocketName": "JSON"
     },
     {
-      "id": "c14d9cca-91bb-4a6d-bcb1-8b9c81af2d7a",
+      "id": "8fdc19c6-c01a-467b-b994-415d01291712",
       "sourceNodeId": "red-mole-54",
       "sourceSocketName": "Content",
       "targetNodeId": "nice-squid-38",
       "targetSocketName": "JSON"
     },
     {
-      "id": "e98bc642-9e7b-4099-a94a-7e364511c37f",
+      "id": "2175a8c1-ffb6-40be-8913-ad7622b59d00",
       "sourceNodeId": "bad-starfish-91",
       "sourceSocketName": "Content",
       "targetNodeId": "bright-monkey-84",
       "targetSocketName": "JSON"
     },
     {
-      "id": "9e6fe2dc-8a53-4aa5-9d27-0e4cd56ba52c",
+      "id": "9222a8fe-8989-4421-ae83-fa1ec25497aa",
       "sourceNodeId": "short-elephant-91",
       "sourceSocketName": "Value",
       "targetNodeId": "moody-chicken-69",
       "targetSocketName": "Input 1"
     },
     {
-      "id": "a2a9a919-4ec3-4643-a0ed-3d747eca7e5a",
+      "id": "6711b09f-e034-4c28-8bfc-abf5279f8af2",
       "sourceNodeId": "nice-squid-38",
       "sourceSocketName": "Value",
       "targetNodeId": "lovely-turtle-25",
       "targetSocketName": "Input 1"
     },
     {
-      "id": "b6d2875d-8318-4986-94c5-ac3595db1f16",
+      "id": "ae4390e1-6b86-40c1-bff7-bb5258099e73",
       "sourceNodeId": "bright-monkey-84",
       "sourceSocketName": "Value",
       "targetNodeId": "lovely-turtle-25",
       "targetSocketName": "Input 2"
     },
     {
-      "id": "0e8fdc87-9542-403f-a787-2c4c7f8e7d52",
+      "id": "1913d7e1-3f0b-4432-a1b2-20d16975d9ba",
       "sourceNodeId": "loud-earwig-33",
       "sourceSocketName": "Output",
       "targetNodeId": "red-mole-54",
       "targetSocketName": "URL"
     },
     {
-      "id": "403638e1-b958-4054-85d9-6158dc798c72",
+      "id": "92068aea-70fb-4342-86b0-20fea5493f67",
       "sourceNodeId": "brown-cougar-55",
       "sourceSocketName": "Output",
       "targetNodeId": "modern-cat-65",
       "targetSocketName": "URL"
     },
     {
-      "id": "987fa198-cebd-4a84-b78a-e9592f915b89",
-      "sourceNodeId": "average-fox-22",
-      "sourceSocketName": "Added",
+      "id": "a3f308d5-d8df-4c25-a2fc-30a79f4478a9",
+      "sourceNodeId": "witty-badger-11",
+      "sourceSocketName": "Concatenated",
       "targetNodeId": "bad-starfish-91",
       "targetSocketName": "URL"
     },
     {
-      "id": "c9b2b691-934b-4711-8046-325f4e145480",
-      "sourceNodeId": "nice-squid-38",
-      "sourceSocketName": "Value",
-      "targetNodeId": "average-fox-22",
+      "id": "bc17c89f-2ea4-4880-aced-5e2ab2e996f4",
+      "sourceNodeId": "kind-goose-25",
+      "sourceSocketName": "Output",
+      "targetNodeId": "witty-badger-11",
       "targetSocketName": "Output"
     },
     {
-      "id": "77338f30-a2f3-4cb9-a08f-efbc30179821",
-      "sourceNodeId": "kind-goose-25",
-      "sourceSocketName": "Output",
-      "targetNodeId": "average-fox-22",
-      "targetSocketName": "Output_2"
+      "id": "757d2689-5432-4a27-8e52-b3ed73f3e793",
+      "sourceNodeId": "nice-squid-38",
+      "sourceSocketName": "Value",
+      "targetNodeId": "witty-badger-11",
+      "targetSocketName": "Value"
     }
   ],
   "layouts": {
