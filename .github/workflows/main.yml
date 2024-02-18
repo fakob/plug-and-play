@@ -34,7 +34,7 @@ jobs:
         run: yarn dev &
           npx wait-on http://localhost:8080
       - name: Run tests
-        run: yarn test
+        run: yarn test-parallel
 
       - name: Archive test results
         if: failure()
