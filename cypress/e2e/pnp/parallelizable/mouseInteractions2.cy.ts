@@ -5,7 +5,7 @@ import {
   doWithTestController,
   dragFromAtoB,
   moveTwoNodes,
-} from './helpers';
+} from '../helpers';
 
 describe('mouseInteractions2', () => {
   beforeEach(() => {

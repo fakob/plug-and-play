@@ -1,4 +1,4 @@
-import { doWithTestController, dragFromAtoB } from "./helpers";
+import { doWithTestController, dragFromAtoB } from "../helpers";
 
 describe("selection", () => {
 

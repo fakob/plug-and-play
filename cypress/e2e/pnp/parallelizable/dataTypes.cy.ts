@@ -1,4 +1,4 @@
-import { doWithTestController } from './helpers';
+import { doWithTestController } from '../helpers';
 
 function exposeSelectedLabelOutput() {
   cy.get('[data-cy="inspector-container-toggle-button"]').click();

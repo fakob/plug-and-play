@@ -1,4 +1,4 @@
-import { doWithTestController } from "./helpers";
+import { doWithTestController } from "../helpers";
 describe('importing third party libraries and using', () => {
 
   it('Add nodes', () => {

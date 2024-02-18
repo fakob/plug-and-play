@@ -1,4 +1,4 @@
-import { doWithTestController } from './helpers';
+import { doWithTestController } from '../helpers';
 
 // TODO add all nodes
 describe('checkNodesForErrors', () => {

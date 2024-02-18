@@ -1,4 +1,4 @@
-import { doWithTestController } from './helpers';
+import { doWithTestController } from '../helpers';
 describe('nodeInteractions', () => {
   it('Add node', () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
