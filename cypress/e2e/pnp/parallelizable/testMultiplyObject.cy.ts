@@ -1,4 +1,4 @@
-import { doWithTestController } from './helpers';
+import { doWithTestController } from '../helpers';
 
 describe('testMultiplyObject', () => {
   it('Check index of multiply object', () => {

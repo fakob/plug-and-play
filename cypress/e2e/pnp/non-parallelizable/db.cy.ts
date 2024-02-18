@@ -1,4 +1,4 @@
-import { doWithTestController, saveGraph } from "./helpers";
+import { doWithTestController, saveGraph } from "../helpers";
 
 
 const lengthOfArray = 10000;

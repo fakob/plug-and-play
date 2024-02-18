@@ -1,4 +1,4 @@
-import { doWithTestController } from "./helpers";
+import { doWithTestController } from "../helpers";
 
 // TODO make this execute a lil quicker
 describe('http', () => {

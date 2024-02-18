@@ -1,4 +1,4 @@
-import { doWithTestController, saveGraph, waitForGraphToBeLoaded } from "./helpers";
+import { doWithTestController, saveGraph, waitForGraphToBeLoaded } from "../helpers";
 
 describe('performance', () => {
   it('Add node', () => {

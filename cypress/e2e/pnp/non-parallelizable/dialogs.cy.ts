@@ -8,7 +8,7 @@ import {
   getEditDialog,
   getShareDialog,
   openEditGraph,
-} from './helpers';
+} from '../helpers';
 
 describe('dialogs', () => {
   let graphName;
