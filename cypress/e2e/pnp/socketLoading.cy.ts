@@ -4,12 +4,12 @@ describe('socketLoading', () => {
   let serialized = undefined;
   it('Add test node and change socket data type parameters', () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.wait(100);
-    cy.get('[data-cy="inspector-container-toggle-button"]').click();
 
     // add nodes
     cy.wait(100);
     doWithTestController((testController) => {
+      cy.get('[data-cy="inspector-container-toggle-button"]').click();
+      cy.wait(100);
       expect(testController.addNode('TestDataTypes', 'TestDataTypes')).to.eq(
         true,
       );
