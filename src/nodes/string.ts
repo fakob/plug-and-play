@@ -1,7 +1,7 @@
 import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
-import { CustomArgs, TRgba } from '../utils/interfaces';
+import { TRgba } from '../utils/interfaces';
 import { DynamicInputNode } from './abstract/DynamicInputNode';
 import { StringType } from './datatypes/stringType';
 import { EnumType } from './datatypes/enumType';
@@ -14,39 +14,30 @@ const parameterName2 = 'Parameter2';
 const outputName = 'Output';
 
 export class StringFunction extends PPNode {
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.onExecute = async function (input) {
-      const inputString = input[inputName];
-      const strOption = input[inputOptionName];
-      const parameterCount = String.prototype[strOption].length;
-      switch (parameterCount) {
-        case 0:
-          this.setOutputData(outputName, inputString[strOption]());
-          break;
-        case 1:
-          this.setOutputData(
-            outputName,
-            inputString[strOption](input[parameterName1]),
-          );
-          break;
-        case 2:
-          this.setOutputData(
-            outputName,
-            inputString[strOption](
-              input[parameterName1],
-              input[parameterName2],
-            ),
-          );
-          break;
-        default:
-          this.setOutputData(outputName, inputString[strOption]);
-          break;
-      }
-    };
+  protected async onExecute(
+    input: any,
+    output: Record<string, unknown>,
+  ): Promise<void> {
+    const inputString = input[inputName];
+    const strOption = input[inputOptionName];
+    const parameterCount = String.prototype[strOption].length;
+    switch (parameterCount) {
+      case 0:
+        output[outputName] = inputString[strOption]();
+        break;
+      case 1:
+        output[outputName] = inputString[strOption](input[parameterName1]);
+        break;
+      case 2:
+        output[outputName] = inputString[strOption](
+          input[parameterName1],
+          input[parameterName2],
+        );
+        break;
+      default:
+        output[outputName] = inputString[strOption];
+        break;
+    }
   }
 
   public getName(): string {

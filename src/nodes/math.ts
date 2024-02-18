@@ -24,35 +24,29 @@ const parameterName2 = 'Input2';
 const outputName = 'Output';
 
 export class MathFunction extends PPNode {
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.onExecute = async function (input) {
-      const mathOption = input[inputOptionName];
-      const parameterCount = Math[mathOption].length;
-      switch (parameterCount) {
-        case 0:
-          this.setOutputData(outputName, Math[mathOption]());
-          break;
-        case 1:
-          this.setOutputData(
-            outputName,
-            Math[mathOption](input[parameterName1]),
-          );
-          break;
-        case 2:
-          this.setOutputData(
-            outputName,
-            Math[mathOption](input[parameterName1], input[parameterName2]),
-          );
-          break;
-        default:
-          this.setOutputData(outputName, Math[mathOption]);
-          break;
-      }
-    };
+  protected async onExecute(
+    input: any,
+    output: Record<string, unknown>,
+  ): Promise<void> {
+    const mathOption = input[inputOptionName];
+    const parameterCount = Math[mathOption].length;
+    switch (parameterCount) {
+      case 0:
+        output[outputName] = Math[mathOption]();
+        break;
+      case 1:
+        output[outputName] = Math[mathOption](input[parameterName1]);
+        break;
+      case 2:
+        output[outputName] = Math[mathOption](
+          input[parameterName1],
+          input[parameterName2],
+        );
+        break;
+      default:
+        output[outputName] = Math[mathOption];
+        break;
+    }
   }
 
   public getName(): string {
