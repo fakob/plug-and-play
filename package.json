@@ -127,7 +127,7 @@
     "prettier:check": "yarn run prettier -- -c ./src/**/*.ts",
     "prettier:format": "yarn run prettier -- --write src/**/*.ts",
     "start": "node ./server.js",
-    "test": "yarn cypress run --spec 'cypress/e2e/pnp/*.ts'",
+    "test": "yarn cypress run --spec 'cypress/e2e/pnp/**/*.ts'",
     "cy:run": "yarn cypress run",
     "test-parallel": "cypress-parallel -s 'cy:run' -t 6 -d 'cypress/e2e/pnp/parallelizable/*.ts' && cypress-parallel -s 'cy:run' -t 1 -d 'cypress/e2e/pnp/non-parallelizable/*.ts'",
     "test-debug": "DEBUG='cypress:*' yarn cypress run --spec 'cypress/e2e/pnp/*.ts'",
