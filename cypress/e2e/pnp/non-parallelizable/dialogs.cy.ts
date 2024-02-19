@@ -8,6 +8,8 @@ import {
   getEditDialog,
   getShareDialog,
   openEditGraph,
+  openNewGraph,
+  saveGraph,
 } from '../helpers';
 
 describe('dialogs', () => {
@@ -17,18 +19,15 @@ describe('dialogs', () => {
   const newSecondGraphName = 'My 2nd playground';
 
   before(() => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-    doWithTestController((testController) => {
-      testController.deleteAllGraphs();
+    openNewGraph();
+    doWithTestController(async (testController) => {
+      await testController.deleteAllGraphs();
       // cy.get('body').click(coordinates[0], coordinates[1]);
-    });
-    cy.wait(100);
-    // cy.get('body').type(`${controlOrMetaKey()}{shift}Y`); // enable debug view
+    }, "deleteallgraphs");
     addFirstTwoNodes();
     cy.get('body').type('1'); // close left side menu
-    cy.get('body').type(`${controlOrMetaKey()}s`); // save graph
-    cy.wait(1000)
-      .get('[id^="notistack-snackbar"]')
+    saveGraph();
+      cy.get('[id^="notistack-snackbar"]')
       .contains('was saved')
       .invoke('text')
       .then((text) => {

@@ -158,8 +158,8 @@ export default class TestController {
     return PPGraph.currentGraph;
   }
 
-  deleteAllGraphs(): void {
-    PPStorage.getInstance().deleteAllGraphs();
+  async deleteAllGraphs(): Promise<void> {
+    await PPStorage.getInstance().deleteAllGraphs();
   }
 
   removeNode(nodeID: string): void {

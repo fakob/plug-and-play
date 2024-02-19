@@ -1,4 +1,4 @@
-import { controlOrMetaKey, doWithTestController, saveGraph, waitForGraphToBeLoaded } from '../helpers';
+import { doWithTestController, openExistingGraph, openNewGraph, saveGraph, } from '../helpers';
 
 describe('macro', () => {
   const checkDropdownWorks = () => {
@@ -12,30 +12,25 @@ describe('macro', () => {
   };
 
   it('Add macro nodes', () => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-    // add the nodes
-    cy.wait(100);
-    doWithTestController((testController) => {
-      expect(testController.addNode('Macro', 'Macro')).to.eq(true);
-      expect(testController.addNode('Add', 'Add')).to.eq(true);
+    openNewGraph();
+    doWithTestController(async (testController) => {
+      await testController.addNode('Macro', 'Macro');
+      await testController.addNode('Add', 'Add');
 
-      expect(testController.addNode('Constant', 'Constant')).to.eq(true);
-      expect(testController.addNode('ExecuteMacro', 'ExecuteMacro')).to.eq(
-        true,
-      );
-    });
+      await testController.addNode('Constant', 'Constant');
+      await testController.addNode('ExecuteMacro', 'ExecuteMacro');
+    }, "addInitialNodes");
   });
 
   it('Connect macro nodes', () => {
-    cy.wait(100);
     // connect up inside macro
-    doWithTestController((testController) => {
+    doWithTestController(async (testController) => {
       testController.moveNodeByID('Add', 200, 100);
       testController.moveNodeByID('ExecuteMacro', 0, -200);
       testController.moveNodeByID('Constant', -200, -200);
-      testController.connectNodesByID('Macro', 'Add', 'Parameter 1');
-      testController.connectNodesByID('Add', 'Macro', 'Added');
-    });
+      await testController.connectNodesByID('Macro', 'Add', 'Parameter 1');
+      await testController.connectNodesByID('Add', 'Macro', 'Added');
+    }, "connecting");
   });
 
   it('Select executemacro and select macro from dropdown', () => {
@@ -43,15 +38,14 @@ describe('macro', () => {
   });
 
   it('Set up macro caller env', () => {
-    doWithTestController((testController) => {
-      testController.connectNodesByID('Constant', 'ExecuteMacro', 'Out');
+    doWithTestController(async (testController) => {
+      await testController.connectNodesByID('Constant', 'ExecuteMacro', 'Out');
       testController.setNodeInputValue('Constant', 'In', 10);
-      testController.executeNodeByID('Constant');
-    });
+      await testController.executeNodeByID('Constant');
+    }, "setupStuff");
   });
 
   it('See that the macro runs as expected when called from outside (it should be passthrough)', () => {
-    cy.wait(100);
     doWithTestController((testController) => {
       expect(
         testController.getNodeOutputValue('ExecuteMacro', 'OutData', 10),
@@ -59,14 +53,11 @@ describe('macro', () => {
     });
   });
   it('Save graph', () => {
-    cy.wait(100);
     saveGraph();
-    cy.wait(100);
   });
 
   it('See that dropdown still works after reload', () => {
-    cy.visit('http://127.0.0.1:8080');
-    waitForGraphToBeLoaded();
+    openExistingGraph();
     doWithTestController((testController) => {
       testController.selectNodesById(['ExecuteMacro']);
       cy.get('[data-cy="inspector-container-toggle-button"]').click();
@@ -77,7 +68,7 @@ describe('macro', () => {
   it('See that everything is selected when graph is selected', () => {
   doWithTestController((testController) => {
       testController.selectNodesById(['Macro']);
-    expect(testController.getSelectedNodes().length).to.eq(2);
+      expect(testController.getSelectedNodes().length).to.eq(2);
   });
   });
 

@@ -45,16 +45,15 @@ export const dragFromAtoB = (startX, startY, endX, endY, wait = false) => {
 };
 
 export const addFirstTwoNodes = () => {
-  doWithTestController((testController) => {
+  doWithTestController(async (testController) => {
     testController.setShowUnsavedChangesWarning(false);
-    expect(testController.addNode('Constant', 'Constant1')).to.eq(true);
-    expect(testController.addNode('Constant', 'Constant2')).to.eq(true);
-  });
-  cy.wait(100);
-  doWithTestController((testController) => {
-    testController.moveNodeByID('Constant2', 230, 0);
-    testController.connectNodesByID('Constant1', 'Constant2', 'Out', 'In');
-  });
+    await testController.addNode('Constant', 'Constant1');
+    await testController.addNode('Constant', 'Constant2');
+  }, "addfirsttwonodes");
+  doWithTestController(async (testController) => {
+    await testController.moveNodeByID('Constant2', 230, 0);
+    await testController.connectNodesByID('Constant1', 'Constant2', 'Out', 'In');
+  }, "connectfirstwwonodes");
 };
 
 export const addTwoNodes = () => {
