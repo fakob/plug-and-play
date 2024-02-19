@@ -113,7 +113,7 @@ export const clickDeleteButtonOfGraph = (graphName) => {
 };
 
 export const openExistingGraph = () => {
-  cy.visit('http://127.0.0.1:8080');
+  cy.visit('http://127.0.0.1:8080/?toastEverything=true');
   cy.get("body").contains("was loaded").should("exist");
 }
 

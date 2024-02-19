@@ -1,19 +1,15 @@
-import { doWithTestController, saveGraph, waitForGraphToBeLoaded } from "../helpers";
+import { doWithTestController, openExistingGraph, openNewGraph, saveGraph, } from "../helpers";
 
 describe('performance', () => {
   it('Add node', () => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-
-    cy.wait(100);
-    doWithTestController((testController) => {
-      expect(testController.addNode('Add', 'Add')).to.eq(true);
-    });
-    cy.wait(100);
+    openNewGraph();
+    doWithTestController(async (testController) => {
+      await testController.addNode('Add', 'Add');
+    },"addnode");
     saveGraph();
   });
   it('see that we didnt load from DB more than once', () => {
-    cy.visit('http://127.0.0.1:8080');
-    waitForGraphToBeLoaded();
+    openExistingGraph();
     doWithTestController((testController) => {
       expect(testController.getTimesLoadedFromDB()).to.eq(1);
     });

@@ -3,13 +3,12 @@ describe('importing third party libraries and using', () => {
 
   it('Add nodes', () => {
     openNewGraph();
-    doWithTestController(testController => {
-      expect(testController.addNode("LoadNPM", "LoadNPM")).to.eq(true);
-      expect(testController.addNode("CustomFunction", "CustomFunction")).to.eq(true);
-    });
+    doWithTestController(async testController => {
+      await testController.addNode("LoadNPM", "LoadNPM");
+      await testController.addNode("CustomFunction", "CustomFunction");
+    }, "addnodes");
   });
   it ("Set up nodes, connect them", () => {
-    cy.wait(100);
     doWithTestController(testController => {
       // set it to load chartjs
       testController.setNodeInputValue("LoadNPM", "packageName", "chart.js");

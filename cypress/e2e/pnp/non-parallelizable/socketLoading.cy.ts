@@ -1,19 +1,14 @@
-import { doWithTestController, saveGraph } from '../helpers';
+import { doWithTestController, openNewGraph, saveGraph } from '../helpers';
 
 describe('socketLoading', () => {
   let serialized = undefined;
   it('Add test node and change socket data type parameters', () => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-
-    // add nodes
-    cy.wait(100);
-    doWithTestController((testController) => {
+    openNewGraph();
+    doWithTestController(async (testController) => {
       cy.get('[data-cy="inspector-container-toggle-button"]').click();
       cy.wait(100);
-      expect(testController.addNode('TestDataTypes', 'TestDataTypes')).to.eq(
-        true,
-      );
-    });
+      await testController.addNode('TestDataTypes', 'TestDataTypes');
+    }, "addNode");
     cy.wait(100);
     doWithTestController((testController) => {
       testController.moveNodeByID('TestDataTypes', 0, -300);
