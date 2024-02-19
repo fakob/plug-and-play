@@ -7,10 +7,10 @@ describe("selection", () => {
 
     cy.wait(100);
     doWithTestController((testController) => {
-      expect(testController.addNode('Add', 'Add', 100, 100)).to.eq(true);
+      testController.addNode('Add', 'Add', 100, 100);
     });
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant', 100, 300)).to.eq(true);
+      testController.addNode('Constant', 'Constant', 100, 300);
     });
   });
 

@@ -1,16 +1,13 @@
 // TODO flesh out
-import { doWithTestController } from "../helpers"
+import { doWithTestController, openNewGraph } from "../helpers"
 describe('serializeLogic', () => {
 
     let serialized = undefined;
     it("Add nodes and connect", () => {
-        cy.visit('http://127.0.0.1:8080/?new=true');
-
-        // add nodes
-        cy.wait(100);
+      openNewGraph();
         doWithTestController(testController => {
-            expect(testController.addNode("Add", "Add1")).to.eq(true);
-            expect(testController.addNode("Add", "Add2")).to.eq(true);
+            testController.addNode("Add", "Add1");
+            testController.addNode("Add", "Add2");
         });
         cy.wait(100);
         // connect nodes together

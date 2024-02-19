@@ -13,6 +13,7 @@ export const URL_PARAMETER_NAME = {
   LOADLOCAL: 'loadLocal',
   NEW: 'new',
   FETCHLOCALGRAPH: 'fetchLocalGraph',
+  TOASTEVERYTHING: 'toastEverything',
 };
 
 export const GET_STARTED_GRAPH =

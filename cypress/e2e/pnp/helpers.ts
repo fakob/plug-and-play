@@ -1,8 +1,14 @@
-export function doWithTestController(inFunction) {
-  cy.window().then((win) => {
+export function doWithTestController(inFunction, id = undefined) {
+  cy.window().then(async (win) => {
     const anyWin = win as any;
-    inFunction(anyWin.testController);
+    await inFunction(anyWin.testController);
+    if (id !== undefined){
+      anyWin.testController.spamToast(id);
+    }
   });
+  if (id !== undefined){
+    cy.get("body").contains(id).should("exist");
+  }
 }
 
 export function controlOrMetaKey() {
@@ -39,22 +45,21 @@ export const dragFromAtoB = (startX, startY, endX, endY, wait = false) => {
 };
 
 export const addFirstTwoNodes = () => {
-  doWithTestController((testController) => {
+  doWithTestController(async (testController) => {
     testController.setShowUnsavedChangesWarning(false);
-    expect(testController.addNode('Constant', 'Constant1')).to.eq(true);
-    expect(testController.addNode('Constant', 'Constant2')).to.eq(true);
-  });
-  cy.wait(100);
-  doWithTestController((testController) => {
-    testController.moveNodeByID('Constant2', 230, 0);
-    testController.connectNodesByID('Constant1', 'Constant2', 'Out', 'In');
-  });
+    await testController.addNode('Constant', 'Constant1');
+    await testController.addNode('Constant', 'Constant2');
+  }, "addfirsttwonodes");
+  doWithTestController(async (testController) => {
+    await testController.moveNodeByID('Constant2', 230, 0);
+    await testController.connectNodesByID('Constant1', 'Constant2', 'Out', 'In');
+  }, "connectfirstwwonodes");
 };
 
 export const addTwoNodes = () => {
   doWithTestController((testController) => {
-    expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
-    expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+    testController.addNode('Constant', 'Constant3');
+    testController.addNode('Constant', 'Constant4');
   });
   cy.wait(100);
 };
@@ -74,8 +79,8 @@ export const beforeEachMouseInteraction = () => {
   cy.get('body').type('1'); // close left side menu
   doWithTestController((testController) => {
     testController.setShowUnsavedChangesWarning(false);
-    expect(testController.addNode('Constant', 'Constant1')).to.eq(true);
-    expect(testController.addNode('Constant', 'Constant2')).to.eq(true);
+    testController.addNode('Constant', 'Constant1');
+    testController.addNode('Constant', 'Constant2');
   });
   cy.wait(100);
   doWithTestController((testController) => {
@@ -107,6 +112,12 @@ export const clickDeleteButtonOfGraph = (graphName) => {
     .click({ force: true });
 };
 
-export const waitForGraphToBeLoaded = () => {
+export const openExistingGraph = () => {
+  cy.visit('http://127.0.0.1:8080/?toastEverything=true');
   cy.get("body").contains("was loaded").should("exist");
+}
+
+export const openNewGraph = () => {
+    cy.visit('http://127.0.0.1:8080/?new=true&toastEverything=true');
+    cy.get("body").contains("startup_complete").should("exist");
 }

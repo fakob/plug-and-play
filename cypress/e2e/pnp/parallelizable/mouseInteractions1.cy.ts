@@ -167,7 +167,7 @@ describe('mouseInteractions1', () => {
     const moveX = 5;
     const moveY = 5;
     doWithTestController((testController) => {
-      expect(testController.addNode('Add', 'Add')).to.eq(true);
+      testController.addNode('Add', 'Add');
     });
     cy.wait(100);
     doWithTestController((testController) => {

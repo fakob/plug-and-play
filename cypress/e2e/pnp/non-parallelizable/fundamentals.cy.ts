@@ -58,7 +58,6 @@ describe('fundamentals', () => {
   });
 
   it('Save Graph', () => {
-    cy.wait(3000);
     saveGraph();
     checkToastForMessage('was saved');
   });
@@ -66,14 +65,14 @@ describe('fundamentals', () => {
   it('Rename Graph', () => {
     cy.get('body').type(`${controlOrMetaKey()}e`);
     cy.get('#playground-name-input').clear().type(`${myGraphName}{enter}`);
-    cy.wait(1000)
+    cy.wait(100)
       .get('.notistack-SnackbarContainer')
       .contains(`Name changed to ${myGraphName}`)
       .should('exist');
   });
 
   it('Delete graph', () => {
-    cy.wait(1000)
+    cy.wait(100)
       .get(
         '#graphs-list .MuiListItemSecondaryAction-root:first [title="Delete playground"]',
       )
@@ -85,7 +84,7 @@ describe('fundamentals', () => {
 
   it('Load graph example', () => {
     cy.get('body').type(`${controlOrMetaKey()}o`);
-    cy.wait(1000).get('#graphs-list').contains('li', 'z test node').click();
+    cy.wait(100).get('#graphs-list').contains('li', 'z test node').click();
     checkToastForMessage('Remote playground was loaded');
   });
 

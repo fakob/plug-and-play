@@ -1,10 +1,9 @@
-import { doWithTestController } from "../helpers";
+import { doWithTestController, openNewGraph } from "../helpers";
 
 // TODO make this execute a lil quicker
 describe('http', () => {
   it('add http node', () => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.wait(100);
+    openNewGraph();
     doWithTestController((testController) => {
       testController.addNode('HTTPNode', 'HTTPNode');
     });

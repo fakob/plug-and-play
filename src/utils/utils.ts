@@ -32,6 +32,7 @@ import { Viewport } from 'pixi-viewport';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { PNPSuccess, SocketParsingWarning } from '../classes/ErrorClass';
 import { getNodesUpperLeftCorner } from '../pixi/utils-pixi';
+import InterfaceController from '../InterfaceController';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -940,8 +941,10 @@ export const loadGraph = (urlParams: URLSearchParams) => {
   const fetchFromLocalServer = urlParams.get(
     URL_PARAMETER_NAME.FETCHLOCALGRAPH,
   );
+  const toastEverything = urlParams.get(URL_PARAMETER_NAME.TOASTEVERYTHING);
+  InterfaceController.toastEverything = Boolean(toastEverything);
   console.log(
-    `${URL_PARAMETER_NAME.LOADURL}: ${loadURL}, ${URL_PARAMETER_NAME.LOADLOCAL}: ${localGraphID}, ${URL_PARAMETER_NAME.NEW}: ${createEmptyGraph}`,
+    `${URL_PARAMETER_NAME.LOADURL}: ${loadURL}, ${URL_PARAMETER_NAME.LOADLOCAL}: ${localGraphID}, ${URL_PARAMETER_NAME.NEW}: ${createEmptyGraph},${URL_PARAMETER_NAME.TOASTEVERYTHING}: ${toastEverything}`,
   );
   if (loadURL) {
     PPStorage.getInstance().loadGraphFromURL(loadURL);
