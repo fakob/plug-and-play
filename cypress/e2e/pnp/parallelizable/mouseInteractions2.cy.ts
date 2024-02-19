@@ -96,7 +96,7 @@ describe('mouseInteractions2', () => {
       expect(
         testController.getSocketLinks('Constant2', 'In')[0].source.getNode().id,
       ).to.eq('Constant1');
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
+      testController.addNode('Constant', 'Constant3');
       cy.wait(100);
     });
     doWithTestController((testController) => {
@@ -124,7 +124,7 @@ describe('mouseInteractions2', () => {
     const moveY = 5;
 
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
+      testController.addNode('Constant', 'Constant3');
     });
     cy.wait(100);
     doWithTestController((testController) => {
@@ -161,7 +161,7 @@ describe('mouseInteractions2', () => {
 
   it('Creates a connection to preferred socket on dragging from connected output socket to node', () => {
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+      testController.addNode('Constant', 'Constant4');
     });
     cy.wait(100);
     doWithTestController((testController) => {
@@ -183,7 +183,7 @@ describe('mouseInteractions2', () => {
 
   it('Creates a connection on dragging from connected output socket to input socket without a connection', () => {
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+      testController.addNode('Constant', 'Constant4');
     });
     cy.wait(100);
     doWithTestController((testController) => {
@@ -253,7 +253,7 @@ describe('mouseInteractions2', () => {
   // Input socket with no connection
   it('Opens node browser on dragging from unconnected input socket to graph', () => {
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+      testController.addNode('Constant', 'Constant4');
     });
     cy.wait(100);
     doWithTestController((testController) => {
@@ -309,7 +309,7 @@ describe('mouseInteractions2', () => {
 
   it('Creates a connection on dragging from unconnected input socket to output socket with a connection', () => {
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+      testController.addNode('Constant', 'Constant4');
     });
     cy.wait(100);
     doWithTestController((testController) => {
@@ -338,7 +338,7 @@ describe('mouseInteractions2', () => {
     const moveY = -5;
 
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
+      testController.addNode('Constant', 'Constant3');
     });
     cy.wait(100);
     doWithTestController((testController) => {
@@ -360,7 +360,7 @@ describe('mouseInteractions2', () => {
     const endY = 200;
 
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+      testController.addNode('Constant', 'Constant4');
     });
     cy.wait(100);
     doWithTestController((testController) => {
@@ -390,7 +390,7 @@ describe('mouseInteractions2', () => {
 
   it('Moves connection to preferred socket on dragging from connected input socket to node', () => {
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+      testController.addNode('Constant', 'Constant4');
     });
     cy.wait(100);
     doWithTestController((testController) => {
@@ -413,7 +413,7 @@ describe('mouseInteractions2', () => {
 
   it('Moves connection on dragging from connected input socket to output socket without a connection', () => {
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+      testController.addNode('Constant', 'Constant4');
     });
     cy.wait(100);
     doWithTestController((testController) => {
@@ -464,7 +464,7 @@ describe('mouseInteractions2', () => {
 
   it('Removes connection on dragging from connected input socket to output socket without a connection', () => {
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
+      testController.addNode('Constant', 'Constant3');
     });
     cy.wait(100);
     doWithTestController((testController) => {

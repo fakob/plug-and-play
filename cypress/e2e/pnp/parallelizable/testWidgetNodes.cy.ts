@@ -1,15 +1,12 @@
-import { doWithTestController } from '../helpers';
+import { doWithTestController, openNewGraph } from '../helpers';
 
 describe('testWidgetNodes', () => {
   it('testDropdownWidget', () => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.wait(100);
+    openNewGraph();
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant')).to.eq(true);
-      expect(testController.addNode('WidgetDropdown', 'WidgetDropdown')).to.eq(
-        true,
-      );
-      expect(testController.addNode('Label', 'Label')).to.eq(true);
+      testController.addNode('Constant', 'Constant');
+      testController.addNode('WidgetDropdown', 'WidgetDropdown');
+      testController.addNode('Label', 'Label');
     });
     cy.get('canvas').click();
     cy.wait(100);

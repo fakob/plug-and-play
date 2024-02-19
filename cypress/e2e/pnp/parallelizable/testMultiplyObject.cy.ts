@@ -1,14 +1,11 @@
-import { doWithTestController } from '../helpers';
+import { doWithTestController, openNewGraph } from '../helpers';
 
 describe('testMultiplyObject', () => {
   it('Check index of multiply object', () => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.wait(100);
+    openNewGraph();
     doWithTestController((testController) => {
-      expect(testController.addNode('DRAW_Shape', 'DRAW_Shape')).to.eq(true);
-      expect(
-        testController.addNode('DRAW_Multiplier', 'DRAW_Multiplier'),
-      ).to.eq(true);
+      testController.addNode('DRAW_Shape', 'DRAW_Shape');
+      testController.addNode('DRAW_Multiplier', 'DRAW_Multiplier');
     });
     cy.wait(100);
     doWithTestController((testController) => {

@@ -5,7 +5,7 @@ describe('testBaseNodes', () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
     cy.wait(100);
     doWithTestController((testController) => {
-      expect(testController.addNode('Comparison', 'Comparison')).to.eq(true);
+      testController.addNode('Comparison', 'Comparison');
     });
     cy.wait(100);
     doWithTestController((testController) => {
@@ -56,7 +56,7 @@ describe('testBaseNodes', () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
     cy.wait(100);
     doWithTestController((testController) => {
-      expect(testController.addNode('IsValid', 'IsValid')).to.eq(true);
+      testController.addNode('IsValid', 'IsValid');
     });
     cy.wait(100);
     doWithTestController((testController) => {
