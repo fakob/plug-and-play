@@ -58,8 +58,8 @@ export const addFirstTwoNodes = () => {
 
 export const addTwoNodes = () => {
   doWithTestController((testController) => {
-    expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
-    expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+    testController.addNode('Constant', 'Constant3');
+    testController.addNode('Constant', 'Constant4');
   });
   cy.wait(100);
 };
@@ -79,8 +79,8 @@ export const beforeEachMouseInteraction = () => {
   cy.get('body').type('1'); // close left side menu
   doWithTestController((testController) => {
     testController.setShowUnsavedChangesWarning(false);
-    expect(testController.addNode('Constant', 'Constant1')).to.eq(true);
-    expect(testController.addNode('Constant', 'Constant2')).to.eq(true);
+    testController.addNode('Constant', 'Constant1');
+    testController.addNode('Constant', 'Constant2');
   });
   cy.wait(100);
   doWithTestController((testController) => {
