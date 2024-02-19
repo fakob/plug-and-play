@@ -118,7 +118,10 @@ export default class FlowLogic {
           if (numDepending[dependentKey]) {
             numDepending[dependentKey].delete(currentExecuting.id);
             // if this child has no other nodes it is waiting on, and one of its parents did change its output, add it to the queue of nodes to be executed
-            if (numDepending[dependentKey].size == 0 && !hasExecuted) {
+            if (
+              numDepending[dependentKey].size == 0 &&
+              !hasExecuted.has(dependents[dependentKey]?.id)
+            ) {
               foundational.push(dependents[dependentKey]);
             }
           }
