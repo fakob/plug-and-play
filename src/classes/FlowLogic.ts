@@ -88,6 +88,9 @@ export default class FlowLogic {
   static async executeOptimizedChainBatch(
     foundational: PPNode[],
   ): Promise<void> {
+    console.log(
+      'executing batch: ' + foundational.map((node) => node.name).join(','),
+    );
     const dependents: { [key: string]: PPNode } = {};
     const numDepending: { [key: string]: Set<string> } = {};
     foundational.forEach((node: PPNode) => {
@@ -102,9 +105,11 @@ export default class FlowLogic {
     });
     // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
     let currentExecuting: PPNode = foundational.shift();
+    const hasExecuted = new Set<string>();
 
     while (currentExecuting) {
       await currentExecuting.execute();
+      hasExecuted.add(currentExecuting.id);
       //hasExecuted.add(currentExecuting.id);
       // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
       //await new Promise((resolve) => setTimeout(resolve, 500));
@@ -113,7 +118,7 @@ export default class FlowLogic {
           if (numDepending[dependentKey]) {
             numDepending[dependentKey].delete(currentExecuting.id);
             // if this child has no other nodes it is waiting on, and one of its parents did change its output, add it to the queue of nodes to be executed
-            if (numDepending[dependentKey].size == 0) {
+            if (numDepending[dependentKey].size == 0 && !hasExecuted) {
               foundational.push(dependents[dependentKey]);
             }
           }
