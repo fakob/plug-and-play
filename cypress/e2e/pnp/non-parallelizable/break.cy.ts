@@ -1,20 +1,18 @@
-import { controlOrMetaKey, doWithTestController, saveGraph, waitForGraphToBeLoaded } from '../helpers';
+import { controlOrMetaKey, doWithTestController, openExistingGraph, openNewGraph, saveGraph, waitForGraphToBeLoaded } from '../helpers';
 
 describe('break', () => {
   it('add break nodes', () => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.wait(100);
-    doWithTestController((testController) => {
-      testController.addNode('Constant', 'Constant');
-      testController.addNode('Break', 'Break');
+    openNewGraph();
+    doWithTestController(async (testController) => {
+      await testController.addNode('Constant', 'Constant');
+      await testController.addNode('Break', 'Break');
 
-      testController.addNode('Constant', 'Constant2');
-      testController.addNode('Break', 'Break2');
-    });
+      await testController.addNode('Constant', 'Constant2');
+      await testController.addNode('Break', 'Break2');
+    }, "addnodes");
   });
 
   it('arrange them', () => {
-    cy.wait(100);
     doWithTestController((testController) => {
       testController.moveNodeByID('Break', 200, 0);
       testController.moveNodeByID('Break2', 200, -200);
@@ -23,17 +21,16 @@ describe('break', () => {
   });
 
   it('try a massive break node input, see that it results in 100 output sockets', () => {
-    doWithTestController((testController) => {
+    doWithTestController(async (testController) => {
       const breakInput = {};
       for (let i = 0; i < 10000; i++) {
         breakInput[i.toString()] = i;
       }
       testController.setNodeInputValue('Break', 'JSON', breakInput);
       testController.setNodeInputValue("Constant2", "In",{first:{second:"hello"}});
-      testController.executeNodeByID('Break');
-    });
+      await testController.executeNodeByID('Break');
+    }, "setInput");
 
-    cy.wait(100);
     doWithTestController((testController) => {
       expect(testController.getOutputSockets('Break').length).to.eq(100);
     });
@@ -49,11 +46,10 @@ describe('break', () => {
       current['b'] = next;
       current = next;
     }
-    doWithTestController((testController) => {
+    doWithTestController(async (testController) => {
       testController.setNodeInputValue('Break', 'JSON', base);
-      testController.executeNodeByID('Break');
-    });
-    cy.wait(100);
+      await testController.executeNodeByID('Break');
+    }, "setNestedInput");
     doWithTestController((testController) => {
       // see that we get an object out
       expect(typeof testController.getNodeOutputValue('Break', 'b')).to.eq(
@@ -63,24 +59,20 @@ describe('break', () => {
   });
 
   it('connect links', () => {
-    doWithTestController((testController) => {
-      testController.connectNodesByID('Constant', 'Break', 'Out');
-      testController.connectNodesByID('Constant2', 'Break2', 'Out');
-
-    });
+    doWithTestController(async (testController) => {
+      await testController.connectNodesByID('Constant', 'Break', 'Out');
+      await testController.connectNodesByID('Constant2', 'Break2', 'Out');
+    }, "connectnodes");
   });
 
   // at some point there was a bug where the links disconnected when source nodes executed, so this should test for that
   it ("execute the source nodes", () => {
-    cy.wait(100);
-    doWithTestController((testController) => {
-      testController.executeNodeByID("Constant2");
-    });
-
+    doWithTestController(async (testController) => {
+      await testController.executeNodeByID("Constant2");
+    }, "executesourcenode");
   });
 
   it ("check the arrow json value is still cool and connected", () => {
-    cy.wait(200);
     doWithTestController((testController) => {
       expect(testController.getNodeOutputValue("Break2", "first→second")).to.eq("hello");
       expect(testController.getSocketLinks("Break2", "JSON").length).to.eq(1);
@@ -92,8 +84,7 @@ describe('break', () => {
   });
 
   it('load it again', () => {
-    cy.visit('http://127.0.0.1:8080');
-    waitForGraphToBeLoaded();
+    openExistingGraph();
     doWithTestController((testController) => {
       // see that we get an object out
       expect(testController.getNodes().length).to.eq(4);

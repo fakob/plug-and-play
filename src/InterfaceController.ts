@@ -78,6 +78,11 @@ export default class InterfaceController {
     }
   }
 
+  static spamToast(message: string): void {
+    if (InterfaceController.toastEverything) {
+      InterfaceController.showSnackBar(message, { autoHideDuration: 500 });
+    }
+  }
   // these are single target, move them up to be multi listener if multiple places needs to use them
   static showSnackBar: (
     message: SnackbarMessage,
@@ -123,6 +128,7 @@ export default class InterfaceController {
   /////////////////////////////////////////////////////////////////////////////
   static isTypingInConsole = false;
   static consoleBeingTyped = '';
+  static toastEverything = false;
 
   static get showUnsavedChangesWarning() {
     return this._showUnsavedChangesWarning;

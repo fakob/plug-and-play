@@ -1,9 +1,8 @@
-import { doWithTestController } from "../helpers";
+import { doWithTestController, openNewGraph } from "../helpers";
 
 describe('dynamic input node', () => {
   it('add nodes', () => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.wait(100);
+    openNewGraph();
     doWithTestController((testController) => {
       testController.addNode('Add', 'Add', 200, 0);
       testController.addNode('Constant', 'Constant');

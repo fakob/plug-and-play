@@ -14,8 +14,13 @@ export default class TestController {
     return 'its testcontroller';
   }
 
-  addNode(nodeType: string, id = hri.random(), x = 0, y = 0): boolean {
-    PPGraph.currentGraph
+  async addNode(
+    nodeType: string,
+    id = hri.random(),
+    x = 0,
+    y = 0,
+  ): Promise<boolean> {
+    await PPGraph.currentGraph
       .addNewNode(nodeType, { overrideId: id })
       .then((node) => {
         (node.x += x), (node.y += y);
@@ -45,7 +50,7 @@ export default class TestController {
     node.y += y;
   }
 
-  connectNodesByID(
+  async connectNodesByID(
     node1ID: string,
     node2ID: string,
     node1Socket: string | undefined = undefined,
@@ -61,7 +66,7 @@ export default class TestController {
       node2Socket === undefined
         ? n2.getSocketForNewConnection(originSocket)
         : n2.getInputSocketByName(node2Socket);
-    PPGraph.currentGraph.connect(originSocket, targetSocket);
+    await PPGraph.currentGraph.connect(originSocket, targetSocket);
   }
 
   async disconnectLink(
@@ -117,8 +122,8 @@ export default class TestController {
     return this.getNodeByID(id).getOutputSocketByName(socketName);
   }
 
-  executeNodeByID(id: string) {
-    this.getNodeByID(id).executeOptimizedChain();
+  async executeNodeByID(id: string) {
+    await this.getNodeByID(id).executeOptimizedChain();
   }
 
   getSocketByNodeIDAndSocketName(nodeID: string, socketName: string) {
@@ -183,12 +188,12 @@ export default class TestController {
     return this.getNodeByID(nodeID).status.custom;
   }
 
-  undo() {
-    ActionHandler.undo();
+  async undo() {
+    await ActionHandler.undo();
   }
 
-  redo() {
-    ActionHandler.redo();
+  async redo() {
+    await ActionHandler.redo();
   }
 
   setShowUnsavedChangesWarning(show: boolean) {
@@ -204,5 +209,8 @@ export default class TestController {
   }
   getNodeTimesDrawn(nodeID: string) {
     return this.getNodeByID(nodeID).debug_timesDrawn;
+  }
+  spamToast(message: string) {
+    InterfaceController.spamToast(message);
   }
 }

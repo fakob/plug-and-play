@@ -64,7 +64,6 @@ import PPStorage from './PPStorage';
 import PPSelection from './classes/SelectionClass';
 import TestController from './TestController';
 
-console.time('first_startup');
 const randomMainColorLightHex = new PIXI.Color(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex(),
 ).toNumber();
@@ -466,12 +465,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     window.dispatchEvent(new Event('pointermove')); // to initialise event values
     console.timeEnd('main_app_mount');
+    InterfaceController.spamToast('startup_complete');
   }, []);
+  InterfaceController.showSnackBar = enqueueSnackbar;
+  InterfaceController.hideSnackBar = closeSnackbar;
 
   useEffect(() => {
-    InterfaceController.showSnackBar = enqueueSnackbar;
-    InterfaceController.hideSnackBar = closeSnackbar;
-
     // data has id and name
     const ids = [];
     ids.push(
@@ -614,7 +613,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
   };
 
-  return (
+  const toReturn = (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div
         // close open context menu again on click
@@ -763,7 +762,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       </div>
     </ErrorBoundary>
   );
+  return toReturn;
 };
 
-console.timeEnd('first_startup');
 export default App;

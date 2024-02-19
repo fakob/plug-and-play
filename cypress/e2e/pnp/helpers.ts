@@ -1,8 +1,14 @@
-export function doWithTestController(inFunction) {
-  cy.window().then((win) => {
+export function doWithTestController(inFunction, id = undefined) {
+  cy.window().then(async (win) => {
     const anyWin = win as any;
-    inFunction(anyWin.testController);
+    await inFunction(anyWin.testController);
+    if (id !== undefined){
+      anyWin.testController.spamToast(id);
+    }
   });
+  if (id !== undefined){
+    cy.get("body").contains(id).should("exist");
+  }
 }
 
 export function controlOrMetaKey() {
@@ -107,6 +113,12 @@ export const clickDeleteButtonOfGraph = (graphName) => {
     .click({ force: true });
 };
 
-export const waitForGraphToBeLoaded = () => {
+export const openExistingGraph = () => {
+  cy.visit('http://127.0.0.1:8080');
   cy.get("body").contains("was loaded").should("exist");
+}
+
+export const openNewGraph = () => {
+    cy.visit('http://127.0.0.1:8080/?new=true&toastEverything=true');
+    cy.get("body").contains("startup_complete").should("exist");
 }

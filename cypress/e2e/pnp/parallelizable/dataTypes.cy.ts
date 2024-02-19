@@ -1,4 +1,4 @@
-import { doWithTestController } from '../helpers';
+import { doWithTestController, openNewGraph } from '../helpers';
 
 function exposeSelectedLabelOutput() {
   cy.get('[data-cy="inspector-container-toggle-button"]').click();
@@ -8,8 +8,7 @@ function exposeSelectedLabelOutput() {
 
 describe('dataTypes', () => {
   it('setup some nodes', () => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.wait(200);
+    openNewGraph();
     doWithTestController((testController) => {
       expect(testController.addNode('WidgetSlider', 'Slider')).to.eq(true);
       expect(testController.addNode('Label', 'Label')).to.eq(true);

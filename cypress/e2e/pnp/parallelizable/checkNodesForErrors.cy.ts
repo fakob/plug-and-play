@@ -1,11 +1,10 @@
-import { doWithTestController } from '../helpers';
+import { doWithTestController, openNewGraph } from '../helpers';
 
 // TODO add all nodes
 describe('checkNodesForErrors', () => {
   let numGoodNodes = 0;
   it('add one of each node', () => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.wait(100);
+    openNewGraph();
     let allNodeTypes = [];
     const nodesWithKnownErrors: string[] = [
       'DRAW_Shape',
