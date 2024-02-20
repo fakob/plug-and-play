@@ -16,11 +16,11 @@ import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { BooleanType } from '../datatypes/booleanType';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
-import { FunctionType } from '../datatypes/functionType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
 import { WidgetButton } from '../widgets/widgetNodes';
+import { JSONType } from '../datatypes/jsonType';
 
 export class Reroute extends PPNode {
   public getName(): string {
@@ -318,7 +318,7 @@ export class LoadNPM extends CustomFunction {
   }
 
   protected getOutputParameterType(): AbstractType {
-    return new FunctionType();
+    return new JSONType();
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
