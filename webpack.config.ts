@@ -132,9 +132,6 @@ module.exports = (env, argv) => {
         // overlay: false, // to hide the error overlay
         overlay: {
           runtimeErrors: (error) => {
-            if (error.message === 'ResizeObserver loop limit exceeded') {
-              return false;
-            }
             return true;
           },
         },
