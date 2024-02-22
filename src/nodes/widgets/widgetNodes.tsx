@@ -51,6 +51,7 @@ import { StringType } from '../datatypes/stringType';
 import { ColorType } from '../datatypes/colorType';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { ActionHandler } from '../../utils/actionHandler';
+import { removeAndDestroyChild } from '../../pixi/utils-pixi';
 
 const selectedName = 'Initial Selection';
 const initialValueName = 'Initial Value';
@@ -285,7 +286,7 @@ export class WidgetRadio extends WidgetBase {
 
   public drawNodeShape(): void {
     super.drawNodeShape();
-    this._ForegroundRef.removeChild(this.radio);
+    removeAndDestroyChild(this._ForegroundRef, this.radio);
 
     const inputs: [] = this.getInputData(optionsName);
     if (!Array.isArray(inputs)) {
