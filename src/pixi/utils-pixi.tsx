@@ -202,3 +202,12 @@ export const ensureVisible = (nodes: PPNode[], undoable = false): void => {
     action();
   }
 };
+
+export const removeAndDestroyChild = (that, newContainer): void => {
+  that.removeChild(newContainer);
+  newContainer?.destroy({
+    children: true,
+    texture: true,
+    baseTexture: true,
+  });
+};

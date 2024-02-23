@@ -24,7 +24,7 @@ import {
   saveBase64AsImage,
 } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
-import { drawDottedLine } from '../../pixi/utils-pixi';
+import { drawDottedLine, removeAndDestroyChild } from '../../pixi/utils-pixi';
 import {
   DRAW_Base,
   DRAW_Interactive_Base,
@@ -830,7 +830,7 @@ export class Extract_Image_From_Graphics extends PPNode {
       inputObject[outputQualityName],
     );
     outputObject[outputImageName] = base64out;
-    this.removeChild(newContainer);
+    removeAndDestroyChild(this, newContainer);
   }
 
   saveImage = async () => {
@@ -893,6 +893,6 @@ export class Extract_PixelArray_From_Graphics extends PPNode {
     outputObject[inputWidthName] = imageWidth;
     outputObject[inputHeightName] = imageHeight;
 
-    this.removeChild(newContainer);
+    removeAndDestroyChild(this, newContainer);
   }
 }

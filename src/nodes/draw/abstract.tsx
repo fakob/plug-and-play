@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js';
 import PPNode from '../../classes/NodeClass';
 import PPGraph from '../../classes/GraphClass';
 import Socket from '../../classes/SocketClass';
@@ -9,13 +10,12 @@ import {
 } from '../../utils/constants';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
 import { EnumType } from '../datatypes/enumType';
-import * as PIXI from 'pixi.js';
 import { NumberType } from '../datatypes/numberType';
 import { BooleanType } from '../datatypes/booleanType';
 import { ArrayType } from '../datatypes/arrayType';
 import { TRgba } from '../../utils/interfaces';
-import { DisplayObject } from 'pixi.js';
 import { getCurrentCursorPosition } from '../../utils/utils';
+import { removeAndDestroyChild } from '../../pixi/utils-pixi';
 import { ActionHandler } from '../../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import throttle from 'lodash/throttle';
@@ -62,7 +62,7 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   onNodeRemoved = (): void => {
-    this._ForegroundRef.removeChild(this.deferredGraphics);
+    removeAndDestroyChild(this._ForegroundRef, this.deferredGraphics);
   };
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
@@ -262,7 +262,7 @@ export abstract class DRAW_Base extends PPNode {
 
   private handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
     requestAnimationFrame(() => {
-      this._ForegroundRef.removeChild(this.deferredGraphics);
+      removeAndDestroyChild(this._ForegroundRef, this.deferredGraphics);
       if (this.shouldDraw()) {
         this.deferredGraphics = new PIXI.Container();
         drawingFunction(this.deferredGraphics, {});
@@ -289,7 +289,10 @@ export abstract class DRAW_Base extends PPNode {
     });
   }
 
-  protected positionAndScale(toModify: DisplayObject, inputObject: any): void {
+  protected positionAndScale(
+    toModify: PIXI.DisplayObject,
+    inputObject: any,
+  ): void {
     const pivot = inputObject[inputPivotName];
     const pivotPointFound = PIXI_PIVOT_OPTIONS.find(
       (option) => option.text === pivot,
