@@ -1,0 +1,190 @@
+{
+  "version": 0.1,
+  "graphSettings": {
+    "showExecutionVisualisation": true,
+    "viewportCenterPosition": {
+      "x": -2077.2504586071873,
+      "y": -6731.749817742034
+    },
+    "viewportScale": 0.9666748359992565
+  },
+  "nodes": [
+    {
+      "id": "wet-robin-57",
+      "name": "Render chartjs",
+      "type": "CustomFunction",
+      "x": -2284.7794585649426,
+      "y": -7139.133054074031,
+      "width": 160,
+      "height": 112,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "//define your function here, node will adapt to inputs automatically\n(THREE, myDiv) => {\n\tconsole.log(THREE)\n\tconst width = 600, height = 600;\n\n\tconst camera = new THREE.PerspectiveCamera( 70, width / height, 0.01, 10 );\n\tcamera.position.z = 1;\n\n\tconst scene = new THREE.Scene();\n\n\tconst geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );\n\tconst material = new THREE.MeshNormalMaterial();\n\n\tconst mesh = new THREE.Mesh( geometry, material );\n\tscene.add( mesh );\n\n\tconst renderer = new THREE.WebGLRenderer( { antialias: true } );\n\trenderer.setSize( width, height );\n\trenderer.setAnimationLoop( animation );\n\n\t// animation\n\n\tfunction animation( time ) {\n\n\t\tmesh.rotation.x = time / 2000;\n\t\tmesh.rotation.y = time / 1000;\n\n\t\trenderer.render( scene, camera );\n\n\t}\n\n  myDiv.innerHTML = '';\n  myDiv.appendChild( renderer.domElement );\n\n\treturn []\n}",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "THREE",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "myDiv",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "OutData",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "ugly-turkey-8",
+      "name": "HtmlRenderer",
+      "type": "HtmlRenderer",
+      "x": -2298.877278084033,
+      "y": -6961.481115860559,
+      "width": 597.2295184335017,
+      "height": 593.4523622305833,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Header",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "<script src=\"https://cdn.tailwindcss.com\"></script>",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Html",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "<div style=\"width:200px;height:200px\" id=\"myDiv\">\n</div>\n",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Reload",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"reload\"}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Main Html element",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "pink-snake-33",
+      "name": "Load NPM package",
+      "type": "LoadNPM",
+      "x": -2508.3010662461725,
+      "y": -7158.366782470248,
+      "width": 160,
+      "height": 88,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "(packageName) => {\n  const url = 'https://esm.sh/' + packageName;\n  const npmPackage = await import(url);\n  // console.log(npmPackage);\n\treturn npmPackage;\n}",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "packageName",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "three",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "NpmPackage",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "load": true,
+        "update": false,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "477432fe-76e4-4800-96fe-17c0fdebd8cd",
+      "sourceNodeId": "pink-snake-33",
+      "sourceSocketName": "NpmPackage",
+      "targetNodeId": "wet-robin-57",
+      "targetSocketName": "THREE"
+    },
+    {
+      "id": "d7dee135-7750-46c2-8402-b1bea2ee7a94",
+      "sourceNodeId": "ugly-turkey-8",
+      "sourceSocketName": "Main Html element",
+      "targetNodeId": "wet-robin-57",
+      "targetSocketName": "myDiv"
+    }
+  ],
+  "layouts": {
+    "default": []
+  }
+}
