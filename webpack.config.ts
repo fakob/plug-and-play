@@ -155,6 +155,8 @@ module.exports = (env, argv) => {
               'Begin with an introduction of Plug and Playground.ppgraph',
               'Draw a line graph from weather API data.ppgraph',
               'Draw charts using chartjs.ppgraph',
+              'Draw charts using Observable Plot-d3.ppgraph',
+              'Draw three.js.ppgraph',
               'Draw tixi patterns.ppgraph',
               'Draw using basic examples.ppgraph',
               'Extract video frames.ppgraph',

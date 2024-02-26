@@ -3,9 +3,11 @@ import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import Frame from 'react-frame-component';
 import ErrorFallback from '../../components/ErrorFallback';
+import PPNode from '../../classes/NodeClass';
 import PPSocket from '../../classes/SocketClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { CodeType } from '../datatypes/codeType';
+import { JSONType } from '../datatypes/jsonType';
 import { TriggerType } from '../datatypes/triggerType';
 import { TNodeSource, TRgba } from '../../utils/interfaces';
 import {
@@ -19,6 +21,7 @@ import HybridNode2 from '../../classes/HybridNode2';
 const inputSocketNameHeader = 'Header';
 const inputSocketNameHtml = 'Html';
 const reloadSocketName = 'Reload';
+const mainHtmlElementName = 'HtmlElement';
 
 export class HtmlRenderer extends HybridNode2 {
   eventTarget: EventTarget;
@@ -102,6 +105,13 @@ export class HtmlRenderer extends HybridNode2 {
         0,
         false,
       ),
+      new PPSocket(
+        SOCKET_TYPE.OUT,
+        mainHtmlElementName,
+        new JSONType(),
+        {},
+        true,
+      ),
     ];
   }
 
@@ -158,6 +168,7 @@ const MyFunctionalComponent = (props): React.ReactElement => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <MemoizedComponent
+        node={node}
         id={props.node.id}
         theme={customTheme}
         iframeRef={iframeRef}
@@ -169,6 +180,7 @@ const MyFunctionalComponent = (props): React.ReactElement => {
   );
 };
 interface MemoizedComponentProps {
+  node: PPNode;
   id: string;
   theme: any;
   iframeRef: React.RefObject<HTMLIFrameElement>;
@@ -179,6 +191,7 @@ interface MemoizedComponentProps {
 
 const MemoizedComponent = memo<MemoizedComponentProps>(
   function MemoizedComponent({
+    node,
     id,
     iframeRef,
     theme,
@@ -186,6 +199,20 @@ const MemoizedComponent = memo<MemoizedComponentProps>(
     htmlData,
     reload,
   }) {
+    const idWithDiv = `${id}-div`;
+
+    const updateOutputSocket = () => {
+      const outerElement =
+        iframeRef.current.contentDocument.getElementById(idWithDiv);
+      if (outerElement) {
+        const myHtmlElement = outerElement.children[0];
+        if (myHtmlElement) {
+          node.setOutputData(mainHtmlElementName, myHtmlElement);
+          node.executeChildren();
+        }
+      }
+    };
+
     return (
       <Frame
         key={reload}
@@ -197,9 +224,12 @@ const MemoizedComponent = memo<MemoizedComponentProps>(
           borderWidth: 0,
         }}
         initialContent={`<!DOCTYPE html><html><head><style>* {border: none;}</style>${headerData}</head><body style='overflow:auto; border-width: 0px; background: white;'><div></div></body></html>`}
+        contentDidMount={updateOutputSocket}
+        contentDidUpdate={updateOutputSocket}
       >
         <ThemeProvider theme={theme}>
           <Box
+            id={idWithDiv}
             style={{
               position: 'relative',
               height: 'calc(100vh - 16px)',
@@ -212,13 +242,13 @@ const MemoizedComponent = memo<MemoizedComponentProps>(
   },
 );
 
-export class EmbedWebsite extends HtmlRenderer {
+export class HtmlRendererDiv extends HtmlRenderer {
   public getName(): string {
-    return 'Embed website';
+    return 'Html renderer (Div)';
   }
 
   public getDescription(): string {
-    return 'Embed a website using an iframe. You can also just paste a URL into the playground';
+    return 'Renders a div element';
   }
 
   public getDefaultNodeWidth(): number {
@@ -231,6 +261,34 @@ export class EmbedWebsite extends HtmlRenderer {
 
   public getDefaultHeader(): string {
     return '';
+  }
+
+  public getDefaultHTMLCode(): string {
+    return '<div id="myDiv"></div>';
+  }
+}
+
+export class HtmlRendererCanvas extends HtmlRendererDiv {
+  public getName(): string {
+    return 'Html renderer (Canvas)';
+  }
+
+  public getDescription(): string {
+    return 'Renders a canvas element';
+  }
+
+  public getDefaultHTMLCode(): string {
+    return '<canvas style="width:100%;" id="myCanvas"></canvas>';
+  }
+}
+
+export class EmbedWebsite extends HtmlRendererDiv {
+  public getName(): string {
+    return 'Embed website';
+  }
+
+  public getDescription(): string {
+    return 'Embed a website using an iframe. You can also just paste a URL into the playground';
   }
 
   public getDefaultHTMLCode(): string {

@@ -3,12 +3,76 @@
   "graphSettings": {
     "showExecutionVisualisation": true,
     "viewportCenterPosition": {
-      "x": -3042.240394101085,
+      "x": -3062.7202738039737,
       "y": 613.2712391805308
     },
     "viewportScale": 0.7567580976626679
   },
   "nodes": [
+    {
+      "id": "black-elephant-32",
+      "name": "Render chartjs",
+      "type": "CustomFunction",
+      "x": -2599.4484307762673,
+      "y": 197.69790921495138,
+      "width": 160,
+      "height": 136,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "//define your function here, node will adapt to inputs automatically\n(Plot, data, myDiv) => {\n  console.log(myDiv);\n  const plot2 = Plot.plot({\n    marginTop: 20,\n    marginRight: 20,\n    marginBottom: 30,\n    marginLeft: 40,\n    grid: true,\n    marks: [\n      Plot.barY(data, {x: \"letter\", y: \"frequency\", fill: \"fill\"}),\n    ]\n  })\n\t// const div = document.getElementById('kind-ape-68').contentWindow.document.getElementById('myDiv');\n  myDiv.innerHTML = '';\n  myDiv.append(plot2);\n\n  return data;\n}",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Plot",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "data",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "myDiv",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "OutData",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
     {
       "id": "witty-fly-23",
       "name": "Table_GetColumnByName",
@@ -136,7 +200,7 @@
           "socketType": "in",
           "name": "Code",
           "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": "//define your function here, node will adapt to inputs automatically\n(label, data, color) => {\n\t\n\tconst bgColor = color.map((c) => {\n\t\treturn c.rgb();\n\t})\n\n\tconst object = {\n\t\tlabels: label,\n\t\tdatasets: [{\n\t\t\tlabel: 'alphabet frequencies',\n\t\t\tdata: data,\n\t\t\tborderWidth: 1,\n\t\t\tbackgroundColor: bgColor\n\t\t}]\n\t}\n\n\treturn object;\n}",
+          "data": "//define your function here, node will adapt to inputs automatically\n(label, data, color) => {\n\t\n\tconst bgColor = color.map((c) => {\n\t\treturn c.rgb();\n\t})\n\n\tconst object = label.map((item, index) => ({\n\t\t\"letter\": item,\n\t\t'frequency': data[index],\n\t\t'fill': bgColor[index]\n\t}));\n\n\treturn object;\n}",
           "visible": false
         },
         {
@@ -170,57 +234,7 @@
         {
           "socketType": "out",
           "name": "OutData",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Code",
-          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "visible": false
-        }
-      ],
-      "updateBehaviour": {
-        "load": false,
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "gentle-snail-54",
-      "name": "Load chartjs npm",
-      "type": "LoadNPM",
-      "x": -3290.3298029402104,
-      "y": 137.68013804217412,
-      "width": 160,
-      "height": 88,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Code",
-          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": "(packageName) => {\n  const url = 'https://esm.sh/' + packageName;\n  const npmPackage = await import(url);\n  console.log(npmPackage);\n\treturn npmPackage;\n}",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
-          "data": {},
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "packageName",
-          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
-          "data": "chart.js",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "NpmPackage",
-          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         },
         {
@@ -349,19 +363,19 @@
       }
     },
     {
-      "id": "selfish-octopus-96",
-      "name": "Render chartjs",
-      "type": "CustomFunction",
-      "x": -2688.2632486028715,
-      "y": 243.44582132860302,
+      "id": "breezy-chipmunk-23",
+      "name": "Load NPM package",
+      "type": "LoadNPM",
+      "x": -3284.0111447967497,
+      "y": 225.37417034861394,
       "width": 160,
-      "height": 136,
+      "height": 88,
       "socketArray": [
         {
           "socketType": "in",
           "name": "Code",
           "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": "//define your function here, node will adapt to inputs automatically\n(chartjs, data, myCanvas) => {\n  const { Chart, registerables } = chartjs;\n\n  Chart.register(...registerables);\n\n  let chartStatus = Chart.getChart(myCanvas); // <canvas> id\n  if (chartStatus != undefined) {\n    chartStatus.destroy();\n  }\n\nconsole.log(myCanvas)\n  const myChart = new Chart(myCanvas, {\n    type: 'bar',\n    data: data,\n    options: {\n      scales: {\n        y: {\n          beginAtZero: true\n        }\n      }\n    }\n  });\n\n  return data;\n}",
+          "data": "(packageName) => {\n  const url = 'https://esm.sh/' + packageName;\n  const npmPackage = await import(url);\n  // console.log(npmPackage);\n\treturn npmPackage;\n}",
           "visible": false
         },
         {
@@ -373,28 +387,14 @@
         },
         {
           "socketType": "in",
-          "name": "chartjs",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
-          "defaultData": {},
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "data",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
-          "defaultData": {},
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "myCanvas",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
-          "defaultData": {},
+          "name": "packageName",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "@observablehq/plot",
           "visible": true
         },
         {
           "socketType": "out",
-          "name": "OutData",
+          "name": "NpmPackage",
           "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": true
         },
@@ -406,20 +406,20 @@
         }
       ],
       "updateBehaviour": {
-        "load": false,
-        "update": true,
+        "load": true,
+        "update": false,
         "interval": false,
         "intervalFrequency": 1000
       }
     },
     {
-      "id": "witty-fish-24",
-      "name": "Html renderer (Canvas)",
-      "type": "HtmlRendererCanvas",
-      "x": -3031.925830717249,
-      "y": 459.182256550803,
-      "width": 738.490241459228,
-      "height": 371.5888583797879,
+      "id": "clever-starfish-77",
+      "name": "Html renderer (Div)",
+      "type": "HtmlRendererDiv",
+      "x": -2993.097274551629,
+      "y": 422.6023968415207,
+      "width": 658.701925887829,
+      "height": 421.7434355415382,
       "socketArray": [
         {
           "socketType": "in",
@@ -432,7 +432,7 @@
           "socketType": "in",
           "name": "Html",
           "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": "<canvas style=\"width:100%;\" id=\"myCanvas\"></canvas>",
+          "data": "<div id=\"myDiv\"></div>",
           "visible": false
         },
         {
@@ -808,74 +808,74 @@
   ],
   "links": [
     {
-      "id": "b387536c-8d25-48af-8056-bea896f1ea51",
+      "id": "bf5c8c71-6dce-4c1d-8c79-9f9390478a32",
+      "sourceNodeId": "breezy-chipmunk-23",
+      "sourceSocketName": "NpmPackage",
+      "targetNodeId": "black-elephant-32",
+      "targetSocketName": "Plot"
+    },
+    {
+      "id": "bdb0ec93-2462-499a-9fb8-fbb3fa48faf9",
+      "sourceNodeId": "loud-quail-91",
+      "sourceSocketName": "OutData",
+      "targetNodeId": "black-elephant-32",
+      "targetSocketName": "data"
+    },
+    {
+      "id": "54961163-35b4-4891-b3b9-cc99d073fb84",
+      "sourceNodeId": "clever-starfish-77",
+      "sourceSocketName": "HtmlElement",
+      "targetNodeId": "black-elephant-32",
+      "targetSocketName": "myDiv"
+    },
+    {
+      "id": "4de78f4b-a379-488c-ae7c-d190c603d365",
       "sourceNodeId": "shy-fish-54",
       "sourceSocketName": "Array of arrays",
       "targetNodeId": "witty-fly-23",
       "targetSocketName": "ArrayOfArraysIn"
     },
     {
-      "id": "f5c773a3-b3ae-4abe-8d82-c8a7baf6d413",
+      "id": "438e75fa-f6a8-45c9-800c-32b5f98390f9",
       "sourceNodeId": "shy-fish-54",
       "sourceSocketName": "Array of arrays",
       "targetNodeId": "little-ape-18",
       "targetSocketName": "ArrayOfArraysIn"
     },
     {
-      "id": "d81e28fd-6319-4648-ab5c-650b7439437d",
+      "id": "c56bc9d6-5b4d-4df5-b593-f47731e3a63f",
       "sourceNodeId": "witty-fly-23",
       "sourceSocketName": "OutData",
       "targetNodeId": "loud-quail-91",
       "targetSocketName": "label"
     },
     {
-      "id": "395825fd-a01d-4af6-88ce-562b6b027a75",
+      "id": "b954ce81-07b6-4668-a6e7-30a83f9d8fc1",
       "sourceNodeId": "little-ape-18",
       "sourceSocketName": "OutData",
       "targetNodeId": "loud-quail-91",
       "targetSocketName": "data"
     },
     {
-      "id": "ee243915-0147-493d-baa6-bd12923c52f8",
+      "id": "d0ab82b3-7d09-4752-8621-f5565f6113c1",
       "sourceNodeId": "perfect-kangaroo-55",
       "sourceSocketName": "color-array",
       "targetNodeId": "loud-quail-91",
       "targetSocketName": "color"
     },
     {
-      "id": "47a7e583-6f2d-466f-b57c-e25de291e047",
+      "id": "bbeb1e92-0843-440c-9f60-b4d05fea0bac",
       "sourceNodeId": "purple-lion-40",
       "sourceSocketName": "Length",
       "targetNodeId": "perfect-kangaroo-55",
       "targetSocketName": "count"
     },
     {
-      "id": "e58c76e6-56b1-454f-bdda-a3d11fb01ed8",
+      "id": "3e830bbb-df68-486b-8093-eae727250d87",
       "sourceNodeId": "shy-fish-54",
       "sourceSocketName": "Array of arrays",
       "targetNodeId": "purple-lion-40",
       "targetSocketName": "ArrayIn"
-    },
-    {
-      "id": "800e4c3c-c64c-4203-b7db-5eb2f82924f5",
-      "sourceNodeId": "gentle-snail-54",
-      "sourceSocketName": "NpmPackage",
-      "targetNodeId": "selfish-octopus-96",
-      "targetSocketName": "chartjs"
-    },
-    {
-      "id": "b8edfc32-b93a-40d4-ae80-2f168122e704",
-      "sourceNodeId": "loud-quail-91",
-      "sourceSocketName": "OutData",
-      "targetNodeId": "selfish-octopus-96",
-      "targetSocketName": "data"
-    },
-    {
-      "id": "d9c92d2e-180f-4c92-9457-529635b2897a",
-      "sourceNodeId": "witty-fish-24",
-      "sourceSocketName": "HtmlElement",
-      "targetNodeId": "selfish-octopus-96",
-      "targetSocketName": "myCanvas"
     }
   ],
   "layouts": {

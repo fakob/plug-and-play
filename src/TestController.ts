@@ -100,6 +100,9 @@ export default class TestController {
   setNodeInputValue(id: string, inputSocketName: string, value: any): void {
     this.getNodeByID(id).getInputSocketByName(inputSocketName).data = value;
   }
+  getNodeInputValue(id: string, inputSocketName: string): any {
+    return this.getNodeByID(id).getInputSocketByName(inputSocketName).data;
+  }
   getNodeOutputValue(id: string, outputSocketName: string): any {
     return this.getNodeByID(id).getOutputData(outputSocketName);
   }
