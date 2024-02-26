@@ -36,8 +36,10 @@ describe('testHybridNodes', () => {
         'Html',
       );
     }, 'connectThem');
+    cy.wait(500);
     doWithTestController((testController) => {
       const value = testController.getNodeInputValue('HtmlRenderer2', 'Html');
+      cy.log(value);
       expect(value).to.include('<h2>HTML Node</h2>');
     });
   });

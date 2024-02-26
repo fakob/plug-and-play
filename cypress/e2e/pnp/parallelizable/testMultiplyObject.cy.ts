@@ -33,7 +33,7 @@ describe('testMultiplyObject', () => {
       ).to.eq(-1);
       cy.get('body').click(920, 530); // click on second circle
     });
-    cy.wait(100);
+    cy.wait(500);
     doWithTestController((testController) => {
       expect(
         testController.getNodeOutputValue(
