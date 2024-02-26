@@ -238,7 +238,7 @@ Then in the HTTP node enable "Send Through Companion"`),
     return { Authorization: 'Bearer ' + key };
   }
 
-  static defaultHeaders = {
+  static readonly defaultHeaders = {
     'Content-Type': 'application/json',
     Authorization: 'Basic ${YOUR_ENVIRONMENTAL_COMPANION_VARIABLE_HERE}',
   };
