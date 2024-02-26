@@ -151,7 +151,6 @@ export class HTTPNode extends PPNode {
     companionAddress = '',
   ): Promise<object> {
     this.status.custom = [];
-    let returnResponse = {};
     try {
       if (usingCompanion) {
         this.status.custom.push(
@@ -166,8 +165,12 @@ export class HTTPNode extends PPNode {
         );
 
         this.pushStatusCode(companionRes.status);
-        returnResponse = companionRes.response;
-        return JSON.parse(companionRes.response);
+        const returnResponse = companionRes.response;
+        try {
+          return JSON.parse(returnResponse);
+        } catch (error) {
+          return { Failure: companionRes.response };
+        }
       } else {
         // no body if Get
         const bodyToUse: BodyInit = method !== 'Get' ? body : undefined;
@@ -178,8 +181,7 @@ export class HTTPNode extends PPNode {
         });
         const awaitedRes = await res;
         this.pushStatusCode(awaitedRes.status);
-        returnResponse = await awaitedRes.json();
-        return returnResponse;
+        return await awaitedRes.json();
       }
     } catch (error) {
       console.trace(error);
@@ -236,5 +238,8 @@ Then in the HTTP node enable "Send Through Companion"`),
     return { Authorization: 'Bearer ' + key };
   }
 
-  static defaultHeaders = { 'Content-Type': 'application/json' };
+  static defaultHeaders = {
+    'Content-Type': 'application/json',
+    Authorization: 'Basic ${YOUR_ENVIRONMENTAL_COMPANION_VARIABLE_HERE}',
+  };
 }
