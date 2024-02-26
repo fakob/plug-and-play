@@ -105,7 +105,7 @@
         },
         {
           "socketType": "out",
-          "name": "Main Html element",
+          "name": "HtmlElement",
           "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": true
         }
@@ -179,7 +179,7 @@
     {
       "id": "d7dee135-7750-46c2-8402-b1bea2ee7a94",
       "sourceNodeId": "ugly-turkey-8",
-      "sourceSocketName": "Main Html element",
+      "sourceSocketName": "HtmlElement",
       "targetNodeId": "wet-robin-57",
       "targetSocketName": "myDiv"
     }

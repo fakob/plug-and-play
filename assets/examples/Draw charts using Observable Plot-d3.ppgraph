@@ -451,7 +451,7 @@
         },
         {
           "socketType": "out",
-          "name": "Main Html element",
+          "name": "HtmlElement",
           "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": true
         }
@@ -824,7 +824,7 @@
     {
       "id": "54961163-35b4-4891-b3b9-cc99d073fb84",
       "sourceNodeId": "clever-starfish-77",
-      "sourceSocketName": "Main Html element",
+      "sourceSocketName": "HtmlElement",
       "targetNodeId": "black-elephant-32",
       "targetSocketName": "myDiv"
     },

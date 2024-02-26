@@ -451,7 +451,7 @@
         },
         {
           "socketType": "out",
-          "name": "Main Html element",
+          "name": "HtmlElement",
           "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": true
         }
@@ -873,7 +873,7 @@
     {
       "id": "d9c92d2e-180f-4c92-9457-529635b2897a",
       "sourceNodeId": "witty-fish-24",
-      "sourceSocketName": "Main Html element",
+      "sourceSocketName": "HtmlElement",
       "targetNodeId": "selfish-octopus-96",
       "targetSocketName": "myCanvas"
     }

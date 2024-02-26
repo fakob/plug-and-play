@@ -21,7 +21,7 @@ import HybridNode2 from '../../classes/HybridNode2';
 const inputSocketNameHeader = 'Header';
 const inputSocketNameHtml = 'Html';
 const reloadSocketName = 'Reload';
-const mainHtmlElementName = 'Main Html element';
+const mainHtmlElementName = 'HtmlElement';
 
 export class HtmlRenderer extends HybridNode2 {
   eventTarget: EventTarget;
@@ -201,36 +201,17 @@ const MemoizedComponent = memo<MemoizedComponentProps>(
   }) {
     const idWithDiv = `${id}-div`;
 
-    useEffect(() => {
-      if (iframeRef.current as any) {
-        const iframe = iframeRef.current;
-
-        function setupObserver() {
-          const observer = new MutationObserver((mutationsList, observer) => {
-            for (const mutation of mutationsList) {
-              if (mutation.type === 'childList' && iframe.contentDocument) {
-                const outerElement =
-                  iframe.contentDocument.getElementById(idWithDiv);
-                if (outerElement) {
-                  const myHtmlElement = outerElement.children[0];
-                  if (myHtmlElement) {
-                    node.setOutputData(mainHtmlElementName, myHtmlElement);
-                    node.executeChildren();
-                    observer.disconnect();
-                    break;
-                  }
-                }
-              }
-            }
-          });
-
-          const config = { attributes: false, childList: true, subtree: true };
-          observer.observe(iframe.contentDocument.body, config);
+    const updateOutputSocket = () => {
+      const outerElement =
+        iframeRef.current.contentDocument.getElementById(idWithDiv);
+      if (outerElement) {
+        const myHtmlElement = outerElement.children[0];
+        if (myHtmlElement) {
+          node.setOutputData(mainHtmlElementName, myHtmlElement);
+          node.executeChildren();
         }
-
-        iframe.onload = setupObserver;
       }
-    }, [iframeRef.current]);
+    };
 
     return (
       <Frame
@@ -243,6 +224,8 @@ const MemoizedComponent = memo<MemoizedComponentProps>(
           borderWidth: 0,
         }}
         initialContent={`<!DOCTYPE html><html><head><style>* {border: none;}</style>${headerData}</head><body style='overflow:auto; border-width: 0px; background: white;'><div></div></body></html>`}
+        contentDidMount={updateOutputSocket}
+        contentDidUpdate={updateOutputSocket}
       >
         <ThemeProvider theme={theme}>
           <Box
