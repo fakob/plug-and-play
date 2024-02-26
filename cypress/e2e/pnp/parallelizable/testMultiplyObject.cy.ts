@@ -3,6 +3,7 @@ import { doWithTestController, openNewGraph } from '../helpers';
 describe('testMultiplyObject', () => {
   it('Check index of multiply object', () => {
     openNewGraph();
+    cy.showMousePosition();
     doWithTestController((testController) => {
       testController.addNode('DRAW_Shape', 'DRAW_Shape');
       testController.addNode('DRAW_Multiplier', 'DRAW_Multiplier');

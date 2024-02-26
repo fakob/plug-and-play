@@ -3,6 +3,7 @@ import { doWithTestController, openNewGraph } from '../helpers';
 describe('testHybridNodes', () => {
   it('Test Html node', () => {
     openNewGraph();
+    cy.showMousePosition();
     doWithTestController(async (testController) => {
       await testController.addNode('HtmlRenderer', 'HtmlRenderer1');
       await testController.addNode('HtmlRenderer', 'HtmlRenderer2');
