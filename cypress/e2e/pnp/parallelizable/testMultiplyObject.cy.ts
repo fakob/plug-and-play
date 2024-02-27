@@ -16,7 +16,7 @@ import { doWithTestController, openNewGraph } from '../helpers';
 //         'DRAW_Shape',
 //         'DRAW_Multiplier',
 //         'Graphics',
-      );
+//       );
 //       testController.setNodeInputValue('DRAW_Shape', 'Offset X', 200);
 //       testController.setNodeInputValue(
 //         'DRAW_Multiplier',
