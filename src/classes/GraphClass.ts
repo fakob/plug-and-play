@@ -900,7 +900,7 @@ export default class PPGraph {
   }
 
   async duplicateSelection(
-    pastePos: PIXI.Point = new PIXI.Point(0, 0),
+    pastePos: PIXI.Point = new PIXI.Point(40, 40),
   ): Promise<PPNode[]> {
     const serializeSelection = this.serializeSelection();
     const pastedNodes = await this.action_pasteNodes(
