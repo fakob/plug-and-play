@@ -620,7 +620,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
 
   // this is a little bit ugly, but some nodes really want to look through all input sockets, and exclude something like the "Meta" one
   public getAllInterestingInputSockets(): Socket[] {
-    return this.inputSocketArray.filter(socket => socket.name !== "Meta");
+    return this.inputSocketArray.filter((socket) => socket.name !== 'Meta');
   }
 
   public getAllInputSockets(): Socket[] {
@@ -1056,10 +1056,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   private renderOutline(iterations = 30, interval = 16.67): void {
     const activeExecution = new PIXI.Graphics();
     this._BackgroundRef.addChild(activeExecution);
-    activeExecution.beginFill(
-      this.status.node.getColor().hexNumber(),
-      0.4,
-    );
+    activeExecution.beginFill(this.status.node.getColor().hexNumber(), 0.4);
     activeExecution.drawRoundedRect(
       NODE_MARGIN,
       0,
@@ -1166,10 +1163,14 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     const node = event.target as PPNode;
 
     if (node.clickedSocketRef === null) {
-      // start dragging the node
-      PPGraph.currentGraph.selection.selectNodes([this], false, false);
-      PPGraph.currentGraph.selection.setInteraction(Interaction.Dragging);
-      PPGraph.currentGraph.selection.onPointerDown(event);
+      if (event.shiftKey) {
+        PPGraph.currentGraph.selection.selectNodes([this], true, true);
+      } else {
+        // start dragging the node
+        PPGraph.currentGraph.selection.selectNodes([this], false, false);
+        PPGraph.currentGraph.selection.setInteraction(Interaction.Dragging);
+        PPGraph.currentGraph.selection.onPointerDown(event);
+      }
     }
     if (event.button == 2) {
       if (event.target == this) {
