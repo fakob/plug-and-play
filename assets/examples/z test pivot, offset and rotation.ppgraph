@@ -3,10 +3,10 @@
   "graphSettings": {
     "showExecutionVisualisation": true,
     "viewportCenterPosition": {
-      "x": -1119.0048957448607,
-      "y": 1888.1073563575724
+      "x": -1175.501594543457,
+      "y": 1860.9280350685099
     },
-    "viewportScale": 0.3847761830046287
+    "viewportScale": 0.37479752754281465
   },
   "nodes": [
     {
@@ -991,8 +991,8 @@
         {
           "socketType": "in",
           "name": "Selected Option",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "data": [],
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "top left",
           "visible": false
         },
         {
@@ -1059,8 +1059,8 @@
         {
           "socketType": "in",
           "name": "Selected Option",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "data": [],
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "top left",
           "visible": false
         },
         {
