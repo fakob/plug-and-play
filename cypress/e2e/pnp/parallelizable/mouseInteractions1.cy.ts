@@ -1,7 +1,9 @@
 import {
-  areCoordinatesClose,
   afterEachMouseInteraction,
+  areCoordinatesClose,
+  assertSelectedNodesCount,
   beforeEachMouseInteraction,
+  clickNode,
   doWithTestController,
   dragFromAtoB,
 } from '../helpers';
@@ -118,16 +120,26 @@ describe('mouseInteractions1', () => {
     });
   });
 
-  it('Selects node on clicking node without dragging', () => {
-    doWithTestController((testController) => {
-      const coordinates = testController.getNodeCenterById('Constant1');
-      cy.wait(100);
-      cy.get('body').click(coordinates[0], coordinates[1]);
-    });
+  it('Selects and deselects nodes on clicking and shift-clicking node without dragging', () => {
+    // Click the first node
+    clickNode('Constant1');
     cy.wait(100);
-    doWithTestController((testController) => {
-      expect(testController.getSelectedNodes().length).to.eq(1);
-    });
+    assertSelectedNodesCount(1);
+
+    // Add to selection with shift-click on the second node
+    clickNode('Constant2', { shiftKey: true });
+    cy.wait(100);
+    assertSelectedNodesCount(2);
+
+    // Remove from selection with shift-click on the first node
+    clickNode('Constant1', { shiftKey: true });
+    cy.wait(100);
+    assertSelectedNodesCount(1);
+
+    // Remove from selection with shift-click on the second node
+    clickNode('Constant2', { shiftKey: true });
+    cy.wait(100);
+    assertSelectedNodesCount(0);
   });
 
   it('Drags node and releasing it over socket', () => {

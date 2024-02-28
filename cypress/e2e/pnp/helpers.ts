@@ -2,12 +2,12 @@ export function doWithTestController(inFunction, id = undefined) {
   cy.window().then(async (win) => {
     const anyWin = win as any;
     await inFunction(anyWin.testController);
-    if (id !== undefined){
+    if (id !== undefined) {
       anyWin.testController.spamToast(id);
     }
   });
-  if (id !== undefined){
-    cy.get("body").contains(id).should("exist");
+  if (id !== undefined) {
+    cy.get('body').contains(id).should('exist');
   }
 }
 
@@ -26,7 +26,7 @@ export const getShareDialog = () => cy.get('[data-cy="shareDialog"]');
 
 export function saveGraph() {
   cy.get('body').type(`${controlOrMetaKey()}s`);
-  cy.get("body").contains("was saved").should("exist");
+  cy.get('body').contains('was saved').should('exist');
 }
 
 export function openEditGraph() {
@@ -49,11 +49,16 @@ export const addFirstTwoNodes = () => {
     testController.setShowUnsavedChangesWarning(false);
     await testController.addNode('Constant', 'Constant1');
     await testController.addNode('Constant', 'Constant2');
-  }, "addfirsttwonodes");
+  }, 'addfirsttwonodes');
   doWithTestController(async (testController) => {
     await testController.moveNodeByID('Constant2', 230, 0);
-    await testController.connectNodesByID('Constant1', 'Constant2', 'Out', 'In');
-  }, "connectfirstwwonodes");
+    await testController.connectNodesByID(
+      'Constant1',
+      'Constant2',
+      'Out',
+      'In',
+    );
+  }, 'connectfirstwwonodes');
 };
 
 export const addTwoNodes = () => {
@@ -114,10 +119,25 @@ export const clickDeleteButtonOfGraph = (graphName) => {
 
 export const openExistingGraph = () => {
   cy.visit('http://127.0.0.1:8080/?toastEverything=true');
-  cy.get("body").contains("was loaded").should("exist");
-}
+  cy.get('body').contains('was loaded').should('exist');
+};
 
 export const openNewGraph = () => {
-    cy.visit('http://127.0.0.1:8080/?new=true&toastEverything=true');
-    cy.get("body").contains("startup_complete").should("exist");
-}
+  cy.visit('http://127.0.0.1:8080/?new=true&toastEverything=true');
+  cy.get('body').contains('startup_complete').should('exist');
+};
+
+export const clickNode = (nodeId, options = {}) => {
+  doWithTestController((testController) => {
+    const coordinates = testController.getNodeCenterById(nodeId);
+    cy.wait(100);
+    cy.get('body').click(coordinates[0], coordinates[1], options);
+  });
+};
+
+// Function to assert the number of selected nodes
+export const assertSelectedNodesCount = (expectedCount) => {
+  doWithTestController((testController) => {
+    expect(testController.getSelectedNodes().length).to.eq(expectedCount);
+  });
+};
