@@ -509,6 +509,11 @@ export const DataEditorWidget: React.FunctionComponent<
     }
   }, 100);
 
+  useEffect(() => {
+    const newData = property.getStringifiedData();
+    setDisplayedString(newData);
+  }, [property.getStringifiedData()]);
+
   const onChange = (value: string) => {
     try {
       setDisplayedString(value);
