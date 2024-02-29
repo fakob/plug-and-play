@@ -10,12 +10,13 @@ import {
   SOCKET_TYPE,
   TRIGGER_TYPE_OPTIONS,
 } from '../../utils/constants';
-import { TRgba } from '../../utils/interfaces';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import { ensureVisible } from '../../pixi/utils-pixi';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { BooleanType } from '../datatypes/booleanType';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
+import { EnumType } from '../datatypes/enumType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
@@ -336,5 +337,146 @@ export class LoadNPM extends CustomFunction {
 
   public socketShouldAutomaticallyAdapt(): boolean {
     return false;
+  }
+}
+
+const outputSocketName = 'Output';
+const parameterName1 = 'Input';
+const parameterName2 = 'Input2';
+const parameterName3 = 'Input3';
+const hashMethodName = 'Hash method';
+
+const IMPORT_NAME = 'hash-wasm';
+
+export class Hash extends PPNode {
+  hash = {};
+  hashOptions;
+  onOptionChange?: (value: string) => void;
+
+  public getName(): string {
+    return 'Hash creator';
+  }
+
+  public getDescription(): string {
+    return 'Creates various hashes like md5, sha or HMAC';
+  }
+
+  public getTags(): string[] {
+    return ['Input'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, true, false, 1000, this);
+  }
+
+  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
+    await super.onNodeAdded(source);
+    // if (source !== NODE_SOURCE.NEWCONNECTED) {
+    this.hash = await PPGraph.currentGraph.dynamicImports[IMPORT_NAME];
+    const hashFunctions = Object.entries(this.hash).filter(
+      ([name, value]) => typeof value === 'function',
+    );
+    console.log(hashFunctions);
+    this.hashOptions = hashFunctions.map(([name, func]) => {
+      return {
+        text: `${name} (${(func as any).length})`,
+        value: name,
+      };
+    });
+    console.log(this.hashOptions);
+
+    const newSocket = new Socket(
+      SOCKET_TYPE.IN,
+      hashMethodName,
+      new EnumType(this.hashOptions),
+      'md4 (1)',
+      false,
+    );
+    this.addSocket(newSocket);
+    // }
+  };
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        parameterName1,
+        new StringType(),
+        'param1',
+        true,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        parameterName2,
+        new StringType(),
+        'param2',
+        true,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        parameterName3,
+        new StringType(),
+        'param3',
+        true,
+      ),
+      new Socket(SOCKET_TYPE.OUT, outputSocketName, new StringType(), '', true),
+    ];
+  }
+
+  protected async onExecute(input, output): Promise<void> {
+    const hashMethod = input[hashMethodName];
+    console.log(hashMethod, this.hashOptions);
+    const hashMethodValue = this.hashOptions?.find(
+      (option) => option.text === hashMethod,
+    ).value;
+    if (hashMethodValue) {
+      console.log(
+        this.hash,
+        hashMethodValue,
+        this.hash[hashMethodValue].length,
+      );
+      if (hashMethodValue === 'createHMAC') {
+        const hasher = this.hash[input[parameterName1]]();
+        const hmac = await this.hash[hashMethodValue](
+          hasher,
+          input[parameterName2],
+        );
+        hmac.update(input[parameterName3]);
+        output[outputSocketName] = await hmac.digest();
+      } else if (String(hashMethodValue).startsWith('create')) {
+        const hasher = await this.hash[hashMethodValue]();
+        console.log(hasher);
+        output[outputSocketName] = hasher.digest(input[parameterName1]);
+      } else {
+        const parameterCount = this.hash[hashMethodValue].length;
+        switch (parameterCount) {
+          case 0:
+            output[outputSocketName] = await this.hash[hashMethodValue]();
+            break;
+          case 1:
+            output[outputSocketName] = await this.hash[hashMethodValue](
+              input[parameterName1],
+            );
+            break;
+          case 2:
+            output[outputSocketName] = await this.hash[hashMethodValue](
+              input[parameterName1],
+              input[parameterName2],
+            );
+            break;
+          default:
+            output[outputSocketName] = await this.hash[hashMethodValue];
+            break;
+        }
+      }
+    }
+  }
+
+  public getDynamicImports(): string[] {
+    return [IMPORT_NAME];
   }
 }
