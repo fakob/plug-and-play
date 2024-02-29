@@ -93,12 +93,16 @@ app.get('/oauth/redirect', async function (req, res) {
   const code = req.query?.code;
 
   if (!code) {
-    throw new Error('No code!');
+    return res.status(400).json({ error: 'No code provided in the request.' });
   }
 
-  await getGitHubUser({ req, code });
-
-  res.redirect(`/`);
+  try {
+    await getGitHubUser({ req, code });
+    res.redirect(`/`);
+  } catch (error) {
+    console.error('Failed to get GitHub user:', error);
+    res.status(500).send({ error: 'Failed to authenticate with GitHub.' });
+  }
 });
 
 app.get('/api/me', (req, res) => {
