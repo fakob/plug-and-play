@@ -23,11 +23,11 @@ describe('dialogs', () => {
     doWithTestController(async (testController) => {
       await testController.deleteAllGraphs();
       // cy.get('body').click(coordinates[0], coordinates[1]);
-    }, "deleteallgraphs");
+    }, 'deleteallgraphs');
     addFirstTwoNodes();
     cy.get('body').type('1'); // close left side menu
     saveGraph();
-      cy.get('[id^="notistack-snackbar"]')
+    cy.get('[id^="notistack-snackbar"]')
       .contains('was saved')
       .invoke('text')
       .then((text) => {
@@ -85,9 +85,10 @@ describe('dialogs', () => {
 
   // Edit graph dialog of other graph
   it('Changes graph name of other graph after graph name change and clicking save', () => {
+    cy.wait(1000);
     cy.get('body').type(`${controlOrMetaKey()}{shift}s`); // save new graph
     cy.wait(1000)
-      .get('[id^="notistack-snackbar"]')
+      .get('[id^="notistack-snackbar"]', { timeout: 4000 })
       .last()
       .contains('was saved')
       .invoke('text')
