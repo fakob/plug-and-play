@@ -3,10 +3,10 @@
   "graphSettings": {
     "showExecutionVisualisation": true,
     "viewportCenterPosition": {
-      "x": 1138.282946903484,
-      "y": 730.0911818403086
+      "x": 821.3163421050909,
+      "y": 909.4691548563461
     },
-    "viewportScale": 0.7710237712044126
+    "viewportScale": 0.7691032893127459
   },
   "nodes": [
     {
@@ -23,16 +23,21 @@
           "name": "Input",
           "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null]}}",
           "data": "https://randomuser.me/api/",
-          "visible": false,
-          "isCustom": false
+          "visible": false
         },
         {
           "socketType": "in",
           "name": "fontSize",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"valueChangedListeners\":[null,null],\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01,\"valueChangedListeners\":[null,null]}}",
           "data": 32,
-          "visible": false,
-          "isCustom": false
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1280,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
         },
         {
           "socketType": "in",
@@ -44,433 +49,31 @@
             "b": 204,
             "a": 1
           },
-          "visible": false,
-          "isCustom": false
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
         },
         {
           "socketType": "in",
           "name": "min-width",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"valueChangedListeners\":[null,null],\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01,\"valueChangedListeners\":[null,null]}}",
           "data": 128,
-          "visible": false,
-          "isCustom": false
+          "visible": false
         },
         {
           "socketType": "out",
           "name": "Output",
           "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null]}}",
-          "visible": true,
-          "isCustom": false
+          "visible": true
         }
       ],
       "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "evil-pig-65",
-      "name": "Get random user",
-      "type": "Get",
-      "x": 387.3168937634465,
-      "y": 505.31282014896897,
-      "width": 160,
-      "height": 112,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "URL",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "in",
-          "name": "Headers",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "data": {
-            "Content-Type": "application/json"
-          },
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "out",
-          "name": "Content",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "visible": true,
-          "isCustom": false
-        }
-      ],
-      "updateBehaviour": {
-        "update": false,
-        "interval": true,
-        "intervalFrequency": 10000
-      }
-    },
-    {
-      "id": "nice-squid-38",
-      "name": "Extract first name",
-      "type": "JSONGet",
-      "x": 617.916720855203,
-      "y": 383.76063518563205,
-      "width": 160,
-      "height": 112,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "JSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "in",
-          "name": "Path",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null]}}",
-          "data": "results.[0].name.first",
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "out",
-          "name": "Value",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": false
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "fluffy-badger-21",
-      "name": "Break",
-      "type": "Break",
-      "x": 608.0365549610032,
-      "y": 677.8653913863525,
-      "width": 160,
-      "height": 112,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "JSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "defaultData": {},
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "out",
-          "name": "results",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{\"valueChangedListeners\":[null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "info",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[null]}}",
-          "visible": true,
-          "isCustom": true
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "terrible-cow-40",
-      "name": "Break",
-      "type": "Break",
-      "x": 839.624359657366,
-      "y": 695.6674981786347,
-      "width": 160,
-      "height": 88,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "JSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "defaultData": {},
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "out",
-          "name": "0",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "visible": true,
-          "isCustom": true
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "friendly-penguin-51",
-      "name": "Break",
-      "type": "Break",
-      "x": 1062.9445500624888,
-      "y": 512.9491091012883,
-      "width": 160,
-      "height": 352,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "JSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "defaultData": {},
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "out",
-          "name": "gender",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "name",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "location",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "email",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "login",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "dob",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "registered",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "phone",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "cell",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "id",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "picture",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "nat",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": true
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "proud-lionfish-22",
-      "name": "Break",
-      "type": "Break",
-      "x": 1296.8058098141823,
-      "y": 506.21054407393456,
-      "width": 160,
-      "height": 136,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "JSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "defaultData": {},
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "out",
-          "name": "title",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "first",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null]}}",
-          "visible": true,
-          "isCustom": true
-        },
-        {
-          "socketType": "out",
-          "name": "last",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[null,null]}}",
-          "visible": true,
-          "isCustom": true
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "weak-newt-26",
-      "name": "==",
-      "type": "Comparison",
-      "x": 1536.7282078418355,
-      "y": 360.1710008328656,
-      "width": 160,
-      "height": 112,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "A",
-          "dataType": "{\"class\":\"AnyType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null,null,null,null,null,null,null,null]}}",
-          "defaultData": 0,
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "in",
-          "name": "B",
-          "dataType": "{\"class\":\"AnyType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null,null,null,null,null,null,null,null,null]}}",
-          "defaultData": 1,
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "in",
-          "name": "Operator",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"valueChangedListeners\":[],\"options\":[{\"text\":\"Greater than (>)\",\"value\":\">\"},{\"text\":\"Greater than or equal (>=)\",\"value\":\">=\"},{\"text\":\"Less than (<)\",\"value\":\"<\"},{\"text\":\"Less than or equal (<=)\",\"value\":\"<=\"},{\"text\":\"Equal (==)\",\"value\":\"==\"},{\"text\":\"Not equal (!=)\",\"value\":\"!=\"},{\"text\":\"Strict equal (===)\",\"value\":\"===\"},{\"text\":\"Strict not equal (!==)\",\"value\":\"!==\"},{\"text\":\"Logical AND (&&)\",\"value\":\"&&\"},{\"text\":\"Logical OR (||)\",\"value\":\"||\"},{\"text\":\"Logical NOT (!)\",\"value\":\"!\"}]}}",
-          "data": "==",
-          "visible": false,
-          "isCustom": false
-        },
-        {
-          "socketType": "out",
-          "name": "Output",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": false
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "lazy-firefox-50",
-      "name": "Label",
-      "type": "Label",
-      "x": 1769.4307008331862,
-      "y": 393.9119162711951,
-      "width": 160,
-      "height": 69,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Input",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "defaultData": "",
-          "visible": true,
-          "isCustom": false
-        },
-        {
-          "socketType": "in",
-          "name": "fontSize",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"valueChangedListeners\":[],\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 32,
-          "visible": false,
-          "isCustom": false
-        },
-        {
-          "socketType": "in",
-          "name": "backgroundColor",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "data": {
-            "r": 86,
-            "g": 225,
-            "b": 204,
-            "a": 1
-          },
-          "visible": false,
-          "isCustom": false
-        },
-        {
-          "socketType": "in",
-          "name": "min-width",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"valueChangedListeners\":[],\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 128,
-          "visible": false,
-          "isCustom": false
-        },
-        {
-          "socketType": "out",
-          "name": "Output",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":[]}}",
-          "visible": true,
-          "isCustom": false
-        }
-      ],
-      "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -480,8 +83,8 @@
       "id": "bright-hound-90",
       "name": "CodeEditor",
       "type": "CodeEditor",
-      "x": 594.8789578430453,
-      "y": 905.4009867760258,
+      "x": 767.890189191965,
+      "y": 985.7118326340537,
       "width": 379.16415984974196,
       "height": 334.00693362160723,
       "socketArray": [
@@ -490,18 +93,377 @@
           "name": "input",
           "dataType": "{\"class\":\"CodeType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null]}}",
           "defaultData": "// javascript code editor\n// to run this code, plug it into a CustomFunction node\n(a) => {\nreturn a;\n}",
-          "visible": false,
-          "isCustom": false
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
         },
         {
           "socketType": "out",
           "name": "output",
           "dataType": "{\"class\":\"CodeType\",\"type\":{\"valueChangedListeners\":[null,null,null,null,null]}}",
-          "visible": true,
-          "isCustom": false
+          "visible": true
         }
       ],
       "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "serious-gecko-7",
+      "name": "HTTP",
+      "type": "HTTPNode",
+      "x": 458.9287438336434,
+      "y": 523.2195389097113,
+      "width": 160,
+      "height": 184,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "URL",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "defaultData": "https://jsonplaceholder.typicode.com/posts",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Headers",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic ${YOUR_ENVIRONMENTAL_COMPANION_VARIABLE_HERE}"
+          },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Method",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"Get\",\"value\":\"Get\"},{\"text\":\"Post\",\"value\":\"Post\"},{\"text\":\"Put\",\"value\":\"Put\"},{\"text\":\"Patch\",\"value\":\"Patch\"},{\"text\":\"Delete\",\"value\":\"Delete\"}]}}",
+          "data": "Get",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Body",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Send Through Companion",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Companion Location",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "http://localhost:6655"
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Content",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "spotty-baboon-27",
+      "name": "Break JSON",
+      "type": "Break",
+      "x": 730.362489929365,
+      "y": 523.2195389097113,
+      "width": 160,
+      "height": 112,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "JSON",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":true}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Lock Outputs",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "results→0",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "info",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "chilly-badger-71",
+      "name": "Break JSON",
+      "type": "Break",
+      "x": 1001.7962360250865,
+      "y": 523.2195389097113,
+      "width": 160,
+      "height": 352,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "JSON",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":true}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Lock Outputs",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "gender",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "name",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "location",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "email",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "login",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "dob",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "registered",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "phone",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "cell",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "id",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "picture",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "nat",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "smooth-sheep-25",
+      "name": "Break JSON",
+      "type": "Break",
+      "x": 1273.229982120808,
+      "y": 523.2195389097113,
+      "width": 160,
+      "height": 136,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "JSON",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":true}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Lock Outputs",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "title",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "first",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "last",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "tame-snail-20",
+      "name": "Label",
+      "type": "Label",
+      "x": 1544.6637282165295,
+      "y": 523.2195389097113,
+      "width": 160,
+      "height": 69,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Input",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "defaultData": "",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "fontSize",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 32,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1280,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "backgroundColor",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 84,
+            "g": 155,
+            "b": 224,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Output",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -510,74 +472,49 @@
   ],
   "links": [
     {
-      "id": 2,
-      "sourceNodeId": "loud-earwig-33",
-      "sourceSocketName": "Output",
-      "targetNodeId": "evil-pig-65",
-      "targetSocketName": "URL"
-    },
-    {
-      "id": 3,
-      "sourceNodeId": "evil-pig-65",
-      "sourceSocketName": "Content",
-      "targetNodeId": "nice-squid-38",
-      "targetSocketName": "JSON"
-    },
-    {
-      "id": 4,
-      "sourceNodeId": "evil-pig-65",
-      "sourceSocketName": "Content",
-      "targetNodeId": "fluffy-badger-21",
-      "targetSocketName": "JSON"
-    },
-    {
-      "id": 5,
-      "sourceNodeId": "fluffy-badger-21",
-      "sourceSocketName": "results",
-      "targetNodeId": "terrible-cow-40",
-      "targetSocketName": "JSON"
-    },
-    {
-      "id": 6,
-      "sourceNodeId": "terrible-cow-40",
-      "sourceSocketName": "0",
-      "targetNodeId": "friendly-penguin-51",
-      "targetSocketName": "JSON"
-    },
-    {
-      "id": 7,
-      "sourceNodeId": "friendly-penguin-51",
-      "sourceSocketName": "name",
-      "targetNodeId": "proud-lionfish-22",
-      "targetSocketName": "JSON"
-    },
-    {
-      "id": 8,
-      "sourceNodeId": "nice-squid-38",
-      "sourceSocketName": "Value",
-      "targetNodeId": "weak-newt-26",
-      "targetSocketName": "A"
-    },
-    {
-      "id": 9,
-      "sourceNodeId": "proud-lionfish-22",
-      "sourceSocketName": "first",
-      "targetNodeId": "weak-newt-26",
-      "targetSocketName": "B"
-    },
-    {
-      "id": 10,
-      "sourceNodeId": "weak-newt-26",
-      "sourceSocketName": "Output",
-      "targetNodeId": "lazy-firefox-50",
-      "targetSocketName": "Input"
-    },
-    {
-      "id": 11,
-      "sourceNodeId": "evil-pig-65",
+      "id": "0c850a03-725f-492c-b965-2fb6f6e15b1d",
+      "sourceNodeId": "serious-gecko-7",
       "sourceSocketName": "Content",
       "targetNodeId": "bright-hound-90",
       "targetSocketName": "input"
+    },
+    {
+      "id": "c63de525-6749-46b8-82ac-3b63202fb0e9",
+      "sourceNodeId": "loud-earwig-33",
+      "sourceSocketName": "Output",
+      "targetNodeId": "serious-gecko-7",
+      "targetSocketName": "URL"
+    },
+    {
+      "id": "dc780d8d-7ae9-4fc8-8131-dd74bf1700df",
+      "sourceNodeId": "serious-gecko-7",
+      "sourceSocketName": "Content",
+      "targetNodeId": "spotty-baboon-27",
+      "targetSocketName": "JSON"
+    },
+    {
+      "id": "1470ed9a-e83c-4ef3-b014-c79a9c1508a4",
+      "sourceNodeId": "spotty-baboon-27",
+      "sourceSocketName": "results→0",
+      "targetNodeId": "chilly-badger-71",
+      "targetSocketName": "JSON"
+    },
+    {
+      "id": "bff85c63-f2ed-49b8-aa9d-850cde5e1aed",
+      "sourceNodeId": "chilly-badger-71",
+      "sourceSocketName": "name",
+      "targetNodeId": "smooth-sheep-25",
+      "targetSocketName": "JSON"
+    },
+    {
+      "id": "09b11cdc-5cfa-4e0a-8085-691ac553f5ff",
+      "sourceNodeId": "smooth-sheep-25",
+      "sourceSocketName": "first",
+      "targetNodeId": "tame-snail-20",
+      "targetSocketName": "Input"
     }
-  ]
+  ],
+  "layouts": {
+    "default": []
+  }
 }

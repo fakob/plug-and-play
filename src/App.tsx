@@ -122,6 +122,9 @@ const App = (): JSX.Element => {
 
   // get/set mouse position and also update debug text
   const setMousePosition = (mouseMoveEvent) => {
+    const { jsHeapSizeLimit, totalJSHeapSize, usedJSHeapSize } = (
+      window.performance as any
+    ).memory;
     mousePosition.x = mouseMoveEvent?.pageX ?? 0;
     mousePosition.y = mouseMoveEvent?.pageY ?? 0;
     const mouseWorld = viewport.current.toWorld(mousePosition);
@@ -134,7 +137,8 @@ const App = (): JSX.Element => {
 Mouse position world: ${mouseWorldX}, ${mouseWorldY}
 Viewport position (scale): ${viewportScreenX}, ${Math.round(
       viewportScreenY,
-    )} (${viewportScale})`;
+    )} (${viewportScale})
+Memory (heap, total, used in MB): ${(jsHeapSizeLimit / 1048576).toFixed(2)}, ${(totalJSHeapSize / 1048576).toFixed(2)}, ${(usedJSHeapSize / 1048576).toFixed(2)}`;
   };
 
   // react-dropzone
