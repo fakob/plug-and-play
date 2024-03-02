@@ -24,7 +24,11 @@ import {
   saveBase64AsImage,
 } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
-import { drawDottedLine, removeAndDestroyChild } from '../../pixi/utils-pixi';
+import {
+  drawDottedLine,
+  getDrawingBounds,
+  removeAndDestroyChild,
+} from '../../pixi/utils-pixi';
 import {
   DRAW_Base,
   DRAW_Interactive_Base,
@@ -76,6 +80,7 @@ const inputGraphicsName = 'Graphics';
 const totalNumberName = 'Total Number';
 const numberPerColumnRow = 'Number Per Column/Row';
 const drawingOrder = 'Change Column/Row drawing order';
+const spacingName = 'Spacing';
 const spacingXName = 'Spacing X';
 const spacingYName = 'Spacing Y';
 const useBoundingBoxSpacingName = 'Adjacent Placing';
@@ -352,12 +357,14 @@ export class DRAW_Text extends DRAW_Base {
     );
     background.beginFill(bgColor.hex());
     background.drawRect(
-      textBounds.x - margin.left,
-      textBounds.y - margin.top,
+      0,
+      0,
       textBounds.width + margin.left + margin.right,
       textBounds.height + margin.top + margin.bottom,
     );
     background.endFill();
+    basicText.x = margin.left;
+    basicText.y = margin.top;
 
     const textContainer = new PIXI.Container();
     textContainer.addChild(background);
@@ -424,6 +431,238 @@ export class DRAW_Combine extends DRAW_Base {
     return true;
   }
 }
+const graphicsName = 'Graphics';
+const layoutDirectionName = 'Direction';
+const horizontalAlignmentName = 'Horizontal alignment';
+const verticalAlignmentName = 'Vertical alignment';
+const widthName = 'Width';
+const heightName = 'Height';
+const autoSpacingName = 'Auto spacing';
+
+const layoutDirectionOptions: EnumStructure = [
+  { text: 'vertical' },
+  { text: 'horizontal' },
+];
+
+const horizontalAlignmentOptions: EnumStructure = [
+  { text: 'left' },
+  { text: 'center' },
+  { text: 'right' },
+];
+
+const verticalAlignmentOptions: EnumStructure = [
+  { text: 'top' },
+  { text: 'center' },
+  { text: 'bottom' },
+];
+
+export class DRAW_Layout extends DRAW_Interactive_Base {
+  public getName(): string {
+    return 'Layout objects';
+  }
+
+  public getDescription(): string {
+    return 'Auto aligns objects';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        layoutDirectionName,
+        new EnumType(layoutDirectionOptions),
+        layoutDirectionOptions[0].text,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        horizontalAlignmentName,
+        new EnumType(horizontalAlignmentOptions),
+        horizontalAlignmentOptions[0].text,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        verticalAlignmentName,
+        new EnumType(verticalAlignmentOptions),
+        verticalAlignmentOptions[0].text,
+      ),
+      new Socket(SOCKET_TYPE.IN, autoSpacingName, new BooleanType()),
+      new Socket(SOCKET_TYPE.IN, spacingName, new NumberType(true, 0, 2000), 0),
+      new Socket(
+        SOCKET_TYPE.IN,
+        marginSocketName,
+        new NumberType(true, 0, 100),
+        10,
+      ),
+      new Socket(SOCKET_TYPE.IN, widthName, new NumberType(true, 0, 2000), 0),
+      new Socket(SOCKET_TYPE.IN, heightName, new NumberType(true, 0, 2000), 0),
+      new Socket(SOCKET_TYPE.IN, inputReverseName, new BooleanType()),
+      new Socket(SOCKET_TYPE.IN, bgColorName, new ColorType()),
+      // new Socket(SOCKET_TYPE.IN, graphicsName, new DeferredPixiType()),
+      // new Socket(SOCKET_TYPE.IN, graphicsName + ' 2', new DeferredPixiType()),
+    ].concat(super.getDefaultIO());
+  }
+
+  public getNewInputSocketName() {
+    return super.getNewInputSocketName(graphicsName);
+  }
+
+  public getSocketForNewConnection = (socket: Socket): Socket =>
+    DynamicInputNodeFunctions.getSocketForNewConnection(socket, this, true);
+
+  public async inputUnplugged() {
+    await DynamicInputNodeFunctions.inputUnplugged(this);
+    await super.inputUnplugged();
+  }
+
+  public getAllGraphicsSockets(): Socket[] {
+    return this.inputSocketArray.filter((socket) =>
+      socket.name.startsWith(graphicsName),
+    );
+  }
+
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    executions: { string: number },
+  ): void {
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
+
+    const isVertical =
+      inputObject[layoutDirectionName] === layoutDirectionOptions[0].text;
+    const horizontalAlignment = inputObject[horizontalAlignmentName];
+    const verticalAlignment = inputObject[verticalAlignmentName];
+    const autoSpacing = inputObject[autoSpacingName];
+    const spacingValue = inputObject[spacingName];
+    const reverseOrder = inputObject[inputReverseName];
+    const height = inputObject[heightName];
+
+    const margin = {
+      top: inputObject[marginSocketName],
+      right: inputObject[marginSocketName],
+      bottom: inputObject[marginSocketName],
+      left: inputObject[marginSocketName],
+    };
+
+    const myContainer = new PIXI.Container();
+    let currentPositionX = margin.left;
+    let currentPositionY = margin.top;
+    let distributedGap = 0;
+
+    const graphicsArray = this.getAllGraphicsSockets().map(
+      (socket) => socket.data,
+    );
+    if (reverseOrder) {
+      graphicsArray.reverse();
+    }
+
+    if (autoSpacing) {
+      const totalObjectsHeight = graphicsArray.reduce((sum, object) => {
+        const bounds = getDrawingBounds(object, 0, 0);
+        return sum + bounds.height;
+      }, 0);
+      // Calculate the remaining space after placing all elements
+      const remainingSpace =
+        height - totalObjectsHeight - margin.top - margin.bottom;
+      // Distribute the remaining space as gaps between elements
+      distributedGap = remainingSpace / (graphicsArray.length - 1);
+    }
+
+    graphicsArray.forEach((element, index) => {
+      const shallowContainer = new PIXI.Container();
+      if (typeof element == 'function') {
+        element(shallowContainer, executions);
+      }
+      shallowContainer.x = currentPositionX;
+      shallowContainer.y = currentPositionY;
+      const bounds = getDrawingBounds(element, 0, 0);
+
+      const gap = autoSpacing ? distributedGap : spacingValue;
+      if (isVertical) {
+        currentPositionY += bounds.height + gap;
+      } else {
+        currentPositionX += bounds.width + gap;
+      }
+
+      if (inputObject[objectsInteractive]) {
+        addShallowContainerEventListeners(
+          shallowContainer,
+          this,
+          index,
+          executions,
+        );
+      }
+      myContainer.addChild(shallowContainer);
+    });
+
+    const myContainerBounds = myContainer.getBounds();
+
+    const background = new PIXI.Graphics();
+    const bgColor = parseValueAndAttachWarnings(
+      this,
+      new ColorType(),
+      inputObject[bgColorName],
+    );
+    background.beginFill(bgColor.hex());
+    background.drawRect(
+      0,
+      0,
+      myContainerBounds.width + margin.left + margin.right,
+      myContainerBounds.height + margin.top + margin.bottom,
+    );
+    background.endFill();
+    myContainer.children.forEach((element) => {
+      if (isVertical) {
+        switch (horizontalAlignment) {
+          case 'left':
+            element.x = margin.left;
+            break;
+          case 'center':
+            element.x =
+              margin.left +
+              (myContainerBounds.width - (element as PIXI.Graphics).width) / 2;
+            break;
+          case 'right':
+            element.x =
+              myContainerBounds.width -
+              (element as PIXI.Graphics).width +
+              margin.left;
+            break;
+        }
+      } else {
+        switch (verticalAlignment) {
+          case 'top':
+            element.y = margin.top;
+            break;
+          case 'center':
+            element.y =
+              margin.top +
+              (myContainerBounds.height - (element as PIXI.Graphics).height) /
+                2;
+            break;
+          case 'bottom':
+            element.y =
+              myContainerBounds.height -
+              (element as PIXI.Graphics).height +
+              margin.top;
+            break;
+        }
+      }
+    });
+
+    myContainer.addChildAt(background, 0);
+
+    this.positionAndScale(myContainer, inputObject);
+
+    myContainer.eventMode = 'dynamic';
+
+    container.addChild(myContainer);
+  }
+}
 
 export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
   public getName(): string {
@@ -482,16 +721,16 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
     const changeDrawingOrder = inputObject[drawingOrder];
     const spacingSize =
       graphicsArray.length && inputObject[useBoundingBoxSpacingName]
-        ? DRAW_Get_Bounds.getDrawingBounds(
+        ? getDrawingBounds(
             graphicsArray[0],
-            inputObject[spacingXName],
-            inputObject[spacingYName],
+            inputObject[marginSocketName],
+            inputObject[marginSocketName],
           )
         : new PIXI.Rectangle(
             0,
             0,
-            inputObject[spacingXName],
-            inputObject[spacingYName],
+            inputObject[marginSocketName],
+            inputObject[marginSocketName],
           );
 
     for (let i = graphicsArray.length - 1; i >= 0; i--) {
@@ -598,8 +837,8 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
       if (typeof inputObject[inputGraphicsName] === 'function') {
         inputObject[inputGraphicsName](shallowContainer, executions);
       }
-      shallowContainer.x = x * inputObject[spacingXName];
-      shallowContainer.y = y * inputObject[spacingYName];
+      shallowContainer.x = x * inputObject[marginSocketName];
+      shallowContainer.y = y * inputObject[marginSocketName];
 
       addShallowContainerEventListeners(shallowContainer, this, i, executions);
 

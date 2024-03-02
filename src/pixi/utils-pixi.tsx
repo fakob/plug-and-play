@@ -211,3 +211,21 @@ export const removeAndDestroyChild = (that, newContainer): void => {
     baseTexture: true,
   });
 };
+
+export const getDrawingBounds = (
+  drawingFunction,
+  marginX: number = 0,
+  marginY: number = 0,
+) => {
+  const tempContainer = new PIXI.Container();
+  drawingFunction(tempContainer, {});
+  const bounds = tempContainer.getBounds();
+  bounds.x -= marginX;
+  bounds.y -= marginY;
+  bounds.width += marginX * 2;
+  bounds.height += marginY * 2;
+  tempContainer.destroy();
+  bounds.width = Math.max(bounds.width, 1);
+  bounds.height = Math.max(bounds.height, 1);
+  return bounds;
+};

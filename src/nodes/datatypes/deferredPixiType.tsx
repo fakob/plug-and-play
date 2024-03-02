@@ -35,6 +35,7 @@ export class DeferredPixiType extends FunctionType {
 
   recommendedOutputNodeWidgets(): string[] {
     return [
+      'DRAW_Layout',
       'DRAW_COMBINE_ARRAY',
       'DRAW_Combine',
       'DRAW_Passthrough',

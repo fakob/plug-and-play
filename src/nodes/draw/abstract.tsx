@@ -76,7 +76,7 @@ export abstract class DRAW_Base extends PPNode {
         SOCKET_TYPE.IN,
         offsetXName,
         new NumberType(true, -2000, 2000),
-        400,
+        200,
         false,
       ),
       new Socket(
