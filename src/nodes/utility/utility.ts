@@ -341,11 +341,12 @@ export class LoadNPM extends CustomFunction {
   }
 }
 
-const outputSocketName = 'Output';
 const hashMethodName = 'Hash method';
 const parameterName1 = 'Data';
 const parameterName2 = 'Key';
 const hashFunctionName = 'Hash function';
+const outputSocketName = 'Output';
+const outputPackageName = 'Module';
 
 const methods: EnumStructure = [
   { text: 'adler32' },
@@ -472,6 +473,13 @@ export class Hash extends PPNode {
         true,
       ),
       new Socket(SOCKET_TYPE.OUT, outputSocketName, new StringType(), '', true),
+      new Socket(
+        SOCKET_TYPE.OUT,
+        outputPackageName,
+        new JSONType(),
+        PPGraph.currentGraph.dynamicImports[IMPORT_NAME],
+        false,
+      ),
     ];
   }
 
