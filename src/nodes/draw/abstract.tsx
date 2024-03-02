@@ -20,7 +20,7 @@ import { ActionHandler } from '../../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import throttle from 'lodash/throttle';
 
-export const offseXName = 'Offset X';
+export const offsetXName = 'Offset X';
 export const offsetYName = 'Offset Y';
 export const scaleXName = 'Scale X';
 export const scaleYName = 'Scale Y';
@@ -74,7 +74,7 @@ export abstract class DRAW_Base extends PPNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        offseXName,
+        offsetXName,
         new NumberType(true, -2000, 2000),
         400,
         false,
@@ -188,7 +188,7 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   protected setOffsets(offsets: PIXI.Point) {
-    this.setInputData(offseXName, offsets.x);
+    this.setInputData(offsetXName, offsets.x);
     this.setInputData(offsetYName, offsets.y);
     this.executeOptimizedChain();
   }
@@ -276,6 +276,10 @@ export abstract class DRAW_Base extends PPNode {
           this.deferredGraphics.x -= this.x;
           this.deferredGraphics.y -= this.y;
         }
+        // } else {
+        //   this.deferredGraphics.x += this.getInputData(offsetXName);
+        //   this.deferredGraphics.y += this.getInputData(offsetYName);
+        // }
         this._ForegroundRef.addChild(this.deferredGraphics);
 
         if (this.allowMovingDirectly()) {
@@ -285,7 +289,7 @@ export abstract class DRAW_Base extends PPNode {
             this.pointerDown(
               getCurrentCursorPosition(),
               new PIXI.Point(
-                this.getInputData(offseXName),
+                this.getInputData(offsetXName),
                 this.getInputData(offsetYName),
               ),
             );
@@ -315,8 +319,10 @@ export abstract class DRAW_Base extends PPNode {
     const height = toModify.getBounds().height;
 
     toModify.setTransform(
-      inputObject[offseXName] + offset.x,
-      inputObject[offsetYName] + offset.y,
+      // inputObject[offsetXName] + offset.x,
+      // inputObject[offsetYName] + offset.y,
+      0,
+      0,
       inputObject[scaleXName],
       inputObject[scaleYName],
       (inputObject[inputRotationName] * Math.PI) / 180,

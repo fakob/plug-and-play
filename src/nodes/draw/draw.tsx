@@ -53,6 +53,7 @@ const availableShapes: EnumStructure = [
 ];
 
 const inputShapeName = 'Shape';
+const bgColorName = 'Background color';
 const inputColorName = 'Color';
 const inputSizeName = 'Size';
 const inputBorderName = 'Border';
@@ -258,6 +259,8 @@ export class DRAW_Passthrough extends DRAW_Base {
   }
 }
 
+const marginSocketName = 'Margin';
+
 export class DRAW_Text extends DRAW_Base {
   public getName(): string {
     return 'Draw text';
@@ -293,6 +296,13 @@ export class DRAW_Text extends DRAW_Base {
         new NumberType(true, 0, 2000),
         1000,
       ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        marginSocketName,
+        new NumberType(true, 0, 100),
+        10,
+      ),
+      new Socket(SOCKET_TYPE.IN, bgColorName, new ColorType()),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
     ].concat(super.getDefaultIO());
   }
@@ -319,15 +329,42 @@ export class DRAW_Text extends DRAW_Base {
       lineJoin: 'round',
     });
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
-    const selectedColor = parseValueAndAttachWarnings(
+    const fgColor = parseValueAndAttachWarnings(
       this,
       new ColorType(),
       inputObject[inputColorName],
     );
-    basicText.style.fill = selectedColor.hex();
+    basicText.style.fill = fgColor.hex();
 
-    this.positionAndScale(basicText, inputObject, offset);
-    container.addChild(basicText);
+    const textBounds = basicText.getBounds();
+    const margin = {
+      top: inputObject[marginSocketName],
+      right: inputObject[marginSocketName],
+      bottom: inputObject[marginSocketName],
+      left: inputObject[marginSocketName],
+    };
+
+    const background = new PIXI.Graphics();
+    const bgColor = parseValueAndAttachWarnings(
+      this,
+      new ColorType(),
+      inputObject[bgColorName],
+    );
+    background.beginFill(bgColor.hex());
+    background.drawRect(
+      textBounds.x - margin.left,
+      textBounds.y - margin.top,
+      textBounds.width + margin.left + margin.right,
+      textBounds.height + margin.top + margin.bottom,
+    );
+    background.endFill();
+
+    const textContainer = new PIXI.Container();
+    textContainer.addChild(background);
+    textContainer.addChild(basicText);
+
+    this.positionAndScale(textContainer, inputObject, offset);
+    container.addChild(textContainer);
   }
 }
 
