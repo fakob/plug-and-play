@@ -146,6 +146,8 @@ export type TNodeSource = (typeof NODE_SOURCE)[keyof typeof NODE_SOURCE];
 
 export type TAlignOptions = (typeof ALIGNOPTIONS)[keyof typeof ALIGNOPTIONS];
 
+export type TColorHsva = { h: number; s: number; v: number; a: number };
+
 // export type TPPType = PPSelection | PPNode | PPSocket;
 export type TPPType = PPSelection | PPSocket;
 
@@ -179,8 +181,18 @@ export class TRgba {
     return this.toColor().rgb().string();
   }
 
+  hsva(): TColorHsva {
+    const { color, valpha = 1 } = this.toColor().hsv();
+    const [h = 0, s = 0, v = 100] = color;
+    return { h, s, v, a: valpha };
+  }
+
   hex(): string {
     return this.toColor().hex();
+  }
+
+  hexa(): string {
+    return this.toColor().hexa();
   }
 
   hexNumber(): number {
@@ -201,6 +213,10 @@ export class TRgba {
 
   setAlpha(value: number): TRgba {
     return TRgba.fromColor(this.toColor().alpha(value));
+  }
+
+  alpha(): string {
+    return this.toColor().alpha();
   }
 
   mix(otherColor: TRgba, blendFactor: number): TRgba {

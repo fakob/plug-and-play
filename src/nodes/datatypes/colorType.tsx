@@ -91,7 +91,7 @@ export class ColorType extends AbstractType {
     super.drawValueSpecificGraphics(graphics, data);
     if (data) {
       try {
-        graphics.beginFill(data.hexNumber());
+        graphics.beginFill(data.hexNumber(), data.alpha());
         graphics.drawCircle(0, 0, 4);
       } catch (error) {}
     }

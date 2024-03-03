@@ -39,7 +39,6 @@ import {
   outputPixiName,
 } from './abstract';
 import { DynamicInputNodeFunctions } from '../abstract/DynamicInputNode';
-import DRAW_Get_Bounds from './drawMeta';
 
 const availableShapes: EnumStructure = [
   {
@@ -194,7 +193,7 @@ export class DRAW_Shape extends DRAW_Base {
         inputObject[inputColorName],
       );
       const drawBorder = inputObject[inputBorderName];
-      graphics.beginFill(selectedColor.hexNumber());
+      graphics.beginFill(selectedColor.hexNumber(), selectedColor.alpha());
       graphics.alpha = selectedColor.a;
       graphics.lineStyle(
         drawBorder ? 3 : 0,
@@ -340,6 +339,7 @@ export class DRAW_Text extends DRAW_Base {
       inputObject[inputColorName],
     );
     basicText.style.fill = fgColor.hex();
+    basicText.alpha = fgColor.alpha();
 
     const textBounds = basicText.getBounds();
     const margin = {
@@ -355,7 +355,7 @@ export class DRAW_Text extends DRAW_Base {
       new ColorType(),
       inputObject[bgColorName],
     );
-    background.beginFill(bgColor.hex());
+    background.beginFill(bgColor.hex(), bgColor.alpha());
     background.drawRect(
       0,
       0,
@@ -607,7 +607,7 @@ export class DRAW_Layout extends DRAW_Interactive_Base {
       new ColorType(),
       inputObject[bgColorName],
     );
-    background.beginFill(bgColor.hex());
+    background.beginFill(bgColor.hex(), bgColor.alpha());
     background.drawRect(
       0,
       0,
@@ -1057,7 +1057,7 @@ export class DRAW_Polygon extends DRAW_Base {
       new ColorType(),
       inputObject[inputColorName],
     );
-    graphics.beginFill(selectedColor.hexNumber());
+    graphics.beginFill(selectedColor.hexNumber(), selectedColor.alpha());
     graphics.alpha = selectedColor.a;
 
     const points: [number, number][] = inputObject[inputPointsName];

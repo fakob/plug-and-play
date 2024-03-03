@@ -24,7 +24,7 @@ import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { SketchPicker } from 'react-color';
+import { Sketch } from '@uiw/react-color';
 import prettyBytes from 'pretty-bytes';
 import InterfaceController from './InterfaceController';
 import { CodeEditor } from './components/Editor';
@@ -750,7 +750,7 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
         ref={anchorRef}
         className={styles.colorPickerSwatch}
         sx={{
-          backgroundColor: finalColor.rgb(),
+          backgroundColor: finalColor.hexa(),
           color: `${finalColor.isDark() ? COLOR_WHITE_TEXT : COLOR_DARK}`,
           userSelect: 'none',
           height: '100%',
@@ -769,10 +769,10 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
           anchorEl={anchorRef.current}
           sx={{ zIndex: 10 }}
         >
-          <SketchPicker
-            color={finalColor.object()}
-            onChangeComplete={(color) => {
-              const pickedrgb = color.rgb;
+          <Sketch
+            color={finalColor.hsva()}
+            onChange={(color) => {
+              const pickedrgb = color.rgba;
               changeColor(
                 new TRgba(pickedrgb.r, pickedrgb.g, pickedrgb.b, pickedrgb.a),
               );
