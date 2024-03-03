@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box, Stack, ThemeProvider, Typography } from '@mui/material';
 import Color from 'color';
 import styles from './utils/style.module.css';
-import PPStorage from './PPStorage';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import { NodeArrayContainer } from './NodeArrayContainer';

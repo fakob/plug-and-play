@@ -40,7 +40,7 @@ export class EnumType extends AbstractType {
   getDefaultWidgetSize(): any {
     return {
       w: 2,
-      h: 2,
+      h: 1,
       minW: 1,
       minH: 1,
     };
