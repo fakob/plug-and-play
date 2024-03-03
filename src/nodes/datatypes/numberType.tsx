@@ -42,9 +42,9 @@ export class NumberType extends AbstractType {
   getInputWidgetSize(): any {
     return {
       w: 2,
-      h: 2,
+      h: 1,
       minW: 2,
-      minH: 2,
+      minH: 1,
     };
   }
 

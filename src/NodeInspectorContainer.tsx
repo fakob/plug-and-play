@@ -63,7 +63,9 @@ function InspectorHeader(props) {
         {props.isEditable ? (
           <>
             <TextField
-              title={props.selectedNodes[0].id}
+              title={`id: ${props.selectedNodes[0].id}
+name: ${props.selectedNodes[0].name}
+type: ${props.selectedNodes[0].type}`}
               hiddenLabel
               inputRef={textInput}
               disabled={props.selectedNodes.length !== 1}

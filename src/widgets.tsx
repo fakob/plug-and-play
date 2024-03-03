@@ -22,6 +22,8 @@ import {
 } from '@mui/material';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { SketchPicker } from 'react-color';
 import prettyBytes from 'pretty-bytes';
 import InterfaceController from './InterfaceController';
@@ -93,6 +95,7 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
   props,
 ) => {
   const [data, setData] = useState(Number(props.property.data || 0));
+  const [visible, setVisible] = useState(false);
 
   useInterval(() => {
     if (data !== props.property.data) {
@@ -111,30 +114,7 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
 
   return (
     <>
-      <Slider
-        size="small"
-        color="secondary"
-        valueLabelDisplay="auto"
-        key={`${props.property.name}-${props.index}`}
-        min={minValue}
-        max={maxValue}
-        step={round ? 1 : stepSizeValue}
-        marks={[{ value: minValue }, { value: maxValue }]}
-        slots={{
-          valueLabel: SliderValueLabelComponent,
-        }}
-        onChange={(event, value) => {
-          potentiallyUpdateSocketData(props.property, value);
-          if (!Array.isArray(value)) {
-            setData(roundNumber(value, 4));
-          }
-        }}
-        value={data}
-        sx={{
-          ml: 1,
-          width: 'calc(100% - 16px)',
-        }}
-      />
+      {' '}
       <FormGroup
         row={true}
         sx={{
@@ -143,85 +123,141 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
           gap: '2px',
         }}
       >
-        <ToggleButton
-          value="check"
+        <Slider
           size="small"
-          selected={round}
           color="secondary"
+          valueLabelDisplay="auto"
+          key={`${props.property.name}-${props.index}`}
+          min={minValue}
+          max={maxValue}
+          step={round ? 1 : stepSizeValue}
+          marks={[{ value: minValue }, { value: maxValue }]}
+          slots={{
+            valueLabel: SliderValueLabelComponent,
+          }}
+          onChange={(event, value) => {
+            potentiallyUpdateSocketData(props.property, value);
+            if (!Array.isArray(value)) {
+              setData(roundNumber(value, 4));
+            }
+          }}
+          value={data}
+          sx={{
+            ml: 1,
+            width: 'calc(100% - 16px)',
+          }}
+        />
+        <ToggleButton
+          data-cy="slider-details-visible-button"
+          value="check"
+          selected={visible}
           onChange={() => {
-            setRound((value) => {
-              // have to add this in here as there is an issue with getting the value from the event
-              // https://github.com/mui/material-ui/issues/17454
-              props.dataType.round = !value;
-              return !value;
-            });
+            setVisible((value) => !value);
           }}
           sx={{
+            ml: 1.5,
+            px: 1,
+            py: 0,
             fontSize: '12px',
+            border: 0,
           }}
         >
-          {round ? 'Int' : 'Float'}
+          {visible ? (
+            <ExpandLessIcon sx={{ fontSize: '16px' }} />
+          ) : (
+            <ExpandMoreIcon sx={{ fontSize: '16px' }} />
+          )}
         </ToggleButton>
-        <TextField
-          variant="filled"
-          label="Value"
-          data-cy={`${props.property.name}-value`}
-          sx={{
-            flexGrow: 1,
-          }}
-          inputProps={{
-            type: 'number',
-            inputMode: 'numeric',
-            step: round ? null : stepSizeValue,
-          }}
-          onChange={(event) => {
-            potentiallyUpdateSocketData(
-              props.property,
-              Number(event.target.value),
-            );
-            setData(Number(event.target.value));
-          }}
-          value={data || 0}
-        />
-        <TextField
-          variant="filled"
-          label="Min"
-          data-cy={`${props.property.name}-min`}
-          sx={{
-            width: '104px',
-          }}
-          inputProps={{
-            type: 'number',
-            inputMode: 'numeric',
-            step: round ? null : stepSizeValue,
-          }}
-          onChange={(event) => {
-            const newMinValue = Number(event.target.value);
-            setMinValue(newMinValue);
-            props.dataType.minValue = newMinValue;
-          }}
-          value={minValue}
-        />
-        <TextField
-          variant="filled"
-          label="Max"
-          data-cy={`${props.property.name}-max`}
-          sx={{
-            width: '104px',
-          }}
-          inputProps={{
-            type: 'number',
-            inputMode: 'numeric',
-            step: round ? null : stepSizeValue,
-          }}
-          onChange={(event) => {
-            const newMaxValue = Number(event.target.value);
-            setMaxValue(newMaxValue);
-            props.dataType.maxValue = newMaxValue;
-          }}
-          value={maxValue}
-        />
       </FormGroup>
+      {visible && (
+        <FormGroup
+          row={true}
+          sx={{
+            display: 'flex',
+            flexWrap: 'nowrap',
+            gap: '2px',
+          }}
+        >
+          <ToggleButton
+            value="check"
+            size="small"
+            selected={round}
+            color="secondary"
+            onChange={() => {
+              setRound((value) => {
+                // have to add this in here as there is an issue with getting the value from the event
+                // https://github.com/mui/material-ui/issues/17454
+                props.dataType.round = !value;
+                return !value;
+              });
+            }}
+            sx={{
+              fontSize: '12px',
+            }}
+          >
+            {round ? 'Int' : 'Float'}
+          </ToggleButton>
+          <TextField
+            variant="filled"
+            label="Value"
+            data-cy={`${props.property.name}-value`}
+            sx={{
+              flexGrow: 1,
+            }}
+            inputProps={{
+              type: 'number',
+              inputMode: 'numeric',
+              step: round ? null : stepSizeValue,
+            }}
+            onChange={(event) => {
+              potentiallyUpdateSocketData(
+                props.property,
+                Number(event.target.value),
+              );
+              setData(Number(event.target.value));
+            }}
+            value={data || 0}
+          />
+          <TextField
+            variant="filled"
+            label="Min"
+            data-cy={`${props.property.name}-min`}
+            sx={{
+              width: '104px',
+            }}
+            inputProps={{
+              type: 'number',
+              inputMode: 'numeric',
+              step: round ? null : stepSizeValue,
+            }}
+            onChange={(event) => {
+              const newMinValue = Number(event.target.value);
+              setMinValue(newMinValue);
+              props.dataType.minValue = newMinValue;
+            }}
+            value={minValue}
+          />
+          <TextField
+            variant="filled"
+            label="Max"
+            data-cy={`${props.property.name}-max`}
+            sx={{
+              width: '104px',
+            }}
+            inputProps={{
+              type: 'number',
+              inputMode: 'numeric',
+              step: round ? null : stepSizeValue,
+            }}
+            onChange={(event) => {
+              const newMaxValue = Number(event.target.value);
+              setMaxValue(newMaxValue);
+              props.dataType.maxValue = newMaxValue;
+            }}
+            value={maxValue}
+          />
+        </FormGroup>
+      )}
     </>
   );
 };
@@ -261,8 +297,9 @@ export const SelectWidget: React.FunctionComponent<
   }, []);
 
   return (
-    <FormGroup>
+    <FormControl sx={{ width: '100%' }} size="small">
       <Select
+        fullWidth
         variant="filled"
         value={data}
         onOpen={onOpen}
@@ -270,6 +307,12 @@ export const SelectWidget: React.FunctionComponent<
         MenuProps={{
           style: { zIndex: 1500 },
         }}
+        sx={{
+          height: '32px',
+          fontSize: '16px',
+          lineHeight: '8px',
+        }}
+        displayEmpty
       >
         {options?.map(({ text }, index) => {
           return (
@@ -287,7 +330,7 @@ export const SelectWidget: React.FunctionComponent<
           );
         })}
       </Select>
-    </FormGroup>
+    </FormControl>
   );
 };
 
@@ -317,6 +360,7 @@ export const BooleanWidget: React.FunctionComponent<BooleanTypeProps> = (
             onChange={onChange}
             disabled={!props.isInput}
             inputProps={{ 'aria-label': 'controlled' }}
+            size="small"
           />
         }
         label={data.toString()}

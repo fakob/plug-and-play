@@ -168,43 +168,42 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
       }}
       title={`${props.hasError ? props.property.status.message : ''}`}
     >
-      {props.hasLink ? (
-        <Box sx={{ p: 1, opacity: 0.75, width: '40px', textAlign: 'center' }}>
-          <LockIcon sx={{ fontSize: '16px' }} />
-        </Box>
-      ) : (
-        <ToggleButton
-          data-cy="socket-visible-button"
-          value="check"
-          size="small"
-          selected={!visible}
-          onChange={() => {
-            props.property.setVisible(!visible);
-            setVisible((value) => !value);
-          }}
-          sx={{
-            fontSize: '16px',
-            border: 0,
-            width: '40px',
-          }}
-        >
-          {visible ? (
-            <VisibilityIcon fontSize="inherit" />
-          ) : (
-            <VisibilityOffIcon fontSize="inherit" />
-          )}
-        </ToggleButton>
-      )}
       <Box
         sx={{
           flexGrow: 1,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          opacity: visible ? 1 : 0.75,
+          opacity: visible ? 1 : 0.5,
         }}
       >
         <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
+          {props.hasLink ? (
+            <Box sx={{ px: 1, opacity: 0.75, textAlign: 'center' }}>
+              <LockIcon sx={{ fontSize: '12px' }} />
+            </Box>
+          ) : (
+            <ToggleButton
+              data-cy="socket-visible-button"
+              value="check"
+              size="small"
+              selected={!visible}
+              onChange={() => {
+                props.property.setVisible(!visible);
+                setVisible((value) => !value);
+              }}
+              sx={{
+                fontSize: '12px',
+                border: 0,
+              }}
+            >
+              {visible ? (
+                <VisibilityIcon fontSize="inherit" />
+              ) : (
+                <VisibilityOffIcon fontSize="inherit" />
+              )}
+            </ToggleButton>
+          )}
           <IconButton
             title="Add to dashboard"
             size="small"
@@ -215,7 +214,7 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
               borderRadius: 0,
             }}
           >
-            <DashboardCustomizeIcon sx={{ fontSize: '24px' }} />
+            <DashboardCustomizeIcon sx={{ fontSize: '16px' }} />
           </IconButton>
           <IconButton
             size="small"
@@ -229,15 +228,15 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
               borderRadius: 0,
             }}
           >
-            <ContentCopyIcon sx={{ fontSize: '16px' }} />
+            <ContentCopyIcon sx={{ fontSize: '12px' }} />
           </IconButton>
-          <Box sx={{ p: 0.5, color: 'text.primary' }}>
+          <Box sx={{ p: 0.5, color: 'text.primary', fontSize: '14px' }}>
             {props.property.name}
           </Box>
           {props.hasError && (
             <WarningIcon
               sx={{
-                fontSize: '24px',
+                fontSize: '16px',
                 pl: 0.5,
               }}
             />
@@ -254,6 +253,7 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
           onClick={handleClick}
           sx={{
             borderRadius: 0,
+            pr: 1.5,
           }}
         >
           <Box
@@ -264,7 +264,9 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
           >
             {props.property.dataType.getName()}
           </Box>
-          {typeAvailableInDropdown && <MoreVertIcon />}
+          {typeAvailableInDropdown && (
+            <MoreVertIcon sx={{ fontSize: '12px' }} />
+          )}
         </IconButton>
         {typeAvailableInDropdown && (
           <Menu

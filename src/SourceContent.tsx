@@ -111,8 +111,8 @@ export function SourceContent(props: SourceContentProps) {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          px: 2,
-          py: 1,
+          px: 1,
+          py: 0.5,
         }}
       >
         <Box
@@ -122,7 +122,7 @@ export function SourceContent(props: SourceContentProps) {
             alignItems: 'center',
           }}
         >
-          <Box sx={{ pl: 2, color: 'text.primary' }}>{props.header}</Box>
+          <Box sx={{ pl: 0, color: 'text.primary' }}>{props.header}</Box>
           {!props.editable && (
             <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
           )}

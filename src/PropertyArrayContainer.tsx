@@ -7,6 +7,7 @@ import {
   FormControlLabel,
   FormGroup,
   IconButton,
+  InputAdornment,
   Stack,
   TextField,
   ToggleButton,
@@ -104,7 +105,7 @@ type CommonContentProps = {
 function CommonContent(props: CommonContentProps) {
   return (
     <Box id="inspector-common-content" sx={{ bgcolor: 'background.paper' }}>
-      <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Update behaviour</Box>
+      <Box sx={{ px: 1, py: 0.5, color: 'text.primary' }}>Update</Box>
       <FormGroup
         sx={{
           p: 1,
@@ -123,41 +124,51 @@ function CommonContent(props: CommonContentProps) {
         <FormControlLabel
           control={
             <Checkbox
+              size="small"
               name="load"
               checked={props.load}
               indeterminate={props.load === null}
               onChange={props.onCheckboxChange}
             />
           }
-          label="Update on load"
+          label="on load"
         />
         <FormControlLabel
           control={
             <Checkbox
+              size="small"
               name="update"
               checked={props.update}
               indeterminate={props.update === null}
               onChange={props.onCheckboxChange}
             />
           }
-          label="Update on change"
+          label="on change"
         />
-        <FormGroup>
+        <FormGroup row>
           <FormControlLabel
             control={
               <Checkbox
+                size="small"
                 name="interval"
                 checked={props.interval}
                 indeterminate={props.interval === null}
                 onChange={props.onCheckboxChange}
               />
             }
-            label="Update on interval (in ms)"
+            label="on interval"
           />
           <TextField
+            hiddenLabel
             id="frequency"
             variant="filled"
-            label="Frequency"
+            size="small"
+            sx={{
+              width: '60%',
+            }}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">ms</InputAdornment>,
+            }}
             disabled={!props.interval}
             inputProps={{
               type: 'number',
@@ -176,12 +187,13 @@ function CommonContent(props: CommonContentProps) {
             disabled
             control={
               <Checkbox
+                size="small"
                 name="trigger"
                 checked={true}
                 onChange={props.onCheckboxChange}
               />
             }
-            label="Update on trigger"
+            label="on trigger"
           />
         )}
       </FormGroup>
@@ -202,9 +214,9 @@ function socketArrayToComponent(
       (filter === value || filter == null) && (
         <Box sx={{ bgcolor: 'background.paper' }}>
           {filter == null && (
-            <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>{text}</Box>
+            <Box sx={{ px: 1, py: 0.5, color: 'text.primary' }}>{text}</Box>
           )}
-          <Stack spacing={1}>
+          <Stack spacing={0.5}>
             {sockets
               .filter((socket) => socket.visibilityCondition())
               .map((property, index) => {
@@ -247,8 +259,8 @@ function InfoContent(props: InfoContentProps) {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            px: 2,
-            py: 1,
+            px: 1,
+            py: 0.5,
           }}
         >
           <Box sx={{ color: 'text.primary' }}>Description</Box>
@@ -506,14 +518,15 @@ export const PropertyArrayContainer: React.FunctionComponent<
           )}
           {props.selectedNodes.length === 1 && (
             <>
-              {socketArrayToComponent(
-                props.socketToInspect,
-                selectedNode.nodeTriggerSocketArray,
-                props,
-                'Triggers',
-                props.filter,
-                'trigger',
-              )}
+              {selectedNode.nodeTriggerSocketArray.length > 0 &&
+                socketArrayToComponent(
+                  props.socketToInspect,
+                  selectedNode.nodeTriggerSocketArray,
+                  props,
+                  'Triggers',
+                  props.filter,
+                  'trigger',
+                )}
               {socketArrayToComponent(
                 props.socketToInspect,
                 selectedNode.inputSocketArray,
