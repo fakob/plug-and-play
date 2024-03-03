@@ -723,14 +723,14 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
       graphicsArray.length && inputObject[useBoundingBoxSpacingName]
         ? getDrawingBounds(
             graphicsArray[0],
-            inputObject[marginSocketName],
-            inputObject[marginSocketName],
+            inputObject[spacingXName],
+            inputObject[spacingYName],
           )
         : new PIXI.Rectangle(
             0,
             0,
-            inputObject[marginSocketName],
-            inputObject[marginSocketName],
+            inputObject[spacingXName],
+            inputObject[spacingYName],
           );
 
     for (let i = graphicsArray.length - 1; i >= 0; i--) {
@@ -837,8 +837,8 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
       if (typeof inputObject[inputGraphicsName] === 'function') {
         inputObject[inputGraphicsName](shallowContainer, executions);
       }
-      shallowContainer.x = x * inputObject[marginSocketName];
-      shallowContainer.y = y * inputObject[marginSocketName];
+      shallowContainer.x = x * inputObject[spacingXName];
+      shallowContainer.y = y * inputObject[spacingYName];
 
       addShallowContainerEventListeners(shallowContainer, this, i, executions);
 
