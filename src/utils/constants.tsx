@@ -216,6 +216,8 @@ export const NODE_TYPE_COLOR = {
   MISSING: COLOR_ERROR,
 };
 
+export const PIXI_TRANSPARENT_ALPHA = 0.01; // If an PIXI element has alpha set to 0 it has no size and is not rendered at all
+
 export const NODE_SOURCE = {
   NEW: 'New',
   NEWCONNECTED: 'NewConnected',

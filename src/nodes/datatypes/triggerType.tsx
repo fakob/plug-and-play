@@ -86,6 +86,6 @@ export class TriggerType extends AbstractType {
   }
 
   recommendedInputNodeWidgets(): string[] {
-    return ['WidgetButton', 'Constant', 'WidgetSwitch'];
+    return ['WidgetButton', 'Pulse', 'Constant', 'WidgetSwitch'];
   }
 }

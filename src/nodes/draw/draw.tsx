@@ -193,7 +193,7 @@ export class DRAW_Shape extends DRAW_Base {
         inputObject[inputColorName],
       );
       const drawBorder = inputObject[inputBorderName];
-      graphics.beginFill(selectedColor.hexNumber(), selectedColor.alpha());
+      graphics.beginFill(selectedColor.hexNumber(), selectedColor.alpha(true));
       graphics.alpha = selectedColor.a;
       graphics.lineStyle(
         drawBorder ? 3 : 0,
@@ -255,6 +255,8 @@ export class DRAW_Passthrough extends DRAW_Base {
       ],
     };
     const myContainer = new PIXI.Container();
+    myContainer.name = `${this.id}-container`;
+
     if (typeof inputObject[inputGraphicsName] === 'function') {
       inputObject[inputGraphicsName](myContainer, executions);
     }
@@ -264,6 +266,13 @@ export class DRAW_Passthrough extends DRAW_Base {
 }
 
 const marginSocketName = 'Margin';
+const sizeOptionsName = 'Size options';
+
+const sizeOptions: EnumStructure = [
+  { text: 'auto width' },
+  { text: 'auto height' },
+  { text: 'fixed size' },
+];
 
 export class DRAW_Text extends DRAW_Base {
   public getName(): string {
@@ -302,9 +311,21 @@ export class DRAW_Text extends DRAW_Base {
       ),
       new Socket(
         SOCKET_TYPE.IN,
+        inputHeightName,
+        new NumberType(true, 0, 2000),
+        1000,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
         marginSocketName,
         new NumberType(true, 0, 100),
         10,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        sizeOptionsName,
+        new EnumType(sizeOptions),
+        sizeOptions[1].text,
       ),
       new Socket(SOCKET_TYPE.IN, bgColorName, new ColorType()),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
@@ -323,14 +344,22 @@ export class DRAW_Text extends DRAW_Base {
         this.getAndIncrementExecutions(executions)
       ],
     };
+    const margin = {
+      top: inputObject[marginSocketName],
+      right: inputObject[marginSocketName],
+      bottom: inputObject[marginSocketName],
+      left: inputObject[marginSocketName],
+    };
+
     const textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: inputObject[inputSizeName],
       lineHeight: inputObject[inputLineHeightName] * NOTE_LINEHEIGHT_FACTOR,
       whiteSpace: 'pre-line',
-      wordWrap: true,
-      wordWrapWidth: inputObject[inputWidthName],
+      wordWrap: inputObject[sizeOptionsName] !== sizeOptions[0].text,
+      wordWrapWidth: inputObject[inputWidthName] - (margin.left + margin.right),
       lineJoin: 'round',
+      breakWords: true,
     });
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
     const fgColor = parseValueAndAttachWarnings(
@@ -339,34 +368,51 @@ export class DRAW_Text extends DRAW_Base {
       inputObject[inputColorName],
     );
     basicText.style.fill = fgColor.hex();
-    basicText.alpha = fgColor.alpha();
+    basicText.alpha = fgColor.alpha(true);
 
     const textBounds = basicText.getBounds();
-    const margin = {
-      top: inputObject[marginSocketName],
-      right: inputObject[marginSocketName],
-      bottom: inputObject[marginSocketName],
-      left: inputObject[marginSocketName],
-    };
 
     const background = new PIXI.Graphics();
+    background.name = `Background`;
     const bgColor = parseValueAndAttachWarnings(
       this,
       new ColorType(),
       inputObject[bgColorName],
     );
-    background.beginFill(bgColor.hex(), bgColor.alpha());
-    background.drawRect(
-      0,
-      0,
-      textBounds.width + margin.left + margin.right,
-      textBounds.height + margin.top + margin.bottom,
-    );
+
+    let width = 0;
+    let height = 0;
+    switch (inputObject[sizeOptionsName]) {
+      case sizeOptions[0].text:
+        width = textBounds.width + margin.left + margin.right;
+        height = textBounds.height + margin.top + margin.bottom;
+        break;
+      case sizeOptions[1].text:
+        width = inputObject[widthName];
+        height = textBounds.height + margin.top + margin.bottom;
+        break;
+      case sizeOptions[2].text:
+        width = inputObject[widthName];
+        height = inputObject[heightName];
+        break;
+    }
+    background.beginFill(bgColor.hex(), bgColor.alpha(true));
+    background.drawRect(0, 0, width, height);
     background.endFill();
-    basicText.x = margin.left;
-    basicText.y = margin.top;
 
     const textContainer = new PIXI.Container();
+    textContainer.name = `${this.id}-textContainer`;
+    if (inputObject[sizeOptionsName] === sizeOptions[2].text) {
+      const mask = new PIXI.Graphics();
+      mask.beginFill(0xff0000);
+      mask.drawRect(0, 0, width, height);
+      mask.endFill();
+      textContainer.mask = mask;
+      textContainer.addChild(mask);
+    }
+
+    basicText.x = margin.left;
+    basicText.y = margin.top;
     textContainer.addChild(background);
     textContainer.addChild(basicText);
 
@@ -402,6 +448,7 @@ export class DRAW_Combine extends DRAW_Base {
       ],
     };
     const myContainer = new PIXI.Container();
+    myContainer.name = `${this.id}-container`;
 
     // this is a bit hacky fishing them out like this but
     const drawFunctions = Object.values(inputObject);
@@ -435,6 +482,8 @@ const graphicsName = 'Graphics';
 const layoutDirectionName = 'Direction';
 const horizontalAlignmentName = 'Horizontal alignment';
 const verticalAlignmentName = 'Vertical alignment';
+const horizontalResizingName = 'Horizontal resizing';
+const verticalResizingName = 'Vertical resizing';
 const widthName = 'Width';
 const heightName = 'Height';
 const autoSpacingName = 'Auto spacing';
@@ -456,13 +505,19 @@ const verticalAlignmentOptions: EnumStructure = [
   { text: 'bottom' },
 ];
 
+const horizontalAndVerticalResizingOptions: EnumStructure = [
+  { text: 'fixed' },
+  { text: 'hug' },
+  // { text: 'fill' },
+];
+
 export class DRAW_Layout extends DRAW_Interactive_Base {
   public getName(): string {
     return 'Layout objects';
   }
 
   public getDescription(): string {
-    return 'Auto aligns objects';
+    return 'Combines and auto aligns objects';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -494,7 +549,19 @@ export class DRAW_Layout extends DRAW_Interactive_Base {
         10,
       ),
       new Socket(SOCKET_TYPE.IN, widthName, new NumberType(true, 0, 2000), 0),
+      new Socket(
+        SOCKET_TYPE.IN,
+        horizontalResizingName,
+        new EnumType(horizontalAndVerticalResizingOptions),
+        horizontalAndVerticalResizingOptions[1].text,
+      ),
       new Socket(SOCKET_TYPE.IN, heightName, new NumberType(true, 0, 2000), 0),
+      new Socket(
+        SOCKET_TYPE.IN,
+        verticalResizingName,
+        new EnumType(horizontalAndVerticalResizingOptions),
+        horizontalAndVerticalResizingOptions[1].text,
+      ),
       new Socket(SOCKET_TYPE.IN, inputReverseName, new BooleanType()),
       new Socket(SOCKET_TYPE.IN, bgColorName, new ColorType()),
       // new Socket(SOCKET_TYPE.IN, graphicsName, new DeferredPixiType()),
@@ -536,9 +603,12 @@ export class DRAW_Layout extends DRAW_Interactive_Base {
       inputObject[layoutDirectionName] === layoutDirectionOptions[0].text;
     const horizontalAlignment = inputObject[horizontalAlignmentName];
     const verticalAlignment = inputObject[verticalAlignmentName];
+    const horizontalResizing = inputObject[horizontalResizingName];
+    const verticalResizing = inputObject[verticalResizingName];
     const autoSpacing = inputObject[autoSpacingName];
     const spacingValue = inputObject[spacingName];
     const reverseOrder = inputObject[inputReverseName];
+    const width = inputObject[widthName];
     const height = inputObject[heightName];
 
     const margin = {
@@ -549,6 +619,7 @@ export class DRAW_Layout extends DRAW_Interactive_Base {
     };
 
     const myContainer = new PIXI.Container();
+    myContainer.name = `${this.id}-container`;
     let currentPositionX = margin.left;
     let currentPositionY = margin.top;
     let distributedGap = 0;
@@ -602,18 +673,35 @@ export class DRAW_Layout extends DRAW_Interactive_Base {
     const myContainerBounds = myContainer.getBounds();
 
     const background = new PIXI.Graphics();
+    background.name = `Background`;
     const bgColor = parseValueAndAttachWarnings(
       this,
       new ColorType(),
       inputObject[bgColorName],
     );
-    background.beginFill(bgColor.hex(), bgColor.alpha());
-    background.drawRect(
-      0,
-      0,
-      myContainerBounds.width + margin.left + margin.right,
-      myContainerBounds.height + margin.top + margin.bottom,
-    );
+
+    let newWidth = myContainerBounds.width + margin.left + margin.right;
+    let newHeight = myContainerBounds.height + margin.top + margin.bottom;
+    let useMask = false;
+    if (verticalResizing === horizontalAndVerticalResizingOptions[0].text) {
+      newHeight = height;
+      useMask = true;
+    }
+    if (horizontalResizing === horizontalAndVerticalResizingOptions[0].text) {
+      newWidth = width;
+      useMask = true;
+    }
+    if (useMask) {
+      const mask = new PIXI.Graphics();
+      mask.beginFill(0xff0000);
+      mask.drawRect(0, 0, newWidth, newHeight);
+      mask.endFill();
+      myContainer.mask = mask;
+      myContainer.addChild(mask);
+    }
+
+    background.beginFill(bgColor.hex(), bgColor.alpha(true));
+    background.drawRect(0, 0, newWidth, newHeight);
     background.endFill();
     myContainer.children.forEach((element) => {
       if (isVertical) {
@@ -717,6 +805,8 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
       ],
     };
     const myContainer = new PIXI.Container();
+    myContainer.name = `${this.id}-container`;
+
     const graphicsArray = inputObject[inputCombineArray];
     const changeDrawingOrder = inputObject[drawingOrder];
     const spacingSize =
@@ -824,6 +914,8 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
       ],
     };
     const myContainer = new PIXI.Container();
+    myContainer.name = `${this.id}-container`;
+
     const total = inputObject[totalNumberName];
     const changeDrawingOrder = inputObject[drawingOrder];
 
@@ -881,6 +973,8 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
       ],
     };
     const myContainer = new PIXI.Container();
+    myContainer.name = `${this.id}-container`;
+
     inputObject[inputPointsName].forEach((points, i) => {
       const x = points[0];
       const y = points[1];
@@ -1057,7 +1151,7 @@ export class DRAW_Polygon extends DRAW_Base {
       new ColorType(),
       inputObject[inputColorName],
     );
-    graphics.beginFill(selectedColor.hexNumber(), selectedColor.alpha());
+    graphics.beginFill(selectedColor.hexNumber(), selectedColor.alpha(true));
     graphics.alpha = selectedColor.a;
 
     const points: [number, number][] = inputObject[inputPointsName];

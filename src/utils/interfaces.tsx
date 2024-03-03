@@ -9,8 +9,9 @@ import {
   ALIGNOPTIONS,
   COLOR_DARK,
   COLOR_WHITE,
-  SOCKET_TYPE,
   NODE_SOURCE,
+  PIXI_TRANSPARENT_ALPHA,
+  SOCKET_TYPE,
 } from './constants';
 
 export type RegisteredNodeTypes = Record<
@@ -215,8 +216,9 @@ export class TRgba {
     return TRgba.fromColor(this.toColor().alpha(value));
   }
 
-  alpha(): string {
-    return this.toColor().alpha();
+  alpha(preventZero = false): string {
+    const alpha = this.toColor().alpha();
+    return preventZero ? alpha || PIXI_TRANSPARENT_ALPHA : alpha;
   }
 
   mix(otherColor: TRgba, blendFactor: number): TRgba {
