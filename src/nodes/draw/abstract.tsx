@@ -261,29 +261,32 @@ export abstract class DRAW_Base extends PPNode {
   });
 
   private handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
-    if (this.deferredGraphics == undefined) {
-      this.deferredGraphics = new PIXI.Container();
-      this._ForegroundRef.addChild(this.deferredGraphics);
-      this.deferredGraphics.eventMode = 'dynamic';
+    requestAnimationFrame(() => {
+      removeAndDestroyChild(this._ForegroundRef, this.deferredGraphics);
+      if (this.shouldDraw()) {
+        this.deferredGraphics = new PIXI.Container();
+        drawingFunction(this.deferredGraphics, {});
+        if (absolutePosition) {
+          this.deferredGraphics.x -= this.x;
+          this.deferredGraphics.y -= this.y;
+        }
+        this._ForegroundRef.addChild(this.deferredGraphics);
 
-      this.deferredGraphics.addEventListener('pointerdown', () => {
-        this.pointerDown(
-          getCurrentCursorPosition(),
-          new PIXI.Point(
-            this.getInputData(offseXName),
-            this.getInputData(offsetYName),
-          ),
-        );
-      });
-    }
-    this.deferredGraphics.removeChildren();
-    if (this.shouldDraw()) {
-      drawingFunction(this.deferredGraphics, {});
-      if (absolutePosition) {
-        this.deferredGraphics.x -= this.x;
-        this.deferredGraphics.y -= this.y;
+        if (this.allowMovingDirectly()) {
+          this.deferredGraphics.eventMode = 'dynamic';
+
+          this.deferredGraphics.addEventListener('pointerdown', () => {
+            this.pointerDown(
+              getCurrentCursorPosition(),
+              new PIXI.Point(
+                this.getInputData(offseXName),
+                this.getInputData(offsetYName),
+              ),
+            );
+          });
+        }
       }
-    }
+    });
   }
 
   protected positionAndScale(
@@ -329,6 +332,10 @@ export abstract class DRAW_Base extends PPNode {
       this.getInputData(inputAlwaysDraw) ||
       !this.getOutputSocketByName(outputPixiName).hasLink()
     );
+  }
+
+  protected allowMovingDirectly(): boolean {
+    return true;
   }
 }
 
