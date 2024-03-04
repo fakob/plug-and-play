@@ -22,6 +22,7 @@ import {
   calculateDistance,
   connectNodeToSocket,
   isPhone,
+  safeRemoveChildren,
 } from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
@@ -888,11 +889,11 @@ export default class PPGraph {
 
     // remove all nodes from container
     this.nodes = {};
-    this.nodeContainer.removeChildren();
+    safeRemoveChildren(this.nodeContainer);
 
     // clear back and foreground canvas
-    this.backgroundCanvas.removeChildren();
-    this.foregroundCanvas.removeChildren();
+    safeRemoveChildren(this.backgroundCanvas);
+    safeRemoveChildren(this.foregroundCanvas);
 
     // remove selected nodes
     this.selection.deselectAllNodesAndResetSelection();

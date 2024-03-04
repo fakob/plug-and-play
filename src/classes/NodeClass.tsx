@@ -41,6 +41,7 @@ import {
   connectNodeToSocket,
   getNodeCommentPosX,
   getNodeCommentPosY,
+  safeRemoveChildren,
 } from '../utils/utils';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
@@ -766,7 +767,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
 
   protected drawStatuses(): void {
     this._StatusesRef.clear();
-    this._StatusesRef.removeChildren();
+    safeRemoveChildren(this._StatusesRef);
 
     let flattenedStatus = [];
     for (const key in this.status) {

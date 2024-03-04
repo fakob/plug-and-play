@@ -4,6 +4,7 @@ import Socket from './SocketClass';
 import PPNode from './NodeClass';
 import PPGraph from './GraphClass';
 import throttle from 'lodash/throttle';
+import { safeRemoveChild } from '../utils/utils';
 
 export default class PPLink extends PIXI.Container {
   id: string;

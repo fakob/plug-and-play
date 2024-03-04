@@ -11,6 +11,7 @@ import {
   GraphInputType,
 } from '../../datatypes/graphInputType';
 import { StringType } from '../../datatypes/stringType';
+import { safeRemoveChildren } from '../../../utils/utils';
 
 const inputDataName = 'Input Data';
 const inputRadius = 'Radius';
@@ -438,14 +439,14 @@ export class GRAPH_PIE extends DRAW_Base {
       });
       drawContainer.interactive = true;
       drawContainer.addEventListener('pointerover', (e) => {
-        drawContainer.removeChildren();
+        safeRemoveChildren(drawContainer);
         slice.draws.forEach((draw) => {
           draw(drawContainer, 1.5);
         });
       });
 
       drawContainer.addEventListener('pointerout', (e) => {
-        drawContainer.removeChildren();
+        safeRemoveChildren(drawContainer);
         slice.draws.forEach((draw) => {
           draw(drawContainer, 1.0);
         });

@@ -34,6 +34,7 @@ import {
   convertToString,
   getCurrentCursorPosition,
   parseValueAndAttachWarnings,
+  safeRemoveChildren,
 } from '../utils/utils';
 import { NodeExecutionWarning, PNPStatus, PNPSuccess } from './ErrorClass';
 
@@ -153,7 +154,7 @@ export default class Socket
   redrawValueSpecificGraphics() {
     this.removeChild(this._ValueSpecificGraphics);
     this._ValueSpecificGraphics.clear();
-    this._ValueSpecificGraphics.removeChildren();
+    safeRemoveChildren(this._ValueSpecificGraphics);
     this.dataType.drawValueSpecificGraphics(
       this._ValueSpecificGraphics,
       this._data,
@@ -186,7 +187,7 @@ ${newMessage}`,
   }
 
   redraw(): void {
-    this.removeChildren();
+    safeRemoveChildren(this);
     const color =
       this.status.getSeverity() >= STATUS_SEVERITY.WARNING
         ? TRgba.fromString(COLOR_DARK).hex()
