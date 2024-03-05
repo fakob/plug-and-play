@@ -152,6 +152,7 @@ export abstract class DRAW_Base extends PPNode {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void;
 
   protected getAndIncrementExecutions(executions: { string: number }): number {
@@ -168,7 +169,12 @@ export abstract class DRAW_Base extends PPNode {
   ): Promise<void> {
     const drawingFunction = (container, executions) => {
       if (container) {
-        this.drawOnContainer(inputObject, container, executions);
+        this.drawOnContainer(
+          inputObject,
+          container,
+          executions,
+          new PIXI.Point(0, 0),
+        );
       } else {
         console.error('container is undefined for some reason');
       }
@@ -292,6 +298,7 @@ export abstract class DRAW_Base extends PPNode {
   protected positionAndScale(
     toModify: PIXI.DisplayObject,
     inputObject: any,
+    offset: PIXI.Point,
   ): void {
     const pivot = inputObject[inputPivotName];
     const pivotPointFound = PIXI_PIVOT_OPTIONS.find(
@@ -308,8 +315,8 @@ export abstract class DRAW_Base extends PPNode {
     const height = toModify.getBounds().height;
 
     toModify.setTransform(
-      inputObject[offseXName],
-      inputObject[offsetYName],
+      inputObject[offseXName] + offset.x,
+      inputObject[offsetYName] + offset.y,
       inputObject[scaleXName],
       inputObject[scaleYName],
       (inputObject[inputRotationName] * Math.PI) / 180,

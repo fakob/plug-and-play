@@ -966,11 +966,11 @@ export const loadGraph = (urlParams: URLSearchParams) => {
 // we have these because of an apparent leak when we dont specifically destroy the objects before removing them from the parent, always use these instead of the vanilla PIXI functions
 
 export const safeRemoveChild = (
-  pixObject: PIXI.Container | PIXI.Graphics,
-  child: PIXI.Container | PIXI.Graphics,
+  pixObject: PIXI.DisplayObject,
+  child: PIXI.DisplayObject,
 ) => {
   pixObject.removeChild(child);
-  child.destroy();
+  child.destroy({ children: true });
 };
 
 export const safeRemoveChildren = (
@@ -979,8 +979,7 @@ export const safeRemoveChildren = (
   pixObject.removeChildren();
   const children = pixObject.children;
   children.forEach((child) => {
-    pixObject.removeChild(child);
-    child.destroy();
+    safeRemoveChild(pixObject, child);
   });
 };
 

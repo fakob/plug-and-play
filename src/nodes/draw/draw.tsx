@@ -29,7 +29,6 @@ import {
   DRAW_Base,
   DRAW_Interactive_Base,
   injectedDataName,
-  objectsInteractive,
   outputMultiplierIndex,
   outputMultiplierInjected,
   outputMultiplierPointerDown,
@@ -171,6 +170,7 @@ export class DRAW_Shape extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -214,7 +214,7 @@ export class DRAW_Shape extends DRAW_Base {
           break;
         }
       }
-      this.positionAndScale(graphics, inputObject);
+      this.positionAndScale(graphics, inputObject, offset);
       container.addChild(graphics);
     } else {
       throw new Error('The value for width or height is invalid.');
@@ -241,6 +241,7 @@ export class DRAW_Passthrough extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -252,7 +253,7 @@ export class DRAW_Passthrough extends DRAW_Base {
     if (typeof inputObject[inputGraphicsName] === 'function') {
       inputObject[inputGraphicsName](myContainer, executions);
     }
-    this.positionAndScale(myContainer, inputObject);
+    this.positionAndScale(myContainer, inputObject, offset);
     container.addChild(myContainer);
   }
 }
@@ -300,6 +301,7 @@ export class DRAW_Text extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -324,7 +326,7 @@ export class DRAW_Text extends DRAW_Base {
     );
     basicText.style.fill = selectedColor.hex();
 
-    this.positionAndScale(basicText, inputObject);
+    this.positionAndScale(basicText, inputObject, offset);
     container.addChild(basicText);
   }
 }
@@ -347,6 +349,7 @@ export class DRAW_Combine extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -367,7 +370,7 @@ export class DRAW_Combine extends DRAW_Base {
       }
     });
 
-    this.positionAndScale(myContainer, inputObject);
+    this.positionAndScale(myContainer, inputObject, offset);
 
     myContainer.eventMode = 'dynamic';
 
@@ -429,6 +432,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -452,6 +456,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
             inputObject[spacingXName],
             inputObject[spacingYName],
           );
+
     for (let i = graphicsArray.length - 1; i >= 0; i--) {
       const r = Math.floor(i / inputObject[numberPerColumnRow]);
       const s = i % inputObject[numberPerColumnRow];
@@ -459,11 +464,17 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
       const y = changeDrawingOrder ? r : s;
       const shallowContainer = new PIXI.Container();
       if (typeof graphicsArray[i] == 'function') {
-        graphicsArray[i](shallowContainer, executions);
+        graphicsArray[i](
+          shallowContainer,
+          executions,
+          x * spacingSize.width,
+          y * spacingSize.height,
+        );
       }
       shallowContainer.x = x * spacingSize.width;
       shallowContainer.y = y * spacingSize.height;
 
+      /*
       if (inputObject[objectsInteractive]) {
         addShallowContainerEventListeners(
           shallowContainer,
@@ -472,13 +483,14 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
           executions,
         );
       }
+      */
 
       myContainer.addChild(shallowContainer);
     }
 
-    this.positionAndScale(myContainer, inputObject);
+    this.positionAndScale(myContainer, inputObject, offset);
 
-    myContainer.eventMode = 'dynamic';
+    //myContainer.eventMode = 'dynamic';
 
     container.addChild(myContainer);
   }
@@ -527,6 +539,7 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -556,7 +569,7 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
       myContainer.addChild(shallowContainer);
     }
 
-    this.positionAndScale(myContainer, inputObject);
+    this.positionAndScale(myContainer, inputObject, offset);
     myContainer.eventMode = 'dynamic';
     myContainer.addEventListener('pointerdown', (e) => {
       console.log('im pressed');
@@ -628,6 +641,7 @@ export class DRAW_Image extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -640,7 +654,7 @@ export class DRAW_Image extends DRAW_Base {
       inputObject[inputImageName] || DEFAULT_IMAGE,
     );
     const sprite = new PIXI.Sprite(image);
-    this.positionAndScale(sprite, inputObject);
+    this.positionAndScale(sprite, inputObject, offset);
 
     container.addChild(sprite);
   }
@@ -683,6 +697,7 @@ export class DRAW_Line extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -723,7 +738,7 @@ export class DRAW_Line extends DRAW_Base {
       graphics.lineTo(point[0], point[1]);
     });
 
-    this.positionAndScale(graphics, inputObject);
+    this.positionAndScale(graphics, inputObject, offset);
     container.addChild(graphics);
   }
 }
@@ -752,6 +767,7 @@ export class DRAW_Polygon extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -770,7 +786,7 @@ export class DRAW_Polygon extends DRAW_Base {
 
     const points: [number, number][] = inputObject[inputPointsName];
     graphics.drawPolygon(points.map((p) => new PIXI.Point(p[0], p[1])));
-    this.positionAndScale(graphics, inputObject);
+    this.positionAndScale(graphics, inputObject, offset);
     container.addChild(graphics);
   }
 }

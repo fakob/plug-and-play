@@ -57,7 +57,7 @@ export default class DRAW_Get_Bounds extends PPNode {
     bounds.y -= marginY;
     bounds.width += marginX * 2;
     bounds.height += marginY * 2;
-    tempContainer.destroy();
+    tempContainer.destroy({ children: true });
     bounds.width = Math.max(bounds.width, 1);
     bounds.height = Math.max(bounds.height, 1);
     return bounds;

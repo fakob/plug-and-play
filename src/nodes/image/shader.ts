@@ -162,6 +162,7 @@ export class Shader extends DRAW_Base {
     input: any,
     container: PIXI.Container,
     executions: { string: number },
+    offset: PIXI.Point,
   ): void {
     input = {
       ...input,
@@ -227,7 +228,7 @@ export class Shader extends DRAW_Base {
       }),
     );
 
-    this.positionAndScale(graphics, input);
+    this.positionAndScale(graphics, input, offset);
     container.addChild(graphics);
   }
 
