@@ -17,6 +17,7 @@ import {
 import { anyCodeName, CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
+import debounce from 'lodash/debounce';
 import * as PIXI from 'pixi.js';
 
 export const macroOutputName = 'Output';
@@ -267,7 +268,9 @@ export class Macro extends PPNode {
       : socket.name;
   }
 
-  protected async updateAllCallers() {
+  macroDebounceCallerExecutionMS = 100;
+
+  updateAllCallers = debounce(async () => {
     const nodesCallingMe = Object.values(PPGraph.currentGraph.nodes).filter(
       (node) => node.isCallingMacro(this.name),
     );
@@ -275,7 +278,7 @@ export class Macro extends PPNode {
     for (let i = 0; i < nodesCallingMe.length; i++) {
       await nodesCallingMe[i].calledMacroUpdated();
     }
-  }
+  }, this.macroDebounceCallerExecutionMS);
 
   protected async onExecute(
     _inputObject: any,
@@ -283,7 +286,7 @@ export class Macro extends PPNode {
   ): Promise<void> {
     // potentially demanding but important QOL, go through all nodes and see which refer to me, they need to be re-executed
     if (this.executingFromOutside == 0) {
-      await this.updateAllCallers();
+      this.updateAllCallers();
     }
   }
 }

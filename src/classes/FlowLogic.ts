@@ -88,9 +88,9 @@ export default class FlowLogic {
   static async executeOptimizedChainBatch(
     foundational: PPNode[],
   ): Promise<void> {
-    console.log(
-      'executing batch: ' + foundational.map((node) => node.name).join(','),
-    );
+    //console.log(
+    //  'executing batch: ' + foundational.map((node) => node.name).join(','),
+    //);
     const dependents: { [key: string]: PPNode } = {};
     const numDepending: { [key: string]: Set<string> } = {};
     foundational.forEach((node: PPNode) => {
