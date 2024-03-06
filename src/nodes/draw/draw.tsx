@@ -170,14 +170,7 @@ export class DRAW_Shape extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
     const width = inputObject[inputWidthName];
     const height = inputObject[inputHeightName];
     if (Number.isFinite(width) && Number.isFinite(height)) {
@@ -214,7 +207,6 @@ export class DRAW_Shape extends DRAW_Base {
           break;
         }
       }
-      this.positionAndScale(graphics, inputObject, offset);
       container.addChild(graphics);
     } else {
       throw new Error('The value for width or height is invalid.');
@@ -241,20 +233,10 @@ export class DRAW_Passthrough extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
-    const myContainer = new PIXI.Container();
     if (typeof inputObject[inputGraphicsName] === 'function') {
-      inputObject[inputGraphicsName](myContainer, executions);
+      inputObject[inputGraphicsName](container, executions);
     }
-    this.positionAndScale(myContainer, inputObject, offset);
-    container.addChild(myContainer);
   }
 }
 
@@ -301,14 +283,7 @@ export class DRAW_Text extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
     const textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: inputObject[inputSizeName],
@@ -326,7 +301,6 @@ export class DRAW_Text extends DRAW_Base {
     );
     basicText.style.fill = selectedColor.hex();
 
-    this.positionAndScale(basicText, inputObject, offset);
     container.addChild(basicText);
   }
 }
@@ -349,16 +323,7 @@ export class DRAW_Combine extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
-    const myContainer = new PIXI.Container();
-
     // this is a bit hacky fishing them out like this but
     const drawFunctions = Object.values(inputObject);
     if (inputObject[inputReverseName]) {
@@ -366,15 +331,9 @@ export class DRAW_Combine extends DRAW_Base {
     }
     drawFunctions.forEach((value) => {
       if (typeof value == 'function') {
-        value(myContainer, executions);
+        value(container, executions);
       }
     });
-
-    this.positionAndScale(myContainer, inputObject, offset);
-
-    myContainer.eventMode = 'dynamic';
-
-    container.addChild(myContainer);
   }
 
   public getSocketForNewConnection = (socket: Socket): Socket =>
@@ -432,15 +391,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
-    const myContainer = new PIXI.Container();
     const graphicsArray = inputObject[inputCombineArray];
     const changeDrawingOrder = inputObject[drawingOrder];
     const spacingSize =
@@ -464,18 +415,12 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
       const y = changeDrawingOrder ? r : s;
       if (typeof graphicsArray[i] == 'function') {
         graphicsArray[i](
-          myContainer,
+          container,
           executions,
           new PIXI.Point(x * spacingSize.width, y * spacingSize.height),
         );
       }
     }
-
-    this.positionAndScale(myContainer, inputObject, offset);
-
-    //myContainer.eventMode = 'dynamic';
-
-    container.addChild(myContainer);
   }
 }
 
@@ -522,14 +467,7 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
     const myContainer = new PIXI.Container();
     const total = inputObject[totalNumberName];
     const changeDrawingOrder = inputObject[drawingOrder];
@@ -551,13 +489,6 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
 
       myContainer.addChild(shallowContainer);
     }
-
-    this.positionAndScale(myContainer, inputObject, offset);
-    myContainer.eventMode = 'dynamic';
-    myContainer.addEventListener('pointerdown', (e) => {
-      console.log('im pressed');
-    });
-    container.addChild(myContainer);
   }
 }
 
@@ -587,7 +518,6 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
         this.getAndIncrementExecutions(executions)
       ],
     };
-    const myContainer = new PIXI.Container();
     inputObject[inputPointsName].forEach((points, i) => {
       const x = points[0];
       const y = points[1];
@@ -599,9 +529,8 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
 
       addShallowContainerEventListeners(shallowContainer, this, i, executions);
 
-      myContainer.addChild(shallowContainer);
+      container.addChild(shallowContainer);
     });
-    container.addChild(myContainer);
   }
 }
 
@@ -624,7 +553,6 @@ export class DRAW_Image extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -637,8 +565,6 @@ export class DRAW_Image extends DRAW_Base {
       inputObject[inputImageName] || DEFAULT_IMAGE,
     );
     const sprite = new PIXI.Sprite(image);
-    this.positionAndScale(sprite, inputObject, offset);
-
     container.addChild(sprite);
   }
 }
@@ -680,14 +606,7 @@ export class DRAW_Line extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor = parseValueAndAttachWarnings(
       this,
@@ -720,9 +639,6 @@ export class DRAW_Line extends DRAW_Base {
       }
       graphics.lineTo(point[0], point[1]);
     });
-
-    this.positionAndScale(graphics, inputObject, offset);
-    container.addChild(graphics);
   }
 }
 
@@ -750,14 +666,7 @@ export class DRAW_Polygon extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor = parseValueAndAttachWarnings(
       this,
@@ -769,7 +678,6 @@ export class DRAW_Polygon extends DRAW_Base {
 
     const points: [number, number][] = inputObject[inputPointsName];
     graphics.drawPolygon(points.map((p) => new PIXI.Point(p[0], p[1])));
-    this.positionAndScale(graphics, inputObject, offset);
     container.addChild(graphics);
   }
 }

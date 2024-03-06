@@ -152,17 +152,21 @@ export abstract class DRAW_Base extends PPNode {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void;
 
   private getContainer(
     inputObject: any,
-    container: PIXI.Container,
     executions: { string: number },
     offset: PIXI.Point,
   ): PIXI.Container {
     const myContainer = new PIXI.Container();
-    this.drawOnContainer(inputObject, myContainer, executions, offset);
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
+    this.drawOnContainer(inputObject, myContainer, executions);
     this.positionAndScale(myContainer, inputObject, offset);
     return myContainer;
   }
@@ -185,7 +189,7 @@ export abstract class DRAW_Base extends PPNode {
       offset = new PIXI.Point(),
     ) => {
       if (container) {
-        this.drawOnContainer(inputObject, container, executions, offset);
+        container.addChild(this.getContainer(inputObject, executions, offset));
       } else {
         console.error('container is undefined for some reason');
       }

@@ -138,7 +138,6 @@ export class GRAPH_LINE extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
     inputObject = {
       ...inputObject,
@@ -270,7 +269,6 @@ export class GRAPH_LINE extends DRAW_Base {
       graphics.endFill();
     }
 
-    this.positionAndScale(graphics, inputObject, offset);
     container.addChild(graphics);
   }
 }
