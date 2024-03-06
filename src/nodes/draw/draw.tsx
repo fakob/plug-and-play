@@ -468,7 +468,6 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
     container: PIXI.Container,
     executions: { string: number },
   ): void {
-    const myContainer = new PIXI.Container();
     const total = inputObject[totalNumberName];
     const changeDrawingOrder = inputObject[drawingOrder];
 
@@ -487,7 +486,7 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
 
       addShallowContainerEventListeners(shallowContainer, this, i, executions);
 
-      myContainer.addChild(shallowContainer);
+      container.addChild(shallowContainer);
     }
   }
 }
