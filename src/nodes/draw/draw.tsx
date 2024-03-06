@@ -469,6 +469,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
           new PIXI.Point(x * spacingSize.width, y * spacingSize.height),
         );
       }
+    }
 
     this.positionAndScale(myContainer, inputObject, offset);
 
