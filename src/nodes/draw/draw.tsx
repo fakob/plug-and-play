@@ -462,31 +462,13 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
       const s = i % inputObject[numberPerColumnRow];
       const x = changeDrawingOrder ? s : r;
       const y = changeDrawingOrder ? r : s;
-      const shallowContainer = new PIXI.Container();
       if (typeof graphicsArray[i] == 'function') {
         graphicsArray[i](
-          shallowContainer,
+          myContainer,
           executions,
-          x * spacingSize.width,
-          y * spacingSize.height,
+          new PIXI.Point(x * spacingSize.width, y * spacingSize.height),
         );
       }
-      shallowContainer.x = x * spacingSize.width;
-      shallowContainer.y = y * spacingSize.height;
-
-      /*
-      if (inputObject[objectsInteractive]) {
-        addShallowContainerEventListeners(
-          shallowContainer,
-          this,
-          i,
-          executions,
-        );
-      }
-      */
-
-      myContainer.addChild(shallowContainer);
-    }
 
     this.positionAndScale(myContainer, inputObject, offset);
 
