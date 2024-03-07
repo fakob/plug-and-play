@@ -29,6 +29,7 @@ import {
   DRAW_Base,
   DRAW_Interactive_Base,
   injectedDataName,
+  objectsInteractive,
   outputMultiplierIndex,
   outputMultiplierInjected,
   outputMultiplierPointerDown,
@@ -413,13 +414,23 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
       const s = i % inputObject[numberPerColumnRow];
       const x = changeDrawingOrder ? s : r;
       const y = changeDrawingOrder ? r : s;
+      const shallowContainer = new PIXI.Container();
       if (typeof graphicsArray[i] == 'function') {
         graphicsArray[i](
-          container,
+          shallowContainer,
           executions,
           new PIXI.Point(x * spacingSize.width, y * spacingSize.height),
         );
       }
+      if (inputObject[objectsInteractive]) {
+        addShallowContainerEventListeners(
+          shallowContainer,
+          this,
+          i,
+          executions,
+        );
+      }
+      container.addChild(shallowContainer);
     }
   }
 }
