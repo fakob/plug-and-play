@@ -19,6 +19,7 @@ import { removeAndDestroyChild } from '../../pixi/utils-pixi';
 import { ActionHandler } from '../../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import throttle from 'lodash/throttle';
+import { NodeExecutionError, PNPError } from '../../classes/ErrorClass';
 
 export const offseXName = 'Offset X';
 export const offsetYName = 'Offset Y';
@@ -168,6 +169,7 @@ export abstract class DRAW_Base extends PPNode {
       ],
     };
     this.drawOnContainer(inputObject, myContainer, executions);
+
     this.positionAndScale(myContainer, inputObject, offset);
     return myContainer;
   }
@@ -287,10 +289,18 @@ export abstract class DRAW_Base extends PPNode {
       removeAndDestroyChild(this._ForegroundRef, this.deferredGraphics);
       if (this.shouldDraw()) {
         this.deferredGraphics = new PIXI.Container();
-        drawingFunction(this.deferredGraphics, {});
-        if (absolutePosition) {
-          this.deferredGraphics.x -= this.x;
-          this.deferredGraphics.y -= this.y;
+        try {
+          drawingFunction(
+            this.deferredGraphics,
+            {},
+            new PIXI.Point(
+              absolutePosition ? -this.x : 0,
+              absolutePosition ? -this.y : 0,
+            ),
+          );
+        } catch (error) {
+          this.setStatus(new NodeExecutionError(error.message));
+          return;
         }
         this._ForegroundRef.addChild(this.deferredGraphics);
 
