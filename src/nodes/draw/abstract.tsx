@@ -44,6 +44,7 @@ export abstract class DRAW_Base extends PPNode {
   listenIDUp = '';
   listenIDMove = '';
   isDragging = false;
+  cachedContainers: Record<string, PIXI.Container> = {};
 
   public getName(): string {
     return 'Draw';

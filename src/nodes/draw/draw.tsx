@@ -490,10 +490,15 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
 
       const shallowContainer = new PIXI.Container();
       if (typeof inputObject[inputGraphicsName] === 'function') {
-        inputObject[inputGraphicsName](shallowContainer, executions);
+        inputObject[inputGraphicsName](
+          shallowContainer,
+          executions,
+          new PIXI.Point(
+            x * inputObject[spacingXName],
+            y * inputObject[spacingYName],
+          ),
+        );
       }
-      shallowContainer.x = x * inputObject[spacingXName];
-      shallowContainer.y = y * inputObject[spacingYName];
 
       addShallowContainerEventListeners(shallowContainer, this, i, executions);
 
