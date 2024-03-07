@@ -163,10 +163,6 @@ export class Shader extends DRAW_Base {
     container: PIXI.Container,
     executions: { string: number },
   ): void {
-    input = {
-      ...input,
-      ...input[injectedDataName][this.getAndIncrementExecutions(executions)],
-    };
 
     const time = new Date().getTime() % 1000000;
 

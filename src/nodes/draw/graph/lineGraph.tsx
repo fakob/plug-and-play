@@ -139,13 +139,6 @@ export class GRAPH_LINE extends DRAW_Base {
     container: PIXI.Container,
     executions: { string: number },
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
-
     const points: GraphInputPoint[] = inputObject[inputDataName];
     if (!points.length) {
       return;

@@ -527,20 +527,16 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
     container: PIXI.Container,
     executions: { string: number },
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
     inputObject[inputPointsName].forEach((points, i) => {
       const x = points[0];
       const y = points[1];
       const shallowContainer = new PIXI.Container();
       if (inputObject[inputGraphicsName])
-        inputObject[inputGraphicsName](shallowContainer, executions);
-      shallowContainer.x = x;
-      shallowContainer.y = y;
+        inputObject[inputGraphicsName](
+          shallowContainer,
+          executions,
+          new PIXI.Point(x, y),
+        );
 
       addShallowContainerEventListeners(shallowContainer, this, i, executions);
 
@@ -569,13 +565,6 @@ export class DRAW_Image extends DRAW_Base {
     container: PIXI.Container,
     executions: { string: number },
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
-
     const image = PIXI.Texture.from(
       inputObject[inputImageName] || DEFAULT_IMAGE,
     );
