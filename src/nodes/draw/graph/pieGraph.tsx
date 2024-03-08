@@ -156,15 +156,7 @@ export class GRAPH_PIE extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
-
     const graphics = new PIXI.Graphics();
 
     const pieSlicesRaw: GraphInputPoint[] = inputObject[inputDataName];
@@ -464,8 +456,6 @@ export class GRAPH_PIE extends DRAW_Base {
       }),
     ]);
 
-    //graphics.addChild(deferredGraphics);
-    this.positionAndScale(graphics, inputObject, offset);
     container.addChild(graphics);
   }
 }

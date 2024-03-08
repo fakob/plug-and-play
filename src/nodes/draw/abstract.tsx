@@ -19,6 +19,7 @@ import { removeAndDestroyChild } from '../../pixi/utils-pixi';
 import { ActionHandler } from '../../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import throttle from 'lodash/throttle';
+import { NodeExecutionError, PNPError } from '../../classes/ErrorClass';
 
 export const offseXName = 'Offset X';
 export const offsetYName = 'Offset Y';
@@ -44,6 +45,7 @@ export abstract class DRAW_Base extends PPNode {
   listenIDUp = '';
   listenIDMove = '';
   isDragging = false;
+  cachedContainers: Record<string, PIXI.Container> = {};
 
   public getName(): string {
     return 'Draw';
@@ -152,8 +154,25 @@ export abstract class DRAW_Base extends PPNode {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void;
+
+  private getContainer(
+    inputObject: any,
+    executions: { string: number },
+    offset: PIXI.Point,
+  ): PIXI.Container {
+    const myContainer = new PIXI.Container();
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
+    this.drawOnContainer(inputObject, myContainer, executions);
+
+    this.positionAndScale(myContainer, inputObject, offset);
+    return myContainer;
+  }
 
   protected getAndIncrementExecutions(executions: { string: number }): number {
     if (executions === undefined) {
@@ -167,14 +186,13 @@ export abstract class DRAW_Base extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
-    const drawingFunction = (container, executions) => {
+    const drawingFunction = (
+      container,
+      executions,
+      offset = new PIXI.Point(),
+    ) => {
       if (container) {
-        this.drawOnContainer(
-          inputObject,
-          container,
-          executions,
-          new PIXI.Point(0, 0),
-        );
+        container.addChild(this.getContainer(inputObject, executions, offset));
       } else {
         console.error('container is undefined for some reason');
       }
@@ -271,10 +289,18 @@ export abstract class DRAW_Base extends PPNode {
       removeAndDestroyChild(this._ForegroundRef, this.deferredGraphics);
       if (this.shouldDraw()) {
         this.deferredGraphics = new PIXI.Container();
-        drawingFunction(this.deferredGraphics, {});
-        if (absolutePosition) {
-          this.deferredGraphics.x -= this.x;
-          this.deferredGraphics.y -= this.y;
+        try {
+          drawingFunction(
+            this.deferredGraphics,
+            {},
+            new PIXI.Point(
+              absolutePosition ? -this.x : 0,
+              absolutePosition ? -this.y : 0,
+            ),
+          );
+        } catch (error) {
+          this.setStatus(new NodeExecutionError(error.message));
+          return;
         }
         this._ForegroundRef.addChild(this.deferredGraphics);
 

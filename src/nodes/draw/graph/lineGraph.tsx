@@ -138,15 +138,7 @@ export class GRAPH_LINE extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
-
     const points: GraphInputPoint[] = inputObject[inputDataName];
     if (!points.length) {
       return;
@@ -270,7 +262,6 @@ export class GRAPH_LINE extends DRAW_Base {
       graphics.endFill();
     }
 
-    this.positionAndScale(graphics, inputObject, offset);
     container.addChild(graphics);
   }
 }

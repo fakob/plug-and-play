@@ -162,12 +162,7 @@ export class Shader extends DRAW_Base {
     input: any,
     container: PIXI.Container,
     executions: { string: number },
-    offset: PIXI.Point,
   ): void {
-    input = {
-      ...input,
-      ...input[injectedDataName][this.getAndIncrementExecutions(executions)],
-    };
 
     const time = new Date().getTime() % 1000000;
 
@@ -228,7 +223,6 @@ export class Shader extends DRAW_Base {
       }),
     );
 
-    this.positionAndScale(graphics, input, offset);
     container.addChild(graphics);
   }
 
