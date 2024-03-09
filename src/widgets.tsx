@@ -785,6 +785,76 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
   );
 };
 
+export const DeferredPixiWithOffsetWidget: React.FunctionComponent<
+  DataTypeProps
+> = (props) => {
+  const propertyDrawFunction = props.property.data.drawFunction;
+  const propertyX = props.property.data.offset?.x || 0;
+  const propertyY = props.property.data.offset?.y || 0;
+
+  const [x, setX] = useState(propertyX);
+  const [y, setY] = useState(propertyY);
+
+  useInterval(() => {
+    if (x !== propertyX) {
+      setX(propertyX);
+    }
+
+    if (y !== propertyY) {
+      setY(propertyY);
+    }
+  }, 100);
+
+  return (
+    <FormGroup
+      row={true}
+      sx={{
+        display: 'flex',
+        flexWrap: 'nowrap',
+      }}
+    >
+      <TextField
+        variant="filled"
+        label="Offset X"
+        data-cy={`${props.property.name}-value`}
+        sx={{
+          flexGrow: 1,
+        }}
+        inputProps={{
+          type: 'number',
+          inputMode: 'numeric',
+        }}
+        onChange={(event) => {
+          const value = event.target.value;
+          setX(value);
+          const newData = { drawFunction: propertyDrawFunction, x: value, y };
+          potentiallyUpdateSocketData(props.property, newData);
+        }}
+        value={0}
+      />
+      <TextField
+        variant="filled"
+        label="Offset Y"
+        data-cy={`${props.property.name}-value`}
+        sx={{
+          flexGrow: 1,
+        }}
+        inputProps={{
+          type: 'number',
+          inputMode: 'numeric',
+        }}
+        onChange={(event) => {
+          const value = event.target.value;
+          setY(value);
+          const newData = { drawFunction: propertyDrawFunction, x, y: value };
+          potentiallyUpdateSocketData(props.property, newData);
+        }}
+        value={0}
+      />
+    </FormGroup>
+  );
+};
+
 export const DefaultOutputWidget: React.FunctionComponent<DataTypeProps> = (
   props,
 ) => {

@@ -19,6 +19,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { TriggerType } from '../datatypes/triggerType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
+import { DeferredPixiWithOffsetType } from '../datatypes/deferredPixiWithOffsetType';
 import {
   parseValueAndAttachWarnings,
   saveBase64AsImage,
@@ -320,6 +321,7 @@ export class DRAW_Combine extends DRAW_Base {
       new Socket(SOCKET_TYPE.IN, inputReverseName, new BooleanType()),
     ].concat(super.getDefaultIO());
   }
+
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
@@ -337,14 +339,17 @@ export class DRAW_Combine extends DRAW_Base {
     });
   }
 
-  public getSocketForNewConnection = (socket: Socket): Socket =>
-    DynamicInputNodeFunctions.getSocketForNewConnection(socket, this, true);
+  public getSocketForNewConnection = (socket: Socket): Socket => {
+    return DynamicInputNodeFunctions.getSocketForNewConnection(
+      socket,
+      this,
+      true,
+      new DeferredPixiWithOffsetType(),
+    );
+  };
 
   public async inputUnplugged() {
     return DynamicInputNodeFunctions.inputUnplugged(this);
-  }
-  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
-    return true;
   }
 }
 
