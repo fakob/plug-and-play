@@ -21,6 +21,7 @@ export class DynamicInputNodeFunctions {
     socket: Socket,
     node: PPNode,
     alwaysNewSocket = false,
+    forceSpecificType = socket.dataType,
   ): Socket {
     if (socket.isInput()) {
       return node.getSocketForNewConnection(socket);
@@ -34,7 +35,7 @@ export class DynamicInputNodeFunctions {
         const newSocket = new Socket(
           SOCKET_TYPE.IN,
           node.getNewInputSocketName(socket.name),
-          socket.dataType,
+          forceSpecificType,
         );
         node.addSocket(newSocket);
         node.resizeAndDraw();
