@@ -19,9 +19,9 @@ import { removeAndDestroyChild } from '../../pixi/utils-pixi';
 import { ActionHandler } from '../../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import throttle from 'lodash/throttle';
-import { NodeExecutionError, PNPError } from '../../classes/ErrorClass';
+import { NodeExecutionError } from '../../classes/ErrorClass';
 
-export const offseXName = 'Offset X';
+export const offsetXName = 'Offset X';
 export const offsetYName = 'Offset Y';
 export const scaleXName = 'Scale X';
 export const scaleYName = 'Scale Y';
@@ -76,7 +76,7 @@ export abstract class DRAW_Base extends PPNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        offseXName,
+        offsetXName,
         new NumberType(true, -2000, 2000),
         400,
         false,
@@ -191,8 +191,18 @@ export abstract class DRAW_Base extends PPNode {
       executions,
       offset = new PIXI.Point(),
     ) => {
+      const lastNode = !this.getOutputSocketByName(outputPixiName).hasLink();
+      const drawnAsChildrenOfLastNode =
+        !lastNode && Object.keys(executions).length > 0;
+
+      const newOffset = new PIXI.Point(
+        drawnAsChildrenOfLastNode ? 0 : inputObject[offsetXName] + offset.x,
+        drawnAsChildrenOfLastNode ? 0 : inputObject[offsetYName] + offset.y,
+      );
       if (container) {
-        container.addChild(this.getContainer(inputObject, executions, offset));
+        container.addChild(
+          this.getContainer(inputObject, executions, newOffset),
+        );
       } else {
         console.error('container is undefined for some reason');
       }
@@ -206,7 +216,7 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   protected setOffsets(offsets: PIXI.Point) {
-    this.setInputData(offseXName, offsets.x);
+    this.setInputData(offsetXName, offsets.x);
     this.setInputData(offsetYName, offsets.y);
     this.executeOptimizedChain();
   }
@@ -311,7 +321,7 @@ export abstract class DRAW_Base extends PPNode {
             this.pointerDown(
               getCurrentCursorPosition(),
               new PIXI.Point(
-                this.getInputData(offseXName),
+                this.getInputData(offsetXName),
                 this.getInputData(offsetYName),
               ),
             );
@@ -341,8 +351,8 @@ export abstract class DRAW_Base extends PPNode {
     const height = toModify.getBounds().height;
 
     toModify.setTransform(
-      inputObject[offseXName] + offset.x,
-      inputObject[offsetYName] + offset.y,
+      offset.x,
+      offset.y,
       inputObject[scaleXName],
       inputObject[scaleYName],
       (inputObject[inputRotationName] * Math.PI) / 180,
