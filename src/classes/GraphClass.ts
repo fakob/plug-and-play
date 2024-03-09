@@ -28,7 +28,7 @@ import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
-import PPSelection, { Interaction } from './SelectionClass';
+import PPSelection from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { ExecuteMacro, Macro } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
@@ -685,10 +685,11 @@ export default class PPGraph {
 
     // send notification pulse
     if (notify) {
-      const node = link.getSource().getNode();
-      await node.outputPlugged();
-      await node.inputPlugged();
-      if (node.updateBehaviour.update) {
+      const sourceNode = link.getSource().getNode();
+      const targetNode = link.getTarget().getNode();
+      await sourceNode.outputPlugged();
+      await targetNode.inputPlugged();
+      if (sourceNode.updateBehaviour.update) {
         await link.getTarget().getNode().executeOptimizedChain();
       }
     }

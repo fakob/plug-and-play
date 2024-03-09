@@ -1007,3 +1007,8 @@ export const calculateDistance = (pointA: PIXI.Point, pointB: PIXI.Point) => {
   const yDist = pointB.y - pointA.y;
   return Math.sqrt(xDist * xDist + yDist * yDist);
 };
+
+export const getSuffix = (inputString, prefix) => {
+  const regex = new RegExp(`^${prefix}\\s*`);
+  return inputString.replace(regex, '');
+};

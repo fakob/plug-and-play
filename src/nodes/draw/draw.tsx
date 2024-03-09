@@ -19,8 +19,8 @@ import { ArrayType } from '../datatypes/arrayType';
 import { TriggerType } from '../datatypes/triggerType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
-import { DeferredPixiWithOffsetType } from '../datatypes/deferredPixiWithOffsetType';
 import {
+  getSuffix,
   parseValueAndAttachWarnings,
   saveBase64AsImage,
 } from '../../utils/utils';
@@ -344,12 +344,42 @@ export class DRAW_Combine extends DRAW_Base {
       socket,
       this,
       true,
-      new DeferredPixiWithOffsetType(),
     );
   };
 
+  public async inputPlugged() {
+    this.adaptInputs();
+  }
+
   public async inputUnplugged() {
-    return DynamicInputNodeFunctions.inputUnplugged(this);
+    this.adaptInputs();
+  }
+
+  protected adaptInputs(): void {
+    const sockets = this.getAllNonDefaultInputSockets();
+    const offsetSockets = sockets.filter(
+      (socket) => socket.dataType instanceof NumberType,
+    );
+    sockets.forEach((socket) => {
+      const suffix = getSuffix(socket.name, outputPixiName);
+      if (socket.dataType instanceof DeferredPixiType) {
+        if (socket.hasLink()) {
+          const hasOffset = offsetSockets.some(
+            (offsetSocket) => getSuffix(offsetSocket.name, 'Offset') === suffix,
+          );
+          if (!hasOffset) {
+            const offsetName = `Offset${suffix === '' ? '' : ' ' + suffix}`;
+            this.addInput(offsetName, new NumberType(), 0);
+          }
+        } else {
+          const orphanOffset = offsetSockets.find(
+            (offsetSocket) => getSuffix(offsetSocket.name, 'Offset') === suffix,
+          );
+          this.removeSocket(socket);
+          this.removeSocket(orphanOffset);
+        }
+      }
+    });
   }
 }
 

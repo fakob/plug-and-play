@@ -830,7 +830,7 @@ export const DeferredPixiWithOffsetWidget: React.FunctionComponent<
           const newData = { drawFunction: propertyDrawFunction, x: value, y };
           potentiallyUpdateSocketData(props.property, newData);
         }}
-        value={0}
+        value={x}
       />
       <TextField
         variant="filled"
@@ -849,7 +849,7 @@ export const DeferredPixiWithOffsetWidget: React.FunctionComponent<
           const newData = { drawFunction: propertyDrawFunction, x, y: value };
           potentiallyUpdateSocketData(props.property, newData);
         }}
-        value={0}
+        value={y}
       />
     </FormGroup>
   );
