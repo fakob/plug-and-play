@@ -60,6 +60,7 @@ export class JSONType extends AbstractType {
   recommendedOutputNodeWidgets(): string[] {
     return [
       'Break',
+      'Format',
       'JSONKeys',
       'JSONValues',
       'CodeEditor',

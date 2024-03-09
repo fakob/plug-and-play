@@ -13,8 +13,10 @@ export interface FormatJSONInterface {
 }
 export default class FormatJSONType extends AbstractType {
   getInputWidget = (props: any): any => {
-    return FormatJSONWidget(props);
+    props.dataType = this;
+    return <FormatJSONWidget {...props} />;
   };
+
   allowedAsOutput(): boolean {
     return false;
   }
