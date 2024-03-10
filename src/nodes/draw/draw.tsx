@@ -312,11 +312,11 @@ const graphicsPositionName = 'Position';
 
 export class DRAW_Combine extends DRAW_Base {
   public getName(): string {
-    return 'Combine objects';
+    return 'Combine manually';
   }
 
   public getDescription(): string {
-    return 'Combine several drawn objects';
+    return 'Combine and position objects relative to each other';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -346,11 +346,13 @@ export class DRAW_Combine extends DRAW_Base {
 
     graphicsKeys.forEach((graphicsKey, index) => {
       const positionKey = positionKeys[index];
-      const position = new PIXI.Point(
-        inputObject[positionKey].x,
-        inputObject[positionKey].y,
-      );
-      inputObject[graphicsKey](container, executions, position);
+      if (inputObject[positionKey]) {
+        const position = new PIXI.Point(
+          inputObject[positionKey].x,
+          inputObject[positionKey].y,
+        );
+        inputObject[graphicsKey](container, executions, position);
+      }
     });
   }
 

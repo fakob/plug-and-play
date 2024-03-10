@@ -78,7 +78,7 @@ export abstract class DRAW_Base extends PPNode {
         SOCKET_TYPE.IN,
         offsetXName,
         new NumberType(true, -2000, 2000),
-        400,
+        200,
         false,
       ),
       new Socket(
@@ -203,7 +203,6 @@ export abstract class DRAW_Base extends PPNode {
           ? position.y
           : inputObject[offsetYName] + position.y,
       );
-      console.log(drawnAsChildrenOfLastNode, position, newOffset);
       if (container) {
         container.addChild(
           this.getContainer(inputObject, executions, newOffset),
