@@ -193,7 +193,8 @@ export abstract class DRAW_Base extends PPNode {
     ) => {
       const lastNode = !this.getOutputSocketByName(outputPixiName).hasLink();
       const drawnAsChildrenOfLastNode =
-        !lastNode && Object.keys(executions).length > 0;
+        !lastNode &&
+        (executions === undefined || Object.keys(executions).length > 0);
 
       const newOffset = new PIXI.Point(
         drawnAsChildrenOfLastNode

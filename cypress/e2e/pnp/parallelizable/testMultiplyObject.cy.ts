@@ -17,7 +17,6 @@ describe('testMultiplyObject', () => {
         'DRAW_Multiplier',
         'Graphics',
       );
-      testController.setNodeInputValue('DRAW_Shape', 'Offset X', 200);
       testController.setNodeInputValue(
         'DRAW_Multiplier',
         'Clickable objects',
@@ -25,7 +24,6 @@ describe('testMultiplyObject', () => {
       );
       cy.wait(1000);
       testController.setNodeInputValue('DRAW_Multiplier', 'Spacing X', 200);
-      testController.setNodeInputValue('DRAW_Multiplier', 'Offset X', 0);
       testController.executeNodeByID('DRAW_Shape');
       expect(
         testController.getNodeOutputValue(
