@@ -266,6 +266,11 @@ function customFunctionNode(a, b) {
   return a * b;
 }`;
 
+export const DEFAULT_2DVECTOR = {
+  x: 0,
+  y: 0,
+};
+
 export const MAX_LATEST_NODES_IN_SEARCH = 3;
 
 export const PIXI_PIVOT_OPTIONS: EnumStructure = [

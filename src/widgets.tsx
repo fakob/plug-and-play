@@ -785,12 +785,11 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
   );
 };
 
-export const DeferredPixiWithOffsetWidget: React.FunctionComponent<
-  DataTypeProps
-> = (props) => {
-  const propertyDrawFunction = props.property.data.drawFunction;
-  const propertyX = props.property.data.offset?.x || 0;
-  const propertyY = props.property.data.offset?.y || 0;
+export const TwoDNumberWidget: React.FunctionComponent<DataTypeProps> = (
+  props,
+) => {
+  const propertyX = props.property.data?.x || 0;
+  const propertyY = props.property.data?.y || 0;
 
   const [x, setX] = useState(propertyX);
   const [y, setY] = useState(propertyY);
@@ -827,7 +826,7 @@ export const DeferredPixiWithOffsetWidget: React.FunctionComponent<
         onChange={(event) => {
           const value = event.target.value;
           setX(value);
-          const newData = { drawFunction: propertyDrawFunction, x: value, y };
+          const newData = { x: value, y };
           potentiallyUpdateSocketData(props.property, newData);
         }}
         value={x}
@@ -846,7 +845,7 @@ export const DeferredPixiWithOffsetWidget: React.FunctionComponent<
         onChange={(event) => {
           const value = event.target.value;
           setY(value);
-          const newData = { drawFunction: propertyDrawFunction, x, y: value };
+          const newData = { x, y: value };
           potentiallyUpdateSocketData(props.property, newData);
         }}
         value={y}

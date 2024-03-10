@@ -14,6 +14,7 @@ import { EnumStructure, EnumType } from '../datatypes/enumType';
 import * as PIXI from 'pixi.js';
 import { ColorType } from '../datatypes/colorType';
 import { NumberType } from '../datatypes/numberType';
+import { TwoDVectorType } from '../datatypes/twoDVectorType';
 import { BooleanType } from '../datatypes/booleanType';
 import { ArrayType } from '../datatypes/arrayType';
 import { TriggerType } from '../datatypes/triggerType';
@@ -307,6 +308,8 @@ export class DRAW_Text extends DRAW_Base {
   }
 }
 
+const graphicsPositionName = 'Position';
+
 export class DRAW_Combine extends DRAW_Base {
   public getName(): string {
     return 'Combine objects';
@@ -327,15 +330,27 @@ export class DRAW_Combine extends DRAW_Base {
     container: PIXI.Container,
     executions: { string: number },
   ): void {
-    // this is a bit hacky fishing them out like this but
-    const drawFunctions = Object.values(inputObject);
+    const graphicsKeys = Object.keys(inputObject).filter((key) =>
+      key.startsWith(outputPixiName),
+    );
+    const positionKeys = Object.keys(inputObject).filter((key) =>
+      key.startsWith(graphicsPositionName),
+    );
+    graphicsKeys.sort();
+    positionKeys.sort();
+
     if (inputObject[inputReverseName]) {
-      drawFunctions.reverse();
+      graphicsKeys.reverse();
+      positionKeys.reverse();
     }
-    drawFunctions.forEach((value) => {
-      if (typeof value == 'function') {
-        value(container, executions);
-      }
+
+    graphicsKeys.forEach((graphicsKey, index) => {
+      const positionKey = positionKeys[index];
+      const position = new PIXI.Point(
+        inputObject[positionKey].x,
+        inputObject[positionKey].y,
+      );
+      inputObject[graphicsKey](container, executions, position);
     });
   }
 
@@ -358,22 +373,24 @@ export class DRAW_Combine extends DRAW_Base {
   protected adaptInputs(): void {
     const sockets = this.getAllNonDefaultInputSockets();
     const offsetSockets = sockets.filter(
-      (socket) => socket.dataType instanceof NumberType,
+      (socket) => socket.dataType instanceof TwoDVectorType,
     );
     sockets.forEach((socket) => {
       const suffix = getSuffix(socket.name, outputPixiName);
       if (socket.dataType instanceof DeferredPixiType) {
         if (socket.hasLink()) {
           const hasOffset = offsetSockets.some(
-            (offsetSocket) => getSuffix(offsetSocket.name, 'Offset') === suffix,
+            (offsetSocket) =>
+              getSuffix(offsetSocket.name, graphicsPositionName) === suffix,
           );
           if (!hasOffset) {
-            const offsetName = `Offset${suffix === '' ? '' : ' ' + suffix}`;
-            this.addInput(offsetName, new NumberType(), 0);
+            const offsetName = `${graphicsPositionName}${suffix === '' ? '' : ' ' + suffix}`;
+            this.addInput(offsetName, new TwoDVectorType());
           }
         } else {
           const orphanOffset = offsetSockets.find(
-            (offsetSocket) => getSuffix(offsetSocket.name, 'Offset') === suffix,
+            (offsetSocket) =>
+              getSuffix(offsetSocket.name, graphicsPositionName) === suffix,
           );
           this.removeSocket(socket);
           this.removeSocket(orphanOffset);

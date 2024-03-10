@@ -4,7 +4,7 @@ import { BooleanType } from './booleanType';
 import { CodeType } from './codeType';
 import { ColorType } from './colorType';
 import { DeferredPixiType } from './deferredPixiType';
-import { DeferredPixiWithOffsetType } from './deferredPixiWithOffsetType';
+import { TwoDVectorType } from './twoDVectorType';
 import { DynamicEnumType } from './dynamicEnumType';
 import { EnumType } from './enumType';
 import { FileType } from './fileType';
@@ -25,7 +25,7 @@ export const allDataTypes = {
   ColorType: ColorType,
   NumberType: NumberType,
   DeferredPixiType: DeferredPixiType,
-  DeferredPixiWithOffsetType: DeferredPixiWithOffsetType,
+  TwoDVectorType: TwoDVectorType,
   FileType: FileType,
   FunctionType: FunctionType,
   StringType: StringType,

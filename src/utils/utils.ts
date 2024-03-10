@@ -11,6 +11,7 @@ import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import {
   CONDITION_OPTIONS,
+  DEFAULT_2DVECTOR,
   GESTUREMODE,
   MAX_STRING_LENGTH,
   NODE_HEADER_HEIGHT,
@@ -490,6 +491,93 @@ export const parseJSON = (data: any, strictParsing = false): TParseType => {
     }
   }
 
+  return {
+    value: parsedData,
+    warnings: warnings,
+  };
+};
+
+export const is2DVector = (obj) => {
+  return (
+    obj !== null &&
+    typeof obj === 'object' &&
+    'x' in obj &&
+    typeof obj.x === 'number' &&
+    'y' in obj &&
+    typeof obj.y === 'number'
+  );
+};
+
+export const parse2DVector = (data): TParseType => {
+  let parsedData;
+  const warnings: SocketParsingWarning[] = [];
+
+  function parseArray(array) {
+    if (array.length >= 2) {
+      const [x, y] = array.map(Number);
+      parsedData = { x: isNaN(x) ? 0 : x, y: isNaN(y) ? 0 : y };
+    } else {
+      parsedData = DEFAULT_2DVECTOR;
+      warnings.push(
+        new SocketParsingWarning('Not a vector. {x: 0, y: 0} is returned'),
+      );
+    }
+  }
+
+  function parse2Values(x, y) {
+    if (isNaN(x) || isNaN(y)) {
+      parsedData = DEFAULT_2DVECTOR;
+      warnings.push(
+        new SocketParsingWarning('Not a vector. {x: 0, y: 0} is returned'),
+      );
+    } else {
+      parsedData = {
+        x,
+        y,
+      };
+    }
+  }
+
+  switch (typeof data) {
+    case 'string':
+      let parsedString;
+      try {
+        parsedString = JSON5.parse(data);
+      } catch (error) {}
+      if (is2DVector(parsedString)) {
+        parsedData = parsedString;
+      } else if (Array.isArray(parsedString)) {
+        parseArray(parsedString);
+      } else {
+        const parts = data.split(',').map(Number);
+        if (parts.length >= 2) {
+          const [x, y] = parts;
+          parse2Values(x, y);
+        } else {
+          parsedData = DEFAULT_2DVECTOR;
+          warnings.push(
+            new SocketParsingWarning('Not a vector. {x: 0, y: 0} is returned'),
+          );
+        }
+      }
+      break;
+    case 'object':
+      if (Array.isArray(data)) {
+        parseArray(data);
+      } else if (data !== null) {
+        const x = Number(data.x);
+        const y = Number(data.y);
+        parse2Values(x, y);
+      }
+      break;
+    // Default case to handle other data types
+    default:
+      parsedData = DEFAULT_2DVECTOR;
+      warnings.push(
+        new SocketParsingWarning('Not a vector. {x: 0, y: 0} is returned'),
+      );
+      break;
+  }
   return {
     value: parsedData,
     warnings: warnings,

@@ -189,16 +189,21 @@ export abstract class DRAW_Base extends PPNode {
     const drawingFunction = (
       container,
       executions,
-      offset = new PIXI.Point(),
+      position = new PIXI.Point(),
     ) => {
       const lastNode = !this.getOutputSocketByName(outputPixiName).hasLink();
       const drawnAsChildrenOfLastNode =
         !lastNode && Object.keys(executions).length > 0;
 
       const newOffset = new PIXI.Point(
-        drawnAsChildrenOfLastNode ? 0 : inputObject[offsetXName] + offset.x,
-        drawnAsChildrenOfLastNode ? 0 : inputObject[offsetYName] + offset.y,
+        drawnAsChildrenOfLastNode
+          ? position.x
+          : inputObject[offsetXName] + position.x,
+        drawnAsChildrenOfLastNode
+          ? position.y
+          : inputObject[offsetYName] + position.y,
       );
+      console.log(drawnAsChildrenOfLastNode, position, newOffset);
       if (container) {
         container.addChild(
           this.getContainer(inputObject, executions, newOffset),
