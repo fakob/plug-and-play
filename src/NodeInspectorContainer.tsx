@@ -187,7 +187,6 @@ const NodeInspectorContainer: React.FunctionComponent<
           randomMainColor={props.randomMainColor}
         />
         <PropertyArrayContainer
-          selectedNodes={props.selectedNodes}
           socketToInspect={props.socketToInspect}
           setSocketToInspect={props.setSocketToInspect}
           randomMainColor={props.randomMainColor}
