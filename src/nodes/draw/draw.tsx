@@ -312,7 +312,7 @@ export class DRAW_Combine extends DRAW_Base {
   }
 
   public getDescription(): string {
-    return 'Combines two drawn objects';
+    return 'Combine several drawn objects';
   }
 
   protected getDefaultIO(): Socket[] {
