@@ -358,7 +358,7 @@ export const BooleanWidget: React.FunctionComponent<BooleanTypeProps> = (
           <Switch
             checked={data}
             onChange={onChange}
-            disabled={!props.isInput}
+            disabled={!props.isInput || props.hasLink}
             inputProps={{ 'aria-label': 'controlled' }}
             size="small"
           />
