@@ -554,7 +554,7 @@ Memory (heap, total, used in MB): ${(jsHeapSizeLimit / 1048576).toFixed(2)}, ${(
 
   const openNodeSearch = (pos?: PIXI.Point) => {
     // this is ugly and should be consolidated (the mouseposition in here that is used if no pos is coming in often gives incorrect result at upper left corner)
-    if (pos.x == undefined) {
+    if (pos == undefined) {
       pos = new PIXI.Point(mousePosition.x, mousePosition.y);
     }
     setContextMenuPosition([pos.x, pos.y]);
