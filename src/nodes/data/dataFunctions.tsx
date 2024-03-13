@@ -287,7 +287,7 @@ export class CustomFunction extends PPNode {
 
   public isCallingMacro(macroName: string): boolean {
     return this.getInputData(anyCodeName)
-      .replaceAll("'", '"')
+      ?.replaceAll("'", '"') // this question mark is ugly... but it might be called before node gets the input data
       .includes('acro("' + macroName);
   }
 
