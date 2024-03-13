@@ -49,6 +49,7 @@ import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   controlOrMetaKey,
   cutOrCopyClipboard,
+  getCurrentCursorPosition,
   isPhone,
   loadGraph,
   pasteClipboard,
@@ -551,12 +552,12 @@ Memory (heap, total, used in MB): ${(jsHeapSizeLimit / 1048576).toFixed(2)}, ${(
     open();
   }
 
-  const openNodeSearch = () => {
-    console.log('openNodeSearch');
-    const pos = mousePosition;
-    if (pos !== undefined) {
-      setContextMenuPosition([pos.x, pos.y]);
+  const openNodeSearch = (pos?: PIXI.Point) => {
+    // this is ugly and should be consolidated (the mouseposition in here that is used if no pos is coming in often gives incorrect result at upper left corner)
+    if (pos.x == undefined) {
+      pos = new PIXI.Point(mousePosition.x, mousePosition.y);
     }
+    setContextMenuPosition([pos.x, pos.y]);
     setIsNodeSearchVisible(true);
   };
 

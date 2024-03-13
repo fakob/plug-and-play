@@ -103,7 +103,7 @@ export default class InterfaceController {
   static onGraphListChanged: () => void = () => {};
 
   // these were previously only in app.tsx and are still being set from there, but they can be accessed from anywhere
-  static openNodeSearch: () => void = () => {};
+  static openNodeSearch: (position?: PIXI.Point) => void = () => {};
   static toggleShowEdit: (open?: boolean) => void = () => {};
   static toggleLeftSideDrawer: (open?: boolean) => void = () => {};
   static toggleShowDashboard: (open?: boolean) => void = () => {};

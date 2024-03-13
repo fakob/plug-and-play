@@ -182,7 +182,7 @@ export default class PPGraph {
       const target = event.target;
       if (target instanceof Viewport) {
         this.overrideNodeCursorPosition = this.viewport.toWorld(event.global);
-        InterfaceController.openNodeSearch();
+        InterfaceController.openNodeSearch(new PIXI.Point(event.x, event.y));
       }
     }
   }
@@ -214,7 +214,7 @@ export default class PPGraph {
       if (!this.overrideNodeCursorPosition) {
         this.overrideNodeCursorPosition = this.viewport.toWorld(event.global);
         if (this.lastSelectedSocketWasOutput || this.selectedSocket.isInput()) {
-          InterfaceController.openNodeSearch();
+          InterfaceController.openNodeSearch(new PIXI.Point(event.x, event.y));
         } else {
           this.stopConnecting();
         }
