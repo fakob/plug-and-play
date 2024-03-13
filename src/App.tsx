@@ -49,6 +49,7 @@ import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   controlOrMetaKey,
   cutOrCopyClipboard,
+  getCurrentCursorPosition,
   isPhone,
   loadGraph,
   pasteClipboard,
@@ -552,11 +553,8 @@ Memory (heap, total, used in MB): ${(jsHeapSizeLimit / 1048576).toFixed(2)}, ${(
   }
 
   const openNodeSearch = () => {
-    console.log('openNodeSearch');
-    const pos = mousePosition;
-    if (pos !== undefined) {
-      setContextMenuPosition([pos.x, pos.y]);
-    }
+    const pos = getCurrentCursorPosition();
+    setContextMenuPosition([pos.x, pos.y]);
     setIsNodeSearchVisible(true);
   };
 
