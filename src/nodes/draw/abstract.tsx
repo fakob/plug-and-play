@@ -15,7 +15,7 @@ import { BooleanType } from '../datatypes/booleanType';
 import { ArrayType } from '../datatypes/arrayType';
 import { TRgba } from '../../utils/interfaces';
 import { getCurrentCursorPosition } from '../../utils/utils';
-import { removeAndDestroyChild } from '../../pixi/utils-pixi';
+import { getHits, removeAndDestroyChild } from '../../pixi/utils-pixi';
 import { ActionHandler } from '../../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import throttle from 'lodash/throttle';
@@ -194,6 +194,7 @@ export abstract class DRAW_Base extends PPNode {
       container,
       executions,
       position = new PIXI.Point(),
+      containerName = undefined,
     ) => {
       const lastNode = !this.getOutputSocketByName(outputPixiName).hasLink();
       const drawnAsChildrenOfLastNode =
@@ -206,9 +207,13 @@ export abstract class DRAW_Base extends PPNode {
             inputObject[offsetYName] + position.y,
           );
       if (container) {
-        container.addChild(
-          this.getContainer(inputObject, executions, newOffset),
+        const newContainer = this.getContainer(
+          inputObject,
+          executions,
+          newOffset,
         );
+        newContainer.name = containerName || this.id;
+        container.addChild(newContainer);
       } else {
         console.error('container is undefined for some reason');
       }
@@ -221,40 +226,51 @@ export abstract class DRAW_Base extends PPNode {
     );*/
   }
 
-  protected setOffsets(offsets: PIXI.Point) {
-    this.setInputData(offsetXName, offsets.x);
-    this.setInputData(offsetYName, offsets.y);
+  protected setOffsets(offsets: PIXI.Point, lastHitName) {
+    if (lastHitName) {
+      this.setInputData(lastHitName, offsets);
+    } else {
+      this.setInputData(offsetXName, offsets.x);
+      this.setInputData(offsetYName, offsets.y);
+    }
     this.executeOptimizedChain();
   }
 
   protected setOffsetsToCurrentCursor(
     originalCursorPos: PIXI.Point,
     originalOffsets: PIXI.Point,
+    lastHitName,
   ) {
     const currPos = getCurrentCursorPosition();
-    this.setOffsetsToCurrentCursor;
+    // this.setOffsetsToCurrentCursor;
     const diffX = currPos.x - originalCursorPos.x;
     const diffY = currPos.y - originalCursorPos.y;
     this.setOffsets(
       new PIXI.Point(originalOffsets.x + diffX, originalOffsets.y + diffY),
+      lastHitName,
     );
   }
 
   protected pointerDown(
     originalCursorPos: PIXI.Point,
     originalOffsets: PIXI.Point,
+    lastHitName = undefined,
   ) {
     this.isDragging = true;
     PPGraph.currentGraph.selection.selectNodes([this], false, true);
     this.listenIDMove = InterfaceController.addListener(
       ListenEvent.GlobalPointerMove,
       () => {
-        this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
+        this.setOffsetsToCurrentCursor(
+          originalCursorPos,
+          originalOffsets,
+          lastHitName,
+        );
         // re-trigger if still holding
         setTimeout(() => {
           InterfaceController.removeListener(this.listenIDMove);
           if (this.isDragging) {
-            this.pointerDown(originalCursorPos, originalOffsets);
+            this.pointerDown(originalCursorPos, originalOffsets, lastHitName);
           }
         }, 16);
       },
@@ -263,13 +279,14 @@ export abstract class DRAW_Base extends PPNode {
     InterfaceController.removeListener(this.listenIDUp);
     this.listenIDUp = InterfaceController.addListener(
       ListenEvent.GlobalPointerUpAndUpOutside,
-      () => this.pointerUp(originalCursorPos, originalOffsets),
+      () => this.pointerUp(originalCursorPos, originalOffsets, lastHitName),
     );
   }
 
   protected pointerUp(
     originalCursorPos: PIXI.Point,
     originalOffsets: PIXI.Point,
+    lastHitName: string,
   ) {
     const currPos = getCurrentCursorPosition();
     this.isDragging = false;
@@ -285,10 +302,12 @@ export abstract class DRAW_Base extends PPNode {
             currPos.x - originalCursorPos.x,
             currPos.y - originalCursorPos.y,
           ),
+          lastHitName,
         ),
       async () =>
         (ActionHandler.getSafeNode(id) as DRAW_Base).setOffsets(
           originalOffsets,
+          lastHitName,
         ),
       'Move Graphics',
       false,
@@ -305,6 +324,7 @@ export abstract class DRAW_Base extends PPNode {
       removeAndDestroyChild(this._ForegroundRef, this.deferredGraphics);
       if (this.shouldDraw()) {
         this.deferredGraphics = new PIXI.Container();
+        this.deferredGraphics.name = 'deferredGraphics';
         try {
           drawingFunction(
             this.deferredGraphics,
@@ -313,6 +333,7 @@ export abstract class DRAW_Base extends PPNode {
               absolutePosition ? -this.x : 0,
               absolutePosition ? -this.y : 0,
             ),
+            this.id,
           );
         } catch (error) {
           this.setStatus(new NodeExecutionError(error.message));
@@ -323,14 +344,41 @@ export abstract class DRAW_Base extends PPNode {
         if (this.allowMovingDirectly()) {
           this.deferredGraphics.eventMode = 'dynamic';
 
-          this.deferredGraphics.addEventListener('pointerdown', () => {
-            this.pointerDown(
-              getCurrentCursorPosition(),
-              new PIXI.Point(
-                this.getInputData(offsetXName),
-                this.getInputData(offsetYName),
-              ),
+          this.deferredGraphics.addEventListener('pointerdown', (event) => {
+            const altKey = event.altKey;
+
+            // Retrieve all hit objects
+            const allHits = getHits(
+              this.deferredGraphics,
+              new PIXI.Point(event.clientX, event.clientY),
             );
+
+            // You can now decide what to do with all the hit layers
+            // For example, you can highlight them or log their details
+            let lastHitName;
+            allHits.forEach((hit) => {
+              lastHitName = hit.parent.name;
+              console.log('Hit:', lastHitName);
+              // Perform an action with the hit object
+              // e.g., hit.alpha = 0.5 to make it semi-transparent
+            });
+
+            const pos = this.getInputData(lastHitName);
+            if (altKey && pos) {
+              this.pointerDown(
+                getCurrentCursorPosition(),
+                new PIXI.Point(pos.x, pos.y),
+                lastHitName,
+              );
+            } else {
+              this.pointerDown(
+                getCurrentCursorPosition(),
+                new PIXI.Point(
+                  this.getInputData(offsetXName),
+                  this.getInputData(offsetYName),
+                ),
+              );
+            }
           });
         }
       }

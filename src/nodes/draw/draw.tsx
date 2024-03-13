@@ -352,7 +352,7 @@ export class DRAW_Combine extends DRAW_Base {
           inputObject[positionKey].x,
           inputObject[positionKey].y,
         );
-        inputObject[graphicsKey](container, executions, position);
+        inputObject[graphicsKey](container, executions, position, positionKey);
       }
     });
   }
@@ -477,6 +477,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
           shallowContainer,
           executions,
           new PIXI.Point(x * spacingSize.width, y * spacingSize.height),
+          String(i),
         );
       }
       if (inputObject[objectsInteractive]) {
@@ -554,6 +555,7 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
             x * inputObject[spacingXName],
             y * inputObject[spacingYName],
           ),
+          String(i),
         );
       }
 
@@ -593,6 +595,7 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
           shallowContainer,
           executions,
           new PIXI.Point(x, y),
+          String(i),
         );
 
       addShallowContainerEventListeners(shallowContainer, this, i, executions);

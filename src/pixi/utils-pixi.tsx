@@ -211,3 +211,29 @@ export const removeAndDestroyChild = (that, newContainer): void => {
     baseTexture: true,
   });
 };
+
+// Function to recursively check for hits in a container
+export const getHits = (
+  container: PIXI.Container,
+  point: PIXI.Point,
+  hits = [],
+) => {
+  // Iterate through the children of the container
+  container.children.forEach((child) => {
+    if (
+      child instanceof PIXI.Graphics ||
+      child instanceof PIXI.Text ||
+      child instanceof PIXI.Sprite ||
+      child instanceof PIXI.Mesh
+    ) {
+      console.log(point, child.x, child.y, child.width, child.height);
+      if (child.containsPoint(point)) {
+        hits.push(child);
+      }
+    } else if (child instanceof PIXI.Container) {
+      getHits(child, point, hits);
+    }
+  });
+
+  return hits;
+};
