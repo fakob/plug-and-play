@@ -374,29 +374,31 @@ export class DRAW_Combine extends DRAW_Base {
 
   protected adaptInputs(): void {
     const sockets = this.getAllNonDefaultInputSockets();
-    const offsetSockets = sockets.filter(
-      (socket) => socket.dataType instanceof TwoDVectorType,
+    const positionSockets = sockets.filter((socket) =>
+      socket.name.startsWith(graphicsPositionName),
     );
-    sockets.forEach((socket) => {
+    const graphicsSockets = sockets.filter((socket) =>
+      socket.name.startsWith(outputPixiName),
+    );
+
+    graphicsSockets.forEach((socket) => {
       const suffix = getSuffix(socket.name, outputPixiName);
-      if (socket.dataType instanceof DeferredPixiType) {
-        if (socket.hasLink()) {
-          const hasOffset = offsetSockets.some(
-            (offsetSocket) =>
-              getSuffix(offsetSocket.name, graphicsPositionName) === suffix,
-          );
-          if (!hasOffset) {
-            const offsetName = `${graphicsPositionName}${suffix === '' ? '' : ' ' + suffix}`;
-            this.addInput(offsetName, new TwoDVectorType());
-          }
-        } else {
-          const orphanOffset = offsetSockets.find(
-            (offsetSocket) =>
-              getSuffix(offsetSocket.name, graphicsPositionName) === suffix,
-          );
-          this.removeSocket(socket);
-          this.removeSocket(orphanOffset);
+      if (socket.hasLink()) {
+        const hasPosition = positionSockets.some(
+          (positionSocket) =>
+            getSuffix(positionSocket.name, graphicsPositionName) === suffix,
+        );
+        if (!hasPosition) {
+          const offsetName = `${graphicsPositionName}${suffix === '' ? '' : ' ' + suffix}`;
+          this.addInput(offsetName, new TwoDVectorType());
         }
+      } else {
+        const orphanPosition = positionSockets.find(
+          (positionSocket) =>
+            getSuffix(positionSocket.name, graphicsPositionName) === suffix,
+        );
+        this.removeSocket(socket);
+        this.removeSocket(orphanPosition);
       }
     });
   }

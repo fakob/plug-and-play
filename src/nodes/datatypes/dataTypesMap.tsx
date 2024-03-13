@@ -50,4 +50,5 @@ export const dropDownSelectableTypes = {
   JSONType: JSONType,
   ImageType: ImageType,
   CodeType: CodeType,
+  TwoDVectorType: TwoDVectorType,
 };

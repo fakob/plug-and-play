@@ -32,8 +32,9 @@ import {
 import { Viewport } from 'pixi-viewport';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { PNPSuccess, SocketParsingWarning } from '../classes/ErrorClass';
-import { getNodesUpperLeftCorner } from '../pixi/utils-pixi';
+import { getNodesBounds, getNodesUpperLeftCorner } from '../pixi/utils-pixi';
 import InterfaceController from '../InterfaceController';
+import { outputPixiName } from '../nodes/draw/abstract';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -1099,4 +1100,28 @@ export const calculateDistance = (pointA: PIXI.Point, pointB: PIXI.Point) => {
 export const getSuffix = (inputString, prefix) => {
   const regex = new RegExp(`^${prefix}\\s*`);
   return inputString.replace(regex, '');
+};
+
+export const combineSelectedDrawNodes = async () => {
+  const selectedNodes = PPGraph.currentGraph.selection.selectedNodes.filter(
+    (node) => node.reactsToCombineDrawKeyBinding(),
+  );
+  if (selectedNodes.length > 0) {
+    const boundsOfSelection = getNodesBounds(selectedNodes);
+    const added: PPNode = await PPGraph.currentGraph.addNewNode(
+      'DRAW_Combine',
+      {
+        nodePosX: boundsOfSelection.x + boundsOfSelection.width + 200,
+        nodePosY: boundsOfSelection.y + boundsOfSelection.height / 2,
+      },
+    );
+
+    for (const node of selectedNodes) {
+      await connectNodeToSocket(
+        node.getOutputSocketByName(outputPixiName),
+        added,
+      );
+    }
+    added.executeOptimizedChain();
+  }
 };

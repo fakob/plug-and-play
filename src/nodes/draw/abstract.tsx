@@ -71,6 +71,10 @@ export abstract class DRAW_Base extends PPNode {
     return new UpdateBehaviourClass(true, true, false, 1000, this);
   }
 
+  public reactsToCombineDrawKeyBinding(): boolean {
+    return true;
+  }
+
   // you probably want to maintain this output in children
   protected getDefaultIO(): Socket[] {
     return [
@@ -120,8 +124,8 @@ export abstract class DRAW_Base extends PPNode {
         SOCKET_TYPE.IN,
         inputAlwaysDraw,
         new BooleanType(),
-        true,
-        true,
+        false,
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -193,17 +197,14 @@ export abstract class DRAW_Base extends PPNode {
     ) => {
       const lastNode = !this.getOutputSocketByName(outputPixiName).hasLink();
       const drawnAsChildrenOfLastNode =
-        !lastNode &&
-        (executions === undefined || Object.keys(executions).length > 0);
+        !lastNode && Object.keys(executions).length > 0;
 
-      const newOffset = new PIXI.Point(
-        drawnAsChildrenOfLastNode
-          ? position.x
-          : inputObject[offsetXName] + position.x,
-        drawnAsChildrenOfLastNode
-          ? position.y
-          : inputObject[offsetYName] + position.y,
-      );
+      const newOffset = drawnAsChildrenOfLastNode
+        ? new PIXI.Point(position.x, position.y)
+        : new PIXI.Point(
+            inputObject[offsetXName] + position.x,
+            inputObject[offsetYName] + position.y,
+          );
       if (container) {
         container.addChild(
           this.getContainer(inputObject, executions, newOffset),
