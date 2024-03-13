@@ -208,6 +208,7 @@ function socketArrayToComponent(
   text: string,
   filter: string,
   value: string,
+  node: PPNode,
 ) {
   {
     return (
@@ -231,11 +232,7 @@ function socketArrayToComponent(
                     hasLink={property.hasLink()}
                     data={property.data}
                     randomMainColor={props.randomMainColor}
-                    selectedNode={
-                      props.selectedNodes.length > 0
-                        ? props.selectedNodes[0]
-                        : null
-                    }
+                    selectedNode={node}
                   />
                 );
               })}
@@ -342,7 +339,6 @@ function InfoContent(props: InfoContentProps) {
 }
 
 type PropertyArrayContainerProps = {
-  selectedNodes: PPNode[];
   socketToInspect: Socket;
   setSocketToInspect: React.Dispatch<React.SetStateAction<Socket>>;
   randomMainColor: string;
@@ -357,6 +353,9 @@ function getVisibleIDs(socketArray: Socket[]): string[] {
 }
 
 function getSocketsCurrentlyRendered(node: PPNode): string[] {
+  if (node == undefined) {
+    return [];
+  }
   const inputs = getVisibleIDs(node.inputSocketArray);
   const outputs = getVisibleIDs(node.outputSocketArray);
   const triggers = getVisibleIDs(node.nodeTriggerSocketArray);
@@ -370,8 +369,9 @@ export const PropertyArrayContainer: React.FunctionComponent<
     PPGraph.currentGraph.selection.interaction == Interaction.Dragging,
   );
 
-  const singleNode = props.selectedNodes.length ? props.selectedNodes[0] : null;
-  const [selectedNode, setSelectedNode] = useState(singleNode);
+  const [selectedNodes, setSelectedNodes] = useState(
+    PPGraph.currentGraph.selection.selectedNodes,
+  );
 
   function switchFilterBasedOnSelectedSocket(socket: Socket) {
     if (socket) {
@@ -380,22 +380,26 @@ export const PropertyArrayContainer: React.FunctionComponent<
   }
 
   useEffect(() => {
-    const id = InterfaceController.addListener(
+    const id1 = InterfaceController.addListener(
       ListenEvent.SelectionDragging,
       setIsDragging,
     );
+    const id2 = InterfaceController.addListener(
+      ListenEvent.SelectionChanged,
+      setSelectedNodes,
+    );
     return () => {
-      InterfaceController.removeListener(id);
+      InterfaceController.removeListener(id1);
+      InterfaceController.removeListener(id2);
     };
   }, []);
 
+  const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : undefined;
   useEffect(() => {
-    const newSelectedNode =
-      props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
-    setSelectedNode(newSelectedNode);
+    //setSelectedNode(newSelectedNode);
     setUpdatebehaviour(getUpdateBehaviourStateForArray());
     switchFilterBasedOnSelectedSocket(props.socketToInspect);
-  }, [props.selectedNodes]);
+  }, [selectedNode?.id]);
 
   useEffect(() => {
     switchFilterBasedOnSelectedSocket(props.socketToInspect);
@@ -414,10 +418,10 @@ export const PropertyArrayContainer: React.FunctionComponent<
   // else it returns the value
   const getUpdateBehaviourStateForArray = () => {
     const isPropertyUniform = (property) => {
-      return props.selectedNodes.every(
+      return selectedNodes.every(
         (node) =>
           node.updateBehaviour[property] ===
-          props.selectedNodes[0].updateBehaviour[property],
+          selectedNodes[0].updateBehaviour[property],
       );
     };
 
@@ -426,7 +430,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
     const areAllIntervalsTheSame = isPropertyUniform('interval');
     const areAllFrequenciesTheSame = isPropertyUniform('intervalFrequency');
 
-    const firstNodeUpdateBehaviour = props.selectedNodes[0].updateBehaviour;
+    const firstNodeUpdateBehaviour = selectedNodes[0].updateBehaviour;
     const updateBehaviourObject = {
       load: areAllLoadsTheSame ? firstNodeUpdateBehaviour.load : null,
       update: areAllUpdatesTheSame ? firstNodeUpdateBehaviour.update : null,
@@ -448,7 +452,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
   const onCheckboxChange = (event) => {
     const checked = (event.target as HTMLInputElement).checked;
     const name = (event.target as HTMLInputElement).name;
-    props.selectedNodes.forEach((selectedNode) => {
+    selectedNodes.forEach((selectedNode) => {
       selectedNode.updateBehaviour[event.target.name] = checked;
     });
     setUpdatebehaviour((prevState) => ({
@@ -459,7 +463,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
 
   const onFrequencyChange = (event) => {
     const value = (event.target as HTMLInputElement).value;
-    props.selectedNodes.forEach((selectedNode) => {
+    selectedNodes.forEach((selectedNode) => {
       selectedNode.updateBehaviour.intervalFrequency = parseInt(value);
     });
     setUpdatebehaviour((prevState) => ({
@@ -469,17 +473,17 @@ export const PropertyArrayContainer: React.FunctionComponent<
   };
 
   const onUpdateNow = () => {
-    props.selectedNodes.forEach((selectedNode) => {
+    selectedNodes.forEach((selectedNode) => {
       selectedNode.executeOptimizedChain();
     });
   };
 
   const [socketsCurrentlyRendered, setSocketsCurrentlyRendered] = useState(
-    getSocketsCurrentlyRendered(singleNode),
+    getSocketsCurrentlyRendered(selectedNode),
   );
 
   useInterval(() => {
-    const newVal = getSocketsCurrentlyRendered(singleNode);
+    const newVal = getSocketsCurrentlyRendered(selectedNode);
     if (newVal.toString() != socketsCurrentlyRendered.toString()) {
       setSocketsCurrentlyRendered(newVal);
     }
@@ -492,7 +496,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
           handleFilter={handleFilter}
           filter={props.filter}
           selectedNode={selectedNode}
-          selectedNodes={props.selectedNodes}
+          selectedNodes={selectedNodes}
         />
         <Stack
           spacing={1}
@@ -502,7 +506,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
             height: 'calc(100vh - 120px)',
           }}
         >
-          {(props.selectedNodes.length !== 1 ||
+          {(selectedNodes.length !== 1 ||
             props.filter === 'common' ||
             props.filter == null) && (
             <CommonContent
@@ -516,7 +520,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
               onUpdateNow={onUpdateNow}
             />
           )}
-          {props.selectedNodes.length === 1 && (
+          {selectedNodes.length === 1 && (
             <>
               {selectedNode.nodeTriggerSocketArray.length > 0 &&
                 socketArrayToComponent(
@@ -526,6 +530,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                   'Triggers',
                   props.filter,
                   'trigger',
+                  selectedNode,
                 )}
               {socketArrayToComponent(
                 props.socketToInspect,
@@ -534,6 +539,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 'Inputs',
                 props.filter,
                 'in',
+                selectedNode,
               )}
               {socketArrayToComponent(
                 props.socketToInspect,
@@ -542,8 +548,9 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 'Outputs',
                 props.filter,
                 'out',
+                selectedNode,
               )}
-              {((props.selectedNodes.length === 1 && props.filter === 'info') ||
+              {((selectedNodes.length === 1 && props.filter === 'info') ||
                 props.filter == null) && (
                 <Stack spacing={1}>
                   <InfoContent selectedNode={selectedNode} />
