@@ -814,7 +814,7 @@ export const TwoDNumberWidget: React.FunctionComponent<DataTypeProps> = (
     >
       <TextField
         variant="filled"
-        label="X"
+        label="x"
         data-cy={`${props.property.name}-value`}
         sx={{
           flexGrow: 1,
@@ -833,7 +833,7 @@ export const TwoDNumberWidget: React.FunctionComponent<DataTypeProps> = (
       />
       <TextField
         variant="filled"
-        label="Y"
+        label="y"
         data-cy={`${props.property.name}-value`}
         sx={{
           flexGrow: 1,
