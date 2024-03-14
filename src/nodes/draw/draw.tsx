@@ -20,7 +20,6 @@ import { ArrayType } from '../datatypes/arrayType';
 import { TriggerType } from '../datatypes/triggerType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
-import { DeferredPixiWithOffsetType } from '../datatypes/deferredPixiWithOffsetType';
 import {
   getSuffix,
   parseValueAndAttachWarnings,
