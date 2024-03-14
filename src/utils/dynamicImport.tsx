@@ -15,7 +15,7 @@ export async function dynamicImport(
     },
   );
   console.time(`${packageName} imported`);
-  const url = 'https://esm.sh/' + packageName;
+  const url = 'https://esm.run/' + packageName;
   const toReturn = await import(/* webpackIgnore: true */ url);
   console.timeEnd(`${packageName} imported`);
   InterfaceController.hideSnackBar(packageName);

@@ -3,7 +3,7 @@ let ffmpeg;
 (async () => {
   console.time('ffmpeg imported');
   const packageName = '@ffmpeg/ffmpeg@0.11.6';
-  const url = 'https://esm.sh/' + packageName;
+  const url = 'https://esm.run/' + packageName;
   self.FFmpeg = await import(/* webpackIgnore: true */ url);
   console.timeEnd('ffmpeg imported');
 

@@ -329,7 +329,7 @@ export class LoadNPM extends CustomFunction {
 
   protected getDefaultFunction(): string {
     return `(packageName) => {
-  const url = 'https://esm.sh/' + packageName;
+  const url = 'https://esm.run/' + packageName;
   const npmPackage = await import(url);
   console.log(npmPackage);
 	return npmPackage;

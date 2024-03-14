@@ -375,7 +375,7 @@
           "socketType": "in",
           "name": "Code",
           "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": "(packageName) => {\n  const url = 'https://esm.sh/' + packageName;\n  const npmPackage = await import(url);\n  // console.log(npmPackage);\n\treturn npmPackage;\n}",
+          "data": "(packageName) => {\n  const url = 'https://esm.run/' + packageName;\n  const npmPackage = await import(url);\n  // console.log(npmPackage);\n\treturn npmPackage;\n}",
           "visible": false
         },
         {
