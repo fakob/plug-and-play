@@ -27,8 +27,8 @@ describe('mouseInteractions1', () => {
   });
 
   it('Selects all nodes within drag area on dragging over graph', () => {
-    const startX = 100;
-    const startY = 100;
+    const startX = 400;
+    const startY = 300;
     const endX = 860;
     const endY = 460;
 
@@ -49,7 +49,7 @@ describe('mouseInteractions1', () => {
     cy.wait(100);
     doWithTestController((testController) => {
       expect(testController.getSelectedNodes().length).to.eq(1);
-      cy.get('body').click(100, 100);
+      cy.get('body').click(400, 300);
     });
     cy.wait(1000);
     doWithTestController((testController) => {
@@ -58,8 +58,8 @@ describe('mouseInteractions1', () => {
   });
 
   it('Shows selection tooltip after selecting all nodes within drag area on dragging over graph and releasing over node', () => {
-    const startX = 100;
-    const startY = 100;
+    const startX = 400;
+    const startY = 300;
 
     doWithTestController((testController) => {
       const [endX, endY] = testController.getNodeCenterById('Constant2');
@@ -72,8 +72,8 @@ describe('mouseInteractions1', () => {
   });
 
   it('Shows selection tooltip after selecting all nodes within drag area on dragging over graph and releasing over socket', () => {
-    const startX = 100;
-    const startY = 100;
+    const startX = 400;
+    const startY = 300;
 
     doWithTestController((testController) => {
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(

@@ -60,16 +60,12 @@
         },
         {
           "socketType": "in",
-          "name": "Offset X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 193.0790552714434,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Offset Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 55.86033819772456,
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
           "visible": false
         },
         {
@@ -105,27 +101,6 @@
           "name": "Always Draw",
           "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
           "data": true,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Absolute Positions",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": false,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Skew X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Skew Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":-1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
-          "data": 0,
           "visible": false
         },
         {
@@ -207,16 +182,12 @@
         },
         {
           "socketType": "in",
-          "name": "Offset X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 181.70675528957372,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Offset Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": -120.52150400896517,
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
           "visible": false
         },
         {
@@ -252,27 +223,6 @@
           "name": "Always Draw",
           "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
           "data": true,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Absolute Positions",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": false,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Skew X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Skew Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":-1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
-          "data": 0,
           "visible": false
         },
         {
@@ -722,16 +672,12 @@
         },
         {
           "socketType": "in",
-          "name": "Offset X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 209.50199586005806,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Offset Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 2.907490051691184,
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
           "visible": false
         },
         {
@@ -767,27 +713,6 @@
           "name": "Always Draw",
           "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
           "data": true,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Absolute Positions",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": false,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Skew X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Skew Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":-1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
-          "data": 0,
           "visible": false
         },
         {
@@ -1218,16 +1143,12 @@
         },
         {
           "socketType": "in",
-          "name": "Offset X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 200,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Offset Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 0,
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
           "visible": false
         },
         {
@@ -1264,27 +1185,6 @@
           "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
           "data": true,
           "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Absolute Positions",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": false,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Skew X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Skew Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":-1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
         },
         {
           "socketType": "in",

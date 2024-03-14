@@ -614,16 +614,12 @@
         },
         {
           "socketType": "in",
-          "name": "Offset X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Offset Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 0,
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
           "visible": false
         },
         {
@@ -657,13 +653,6 @@
         {
           "socketType": "in",
           "name": "Always Draw",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": false,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Absolute Positions",
           "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
           "data": false,
           "visible": false
@@ -863,16 +852,12 @@
         },
         {
           "socketType": "in",
-          "name": "Offset X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 187.1251968593465,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Offset Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": -0.6453770594863499,
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
           "visible": false
         },
         {
@@ -908,13 +893,6 @@
           "name": "Always Draw",
           "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
           "data": true,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Absolute Positions",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": false,
           "visible": false
         },
         {

@@ -54,6 +54,6 @@ export class TwoDVectorType extends AbstractType {
   }
 
   recommendedInputNodeWidgets(): string[] {
-    return ['Constant'];
+    return ['CodeEditor', 'Constant'];
   }
 }

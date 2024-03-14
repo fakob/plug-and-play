@@ -24,6 +24,7 @@ import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
+import { TwoDVectorType } from '../datatypes/twoDVectorType';
 
 const AnyName = 'Any';
 const ArrayName = 'Array';
@@ -40,6 +41,7 @@ const NumberFloatName = 'Number (float)';
 const NumberNameInt = 'Number (int)';
 const StringName = 'String';
 const TriggerName = 'Trigger';
+const TwoDVectorName = '2D Vector';
 
 const AnyOutName = 'Any-Out';
 const ArrayOutName = 'Array-Out';
@@ -53,6 +55,7 @@ const JSONTypeOutName = 'JSONType-Out';
 const NumberFloatOutName = 'Number-Float-Out';
 const NumberIntOutName = 'Number-Int-Out';
 const StringOutName = 'String-Out';
+const TwoDVectorOutName = '2D Vector-Out';
 
 const OutputName = 'Test data loop-Out';
 const OutputTypeName = 'Test data loop-Type';
@@ -134,6 +137,10 @@ Her tales became whispers, in moon's soft glow,
 Across the land, they'd freely flow.
 From hills to valleys, hearts took flight,
 Thanks to Prudence and her stories of light.`,
+  TWODVECTOR: {
+    x: 200,
+    y: 100,
+  },
   UNDEFINED: undefined,
 };
 
@@ -200,6 +207,12 @@ export class TestDataTypes extends PPNode {
       ),
       new Socket(SOCKET_TYPE.IN, StringName, new StringType(), TESTDATA.STRING),
       new Socket(SOCKET_TYPE.IN, TriggerName, new TriggerType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        TwoDVectorName,
+        new TwoDVectorType(),
+        TESTDATA.TWODVECTOR,
+      ),
 
       new Socket(SOCKET_TYPE.OUT, AnyOutName, new AnyType()),
       new Socket(SOCKET_TYPE.OUT, ArrayOutName, new ArrayType()),
@@ -217,6 +230,7 @@ export class TestDataTypes extends PPNode {
       new Socket(SOCKET_TYPE.OUT, NumberFloatOutName, new NumberType()),
       new Socket(SOCKET_TYPE.OUT, NumberIntOutName, new NumberType()),
       new Socket(SOCKET_TYPE.OUT, StringOutName, new StringType()),
+      new Socket(SOCKET_TYPE.OUT, TwoDVectorOutName, new TwoDVectorType()),
 
       new Socket(SOCKET_TYPE.OUT, OutputName, new AnyType()),
       new Socket(SOCKET_TYPE.OUT, OutputTypeName, new StringType()),
@@ -240,6 +254,7 @@ export class TestDataTypes extends PPNode {
     outputObject[NumberFloatOutName] = inputObject[NumberFloatName];
     outputObject[NumberIntOutName] = inputObject[NumberNameInt];
     outputObject[StringOutName] = inputObject[StringName];
+    outputObject[TwoDVectorOutName] = inputObject[TwoDVectorName];
 
     // on every execution output another type of test data
     const testDataType = this.keys[this.index % this.keys.length];
