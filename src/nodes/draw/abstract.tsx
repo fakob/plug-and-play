@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import throttle from 'lodash/throttle';
 import PPNode from '../../classes/NodeClass';
 import PPGraph from '../../classes/GraphClass';
 import Socket from '../../classes/SocketClass';
@@ -8,26 +9,24 @@ import {
   PIXI_PIVOT_OPTIONS,
   SOCKET_TYPE,
 } from '../../utils/constants';
+import { ArrayType } from '../datatypes/arrayType';
+import { BooleanType } from '../datatypes/booleanType';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
 import { EnumType } from '../datatypes/enumType';
 import { NumberType } from '../datatypes/numberType';
-import { BooleanType } from '../datatypes/booleanType';
-import { ArrayType } from '../datatypes/arrayType';
+import { TwoDVectorType } from '../datatypes/twoDVectorType';
 import { TRgba } from '../../utils/interfaces';
 import { getCurrentCursorPosition } from '../../utils/utils';
 import { removeAndDestroyChild } from '../../pixi/utils-pixi';
 import { ActionHandler } from '../../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../../InterfaceController';
-import throttle from 'lodash/throttle';
 import { NodeExecutionError } from '../../classes/ErrorClass';
 
-export const offsetXName = 'Offset X';
-export const offsetYName = 'Offset Y';
+export const offsetName = 'Offset';
 export const scaleXName = 'Scale X';
 export const scaleYName = 'Scale Y';
 export const inputRotationName = 'Angle';
 export const inputPivotName = 'Pivot';
-export const inputAbsolutePositions = 'Absolute Positions';
 export const inputAlwaysDraw = 'Always Draw';
 export const injectedDataName = 'Injected Data';
 export const outputPixiName = 'Graphics';
@@ -80,16 +79,9 @@ export abstract class DRAW_Base extends PPNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        offsetXName,
-        new NumberType(true, -2000, 2000),
-        200,
-        false,
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        offsetYName,
-        new NumberType(true, -2000, 2000),
-        0,
+        offsetName,
+        new TwoDVectorType(),
+        { x: 200, y: 0 },
         false,
       ),
       new Socket(
@@ -125,27 +117,6 @@ export abstract class DRAW_Base extends PPNode {
         inputAlwaysDraw,
         new BooleanType(),
         false,
-        false,
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputAbsolutePositions,
-        new BooleanType(),
-        false,
-        false,
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputSkewXName,
-        new NumberType(false, Math.PI / 2, Math.PI / 2),
-        0,
-        false,
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputSkewYName,
-        new NumberType(false, -Math.PI / 2, Math.PI / 2),
-        0,
         false,
       ),
       new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), [], true),
@@ -186,6 +157,7 @@ export abstract class DRAW_Base extends PPNode {
     }
     return executions[this.id]++;
   }
+
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>,
@@ -199,12 +171,10 @@ export abstract class DRAW_Base extends PPNode {
       const drawnAsChildrenOfLastNode =
         !lastNode && Object.keys(executions).length > 0;
 
+      const offset = inputObject[offsetName];
       const newOffset = drawnAsChildrenOfLastNode
         ? new PIXI.Point(position.x, position.y)
-        : new PIXI.Point(
-            inputObject[offsetXName] + position.x,
-            inputObject[offsetYName] + position.y,
-          );
+        : new PIXI.Point(offset.x + position.x, offset.y + position.y);
       if (container) {
         container.addChild(
           this.getContainer(inputObject, executions, newOffset),
@@ -214,16 +184,14 @@ export abstract class DRAW_Base extends PPNode {
       }
     };
     outputObject[outputPixiName] = drawingFunction;
-    this.handleDrawing(drawingFunction, inputObject[inputAbsolutePositions]);
+    this.handleDrawing(drawingFunction);
     /*this.handleDrawingThrottled(
       drawingFunction,
-      inputObject[inputAbsolutePositions],
     );*/
   }
 
   protected setOffsets(offsets: PIXI.Point) {
-    this.setInputData(offsetXName, offsets.x);
-    this.setInputData(offsetYName, offsets.y);
+    this.setInputData(offsetName, { x: offsets.x, y: offsets.y });
     this.executeOptimizedChain();
   }
 
@@ -300,20 +268,13 @@ export abstract class DRAW_Base extends PPNode {
     leading: false,
   });
 
-  private handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
+  private handleDrawing(drawingFunction: any): void {
     requestAnimationFrame(() => {
       removeAndDestroyChild(this._ForegroundRef, this.deferredGraphics);
       if (this.shouldDraw()) {
         this.deferredGraphics = new PIXI.Container();
         try {
-          drawingFunction(
-            this.deferredGraphics,
-            {},
-            new PIXI.Point(
-              absolutePosition ? -this.x : 0,
-              absolutePosition ? -this.y : 0,
-            ),
-          );
+          drawingFunction(this.deferredGraphics, {}, new PIXI.Point(0, 0));
         } catch (error) {
           this.setStatus(new NodeExecutionError(error.message));
           return;
@@ -323,13 +284,11 @@ export abstract class DRAW_Base extends PPNode {
         if (this.allowMovingDirectly()) {
           this.deferredGraphics.eventMode = 'dynamic';
 
+          const offset = this.getInputData(offsetName);
           this.deferredGraphics.addEventListener('pointerdown', () => {
             this.pointerDown(
               getCurrentCursorPosition(),
-              new PIXI.Point(
-                this.getInputData(offsetXName),
-                this.getInputData(offsetYName),
-              ),
+              new PIXI.Point(offset.x, offset.y),
             );
           });
         }
