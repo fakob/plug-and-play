@@ -11,6 +11,7 @@ import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import {
   CONDITION_OPTIONS,
+  DEFAULT_2DVECTOR,
   GESTUREMODE,
   MAX_STRING_LENGTH,
   NODE_HEADER_HEIGHT,
@@ -31,8 +32,9 @@ import {
 import { Viewport } from 'pixi-viewport';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { PNPSuccess, SocketParsingWarning } from '../classes/ErrorClass';
-import { getNodesUpperLeftCorner } from '../pixi/utils-pixi';
+import { getNodesBounds, getNodesUpperLeftCorner } from '../pixi/utils-pixi';
 import InterfaceController from '../InterfaceController';
+import { outputPixiName } from '../nodes/draw/abstract';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -490,6 +492,93 @@ export const parseJSON = (data: any, strictParsing = false): TParseType => {
     }
   }
 
+  return {
+    value: parsedData,
+    warnings: warnings,
+  };
+};
+
+export const is2DVector = (obj) => {
+  return (
+    obj !== null &&
+    typeof obj === 'object' &&
+    'x' in obj &&
+    typeof obj.x === 'number' &&
+    'y' in obj &&
+    typeof obj.y === 'number'
+  );
+};
+
+export const parse2DVector = (data): TParseType => {
+  let parsedData;
+  const warnings: SocketParsingWarning[] = [];
+
+  function parseArray(array) {
+    if (array.length >= 2) {
+      const [x, y] = array.map(Number);
+      parsedData = { x: isNaN(x) ? 0 : x, y: isNaN(y) ? 0 : y };
+    } else {
+      parsedData = DEFAULT_2DVECTOR;
+      warnings.push(
+        new SocketParsingWarning('Not a vector. {x: 0, y: 0} is returned'),
+      );
+    }
+  }
+
+  function parse2Values(x, y) {
+    if (isNaN(x) || isNaN(y)) {
+      parsedData = DEFAULT_2DVECTOR;
+      warnings.push(
+        new SocketParsingWarning('Not a vector. {x: 0, y: 0} is returned'),
+      );
+    } else {
+      parsedData = {
+        x,
+        y,
+      };
+    }
+  }
+
+  switch (typeof data) {
+    case 'string':
+      let parsedString;
+      try {
+        parsedString = JSON5.parse(data);
+      } catch (error) {}
+      if (is2DVector(parsedString)) {
+        parsedData = parsedString;
+      } else if (Array.isArray(parsedString)) {
+        parseArray(parsedString);
+      } else {
+        const parts = data.split(',').map(Number);
+        if (parts.length >= 2) {
+          const [x, y] = parts;
+          parse2Values(x, y);
+        } else {
+          parsedData = DEFAULT_2DVECTOR;
+          warnings.push(
+            new SocketParsingWarning('Not a vector. {x: 0, y: 0} is returned'),
+          );
+        }
+      }
+      break;
+    case 'object':
+      if (Array.isArray(data)) {
+        parseArray(data);
+      } else if (data !== null) {
+        const x = Number(data.x);
+        const y = Number(data.y);
+        parse2Values(x, y);
+      }
+      break;
+    // Default case to handle other data types
+    default:
+      parsedData = DEFAULT_2DVECTOR;
+      warnings.push(
+        new SocketParsingWarning('Not a vector. {x: 0, y: 0} is returned'),
+      );
+      break;
+  }
   return {
     value: parsedData,
     warnings: warnings,
@@ -1006,4 +1095,33 @@ export const calculateDistance = (pointA: PIXI.Point, pointB: PIXI.Point) => {
   const xDist = pointB.x - pointA.x;
   const yDist = pointB.y - pointA.y;
   return Math.sqrt(xDist * xDist + yDist * yDist);
+};
+
+export const getSuffix = (inputString, prefix) => {
+  const regex = new RegExp(`^${prefix}\\s*`);
+  return inputString.replace(regex, '');
+};
+
+export const combineSelectedDrawNodes = async () => {
+  const selectedNodes = PPGraph.currentGraph.selection.selectedNodes.filter(
+    (node) => node.reactsToCombineDrawKeyBinding(),
+  );
+  if (selectedNodes.length > 0) {
+    const boundsOfSelection = getNodesBounds(selectedNodes);
+    const added: PPNode = await PPGraph.currentGraph.addNewNode(
+      'DRAW_Combine',
+      {
+        nodePosX: boundsOfSelection.x + boundsOfSelection.width + 200,
+        nodePosY: boundsOfSelection.y + boundsOfSelection.height / 2,
+      },
+    );
+
+    for (const node of selectedNodes) {
+      await connectNodeToSocket(
+        node.getOutputSocketByName(outputPixiName),
+        added,
+      );
+    }
+    added.executeOptimizedChain();
+  }
 };

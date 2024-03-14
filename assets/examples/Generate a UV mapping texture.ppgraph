@@ -3,10 +3,10 @@
   "graphSettings": {
     "showExecutionVisualisation": true,
     "viewportCenterPosition": {
-      "x": 371.40321658360153,
-      "y": 1506.3738288746522
+      "x": 301.25115704351106,
+      "y": 1503.2713200024637
     },
-    "viewportScale": 0.6019060416451787
+    "viewportScale": 0.4895290937446328
   },
   "nodes": [
     {
@@ -15,8 +15,8 @@
       "type": "Macro",
       "x": -177.04949221036094,
       "y": -217.1341791120024,
-      "width": 1691.1980220884122,
-      "height": 798.7969049475674,
+      "width": 1884.8091989531715,
+      "height": 804.63573018732,
       "socketArray": [
         {
           "socketType": "in",
@@ -65,139 +65,11 @@
       }
     },
     {
-      "id": "lazy-treefrog-16",
-      "name": "DRAW_Combine",
-      "type": "DRAW_Combine",
-      "x": 1163.374009178068,
-      "y": -37.654005650446095,
-      "width": 160,
-      "height": 160,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Reverse Direction",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": true,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Offset X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 8.880235076223926,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Offset Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": -43.68857442947228,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Scale X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "data": 1,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Scale Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "data": 1,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "data": "top left",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Always Draw",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": true,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Absolute Positions",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": false,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Skew X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Skew Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":-1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Injected Data",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "data": [],
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
-          "data": {},
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Foreground",
-          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "defaultData": {},
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Background",
-          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "defaultData": {},
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Graphics",
-          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "visible": true
-        }
-      ],
-      "updateBehaviour": {
-        "load": false,
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
       "id": "cold-dolphin-88",
       "name": "DRAW_Text",
       "type": "DRAW_Text",
-      "x": 857.1132244393241,
-      "y": -176.45041570583317,
+      "x": 845.0824423635995,
+      "y": -131.16621219597988,
       "width": 160,
       "height": 256,
       "socketArray": [
@@ -380,8 +252,8 @@
       "id": "funny-cow-4",
       "name": "DRAW_Shape",
       "type": "DRAW_Shape",
-      "x": 866.3454007038923,
-      "y": 328.1342006754359,
+      "x": 839.7668360907525,
+      "y": 285.74622381670525,
       "width": 160,
       "height": 208,
       "socketArray": [
@@ -429,14 +301,14 @@
           "socketType": "in",
           "name": "Offset X",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 0,
+          "data": 200.3267844310784,
           "visible": false
         },
         {
           "socketType": "in",
           "name": "Offset Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 0,
+          "data": 50.69295629173155,
           "visible": false
         },
         {
@@ -986,7 +858,6 @@
           "socketType": "in",
           "name": "Graphics",
           "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "defaultData": {},
           "visible": true
         },
         {
@@ -1006,7 +877,7 @@
         {
           "socketType": "in",
           "name": "Save image",
-          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"saveImage\",\"previousData\":0}}",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"saveImage\",\"previousData\":null}}",
           "defaultData": 0,
           "visible": true
         },
@@ -1072,14 +943,14 @@
           "socketType": "in",
           "name": "Spacing X",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1000,\"stepSize\":0.01}}",
-          "defaultData": 0,
+          "data": 0,
           "visible": true
         },
         {
           "socketType": "in",
           "name": "Spacing Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1000,\"stepSize\":0.01}}",
-          "defaultData": 0,
+          "data": 0,
           "visible": true
         },
         {
@@ -1563,8 +1434,8 @@
       "id": "white-penguin-52",
       "name": "Divide (/)",
       "type": "Divide",
-      "x": 407.30612539635024,
-      "y": 152.14341016210494,
+      "x": 373.4353158567045,
+      "y": 176.21407004934713,
       "width": 160,
       "height": 112,
       "socketArray": [
@@ -1695,11 +1566,25 @@
       "id": "chilly-puma-98",
       "name": "Multiply (*)",
       "type": "Multiply",
-      "x": 602.5488461653017,
-      "y": 128.70760240884874,
+      "x": 568.678036625656,
+      "y": 152.77826229609093,
       "width": 160,
-      "height": 88,
+      "height": 136,
       "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Factor",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 1,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Factor 2",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 1,
+          "visible": true
+        },
         {
           "socketType": "in",
           "name": "Meta",
@@ -1727,169 +1612,380 @@
         "interval": false,
         "intervalFrequency": 1000
       }
+    },
+    {
+      "id": "stupid-zebra-87",
+      "name": "Combine manually",
+      "type": "DRAW_Combine",
+      "x": 1178.9493316482208,
+      "y": -74.24849101045982,
+      "width": 160,
+      "height": 232,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Reverse Direction",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": true,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Offset X",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
+          "data": 200,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Offset Y",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Scale X",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
+          "data": 1,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Scale Y",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
+          "data": 1,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "data": "top left",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Always Draw",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": true,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Absolute Positions",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Skew X",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Skew Y",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":-1.5707963267948966,\"maxValue\":1.5707963267948966,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Injected Data",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "data": [],
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Graphics",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Position",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "defaultData": {
+            "x": 0,
+            "y": 0
+          },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Graphics 2",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Position 2",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 0,
+            "y": 0
+          },
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Graphics",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": true,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "spotty-moose-2",
+      "name": "Create array",
+      "type": "ArrayCreate",
+      "x": 838.0623619257605,
+      "y": 155.0934502402668,
+      "width": 160,
+      "height": 112,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Divided",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Multiplied",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Array",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
     }
   ],
   "links": [
     {
-      "id": "b0db1026-7139-48d8-a243-12bff23daa14",
-      "sourceNodeId": "lazy-treefrog-16",
+      "id": "ca3afb48-339e-442f-ac69-8125b85e7067",
+      "sourceNodeId": "stupid-zebra-87",
       "sourceSocketName": "Graphics",
       "targetNodeId": "tidy-vampirebat-29",
       "targetSocketName": "Output"
     },
     {
-      "id": "76054fd9-7dbf-44b4-b43e-225216818cca",
-      "sourceNodeId": "cold-dolphin-88",
-      "sourceSocketName": "Graphics",
-      "targetNodeId": "lazy-treefrog-16",
-      "targetSocketName": "Foreground"
-    },
-    {
-      "id": "b0c146de-1b25-4518-9ea4-e6d6b2bf3f08",
-      "sourceNodeId": "funny-cow-4",
-      "sourceSocketName": "Graphics",
-      "targetNodeId": "lazy-treefrog-16",
-      "targetSocketName": "Background"
-    },
-    {
-      "id": "97e004db-670b-4805-a619-9badc3f5ee31",
+      "id": "2cce8d8a-e39f-4802-b982-60e56ef42059",
       "sourceNodeId": "tidy-vampirebat-29",
       "sourceSocketName": "Parameter 3",
       "targetNodeId": "cold-dolphin-88",
       "targetSocketName": "Text"
     },
     {
-      "id": "26bb85c7-fb26-4fc4-8c35-d5e9909cac96",
+      "id": "d283794f-2906-452d-a775-369ad3e3c4c3",
       "sourceNodeId": "brave-panther-39",
       "sourceSocketName": "Divided",
       "targetNodeId": "cold-dolphin-88",
       "targetSocketName": "Size"
     },
     {
-      "id": "028f6883-fd99-4836-9589-fe259ce5bf6b",
+      "id": "c99a4dc4-3022-40fb-bca5-4e3f7f95534c",
       "sourceNodeId": "strong-walrus-69",
       "sourceSocketName": "Divided",
       "targetNodeId": "cold-dolphin-88",
       "targetSocketName": "Offset X"
     },
     {
-      "id": "c096de6a-4ce7-4c01-b4f0-b2c372998322",
+      "id": "5a6666ac-da7b-402c-ad5a-8ea8d6484cad",
       "sourceNodeId": "chilly-puma-98",
       "sourceSocketName": "Multiplied",
       "targetNodeId": "cold-dolphin-88",
       "targetSocketName": "Offset Y"
     },
     {
-      "id": "00bf33a2-af7a-47c3-ad84-45b7697d561b",
+      "id": "6c966c4e-7fdd-4240-8ad9-009efc9347c9",
       "sourceNodeId": "tidy-vampirebat-29",
       "sourceSocketName": "Parameter 2",
       "targetNodeId": "stupid-earwig-30",
       "targetSocketName": "In"
     },
     {
-      "id": "51439155-62cc-42b8-b9a2-c66dda563f4f",
+      "id": "488a9a01-9ef5-4501-b83e-140d7e21a105",
       "sourceNodeId": "tidy-vampirebat-29",
       "sourceSocketName": "Parameter 1",
       "targetNodeId": "funny-cow-4",
       "targetSocketName": "Color"
     },
     {
-      "id": "f4ed0333-14de-4881-91b7-b28c77e64594",
+      "id": "b1e4fcca-c1ed-44e9-ad44-8a633a3e1706",
       "sourceNodeId": "stupid-earwig-30",
       "sourceSocketName": "Out",
       "targetNodeId": "funny-cow-4",
       "targetSocketName": "Width"
     },
     {
-      "id": "0b4945e2-6466-4a0a-a362-ee64be90dccb",
+      "id": "11737285-8a2b-4223-9457-8eb700fbde44",
       "sourceNodeId": "stupid-earwig-30",
       "sourceSocketName": "Out",
       "targetNodeId": "funny-cow-4",
       "targetSocketName": "Height"
     },
     {
-      "id": "6564af26-d413-47f1-83c4-1dbb50e14ad3",
+      "id": "cc6f1dac-9e31-4a40-88ea-0f1fee65d1f9",
       "sourceNodeId": "quiet-baboon-82",
       "sourceSocketName": "Out",
       "targetNodeId": "yellow-pig-75",
       "targetSocketName": "ArrayIn"
     },
     {
-      "id": "e42e8f5a-478f-47bf-8d33-749681708f61",
+      "id": "4cb86a5c-83ab-4847-ab55-186e0b96c584",
       "sourceNodeId": "quiet-baboon-82",
       "sourceSocketName": "Out",
       "targetNodeId": "proud-mule-98",
       "targetSocketName": "ArrayIn"
     },
     {
-      "id": "474b3499-d343-4530-82fb-bd7d5b79cafa",
+      "id": "4aadd6a9-0f95-49ae-8e2a-91271900e26b",
       "sourceNodeId": "yellow-pig-75",
       "sourceSocketName": "OutData",
       "targetNodeId": "smart-goat-34",
       "targetSocketName": "Colors"
     },
     {
-      "id": "b14311a1-d21d-44eb-a662-435873d984c4",
+      "id": "a3c7b18f-4873-40dc-a075-ee4d247acdc6",
       "sourceNodeId": "evil-grasshopper-97",
       "sourceSocketName": "Out",
       "targetNodeId": "smart-goat-34",
       "targetSocketName": "Size"
     },
     {
-      "id": "0489408d-75a2-4f9a-967c-1ab36b141900",
+      "id": "ac72a1f0-0222-40db-b2fb-bdd2d6aa6bb0",
       "sourceNodeId": "proud-mule-98",
       "sourceSocketName": "OutData",
       "targetNodeId": "smart-goat-34",
       "targetSocketName": "Text"
     },
     {
-      "id": "b454fea3-3ff1-4ec5-a040-4ca901175e03",
+      "id": "244a3996-f71e-4934-acc2-2c74d87c0e94",
       "sourceNodeId": "cowardly-ape-69",
       "sourceSocketName": "Graphics",
       "targetNodeId": "soft-otter-64",
       "targetSocketName": "Graphics"
     },
     {
-      "id": "4c251ff5-4d8c-4771-bc3c-634ef8f9048a",
+      "id": "f3b335be-d3f2-4db7-916c-7f85073989c6",
       "sourceNodeId": "shaggy-baboon-17",
       "sourceSocketName": "Out",
       "targetNodeId": "soft-otter-64",
       "targetSocketName": "Save image"
     },
     {
-      "id": "1b12fff4-5b4f-45eb-b71a-2d680fe96a0d",
+      "id": "4dcaa1e7-f66c-4f4b-bf40-995b078b6fe1",
       "sourceNodeId": "smart-goat-34",
       "sourceSocketName": "Out",
       "targetNodeId": "cowardly-ape-69",
       "targetSocketName": "GraphicsArray"
     },
     {
-      "id": "9a1625fd-4789-4a46-b5b2-dc06cefb8b9f",
+      "id": "30b3c375-0fad-4dc7-926c-79e4b045aa91",
       "sourceNodeId": "stupid-earwig-30",
       "sourceSocketName": "Out",
       "targetNodeId": "white-penguin-52",
       "targetSocketName": "Number 1"
     },
     {
-      "id": "21b7a4f2-509e-400f-8df8-27b640eac9d7",
+      "id": "b180eb86-a45e-4958-9f4b-c1d675eacecd",
       "sourceNodeId": "stupid-earwig-30",
       "sourceSocketName": "Out",
       "targetNodeId": "strong-walrus-69",
       "targetSocketName": "Number 1"
     },
     {
-      "id": "d1b779f1-8660-4102-a20d-29005ad6f2f4",
+      "id": "db539ae9-e9e4-459d-a84e-66f37b3b4cba",
       "sourceNodeId": "stupid-earwig-30",
       "sourceSocketName": "Out",
       "targetNodeId": "brave-panther-39",
       "targetSocketName": "Number 1"
     },
     {
-      "id": "408aab10-645d-403b-8cc1-af83e3abfb7b",
+      "id": "a08b4b78-a6b3-4277-9e3c-bb83b8cc7908",
       "sourceNodeId": "white-penguin-52",
       "sourceSocketName": "Divided",
       "targetNodeId": "chilly-puma-98",
       "targetSocketName": "Divided"
+    },
+    {
+      "id": "4396d797-e10b-45cc-ba28-01b69ecfa335",
+      "sourceNodeId": "cold-dolphin-88",
+      "sourceSocketName": "Graphics",
+      "targetNodeId": "stupid-zebra-87",
+      "targetSocketName": "Graphics"
+    },
+    {
+      "id": "745dd5a2-1bde-440e-b40f-ff26729bf290",
+      "sourceNodeId": "spotty-moose-2",
+      "sourceSocketName": "Array",
+      "targetNodeId": "stupid-zebra-87",
+      "targetSocketName": "Position"
+    },
+    {
+      "id": "373103f4-fca2-428b-8e0c-1f30b6bb8cfb",
+      "sourceNodeId": "funny-cow-4",
+      "sourceSocketName": "Graphics",
+      "targetNodeId": "stupid-zebra-87",
+      "targetSocketName": "Graphics 2"
+    },
+    {
+      "id": "884a7e15-db35-4db6-a4ae-8d5fffaea8d9",
+      "sourceNodeId": "strong-walrus-69",
+      "sourceSocketName": "Divided",
+      "targetNodeId": "spotty-moose-2",
+      "targetSocketName": "Divided"
+    },
+    {
+      "id": "9b0a75a4-7ce7-4c8f-8f7f-58d762744492",
+      "sourceNodeId": "chilly-puma-98",
+      "sourceSocketName": "Multiplied",
+      "targetNodeId": "spotty-moose-2",
+      "targetSocketName": "Multiplied"
     }
   ],
   "layouts": {

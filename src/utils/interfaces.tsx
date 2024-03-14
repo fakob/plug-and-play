@@ -149,6 +149,11 @@ export type TAlignOptions = (typeof ALIGNOPTIONS)[keyof typeof ALIGNOPTIONS];
 // export type TPPType = PPSelection | PPNode | PPSocket;
 export type TPPType = PPSelection | PPSocket;
 
+export type TTwoDVector = {
+  x: number;
+  y: number;
+};
+
 export class TRgba {
   r = 0;
   g = 0;

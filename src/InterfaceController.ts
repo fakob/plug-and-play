@@ -5,6 +5,7 @@ import * as PIXI from 'pixi.js';
 import Socket from './classes/SocketClass';
 import { v4 as uuid } from 'uuid';
 import {
+  combineSelectedDrawNodes,
   getCurrentCursorPosition,
   isEventComingFromWithinTextInput,
   isMac,
@@ -204,6 +205,9 @@ export default class InterfaceController {
             break;
           case 'Digit2':
             zoomToFitNodes(PPGraph.currentGraph.selection.selectedNodes);
+            break;
+          case 'KeyC':
+            combineSelectedDrawNodes();
             break;
         }
       } else if (e.altKey) {

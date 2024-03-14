@@ -14,12 +14,14 @@ import { EnumStructure, EnumType } from '../datatypes/enumType';
 import * as PIXI from 'pixi.js';
 import { ColorType } from '../datatypes/colorType';
 import { NumberType } from '../datatypes/numberType';
+import { TwoDVectorType } from '../datatypes/twoDVectorType';
 import { BooleanType } from '../datatypes/booleanType';
 import { ArrayType } from '../datatypes/arrayType';
 import { TriggerType } from '../datatypes/triggerType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
 import {
+  getSuffix,
   parseValueAndAttachWarnings,
   saveBase64AsImage,
 } from '../../utils/utils';
@@ -306,13 +308,15 @@ export class DRAW_Text extends DRAW_Base {
   }
 }
 
+const graphicsPositionName = 'Position';
+
 export class DRAW_Combine extends DRAW_Base {
   public getName(): string {
-    return 'Combine objects';
+    return 'Combine manually';
   }
 
   public getDescription(): string {
-    return 'Combine several drawn objects';
+    return 'Combine and position objects relative to each other';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -320,31 +324,83 @@ export class DRAW_Combine extends DRAW_Base {
       new Socket(SOCKET_TYPE.IN, inputReverseName, new BooleanType()),
     ].concat(super.getDefaultIO());
   }
+
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
   ): void {
-    // this is a bit hacky fishing them out like this but
-    const drawFunctions = Object.values(inputObject);
+    const graphicsKeys = Object.keys(inputObject).filter((key) =>
+      key.startsWith(outputPixiName),
+    );
+    const positionKeys = Object.keys(inputObject).filter((key) =>
+      key.startsWith(graphicsPositionName),
+    );
+    graphicsKeys.sort();
+    positionKeys.sort();
+
     if (inputObject[inputReverseName]) {
-      drawFunctions.reverse();
+      graphicsKeys.reverse();
+      positionKeys.reverse();
     }
-    drawFunctions.forEach((value) => {
-      if (typeof value == 'function') {
-        value(container, executions);
+
+    graphicsKeys.forEach((graphicsKey, index) => {
+      const positionKey = positionKeys[index];
+      if (inputObject[positionKey]) {
+        const position = new PIXI.Point(
+          inputObject[positionKey].x,
+          inputObject[positionKey].y,
+        );
+        inputObject[graphicsKey](container, executions, position);
       }
     });
   }
 
-  public getSocketForNewConnection = (socket: Socket): Socket =>
-    DynamicInputNodeFunctions.getSocketForNewConnection(socket, this, true);
+  public getSocketForNewConnection = (socket: Socket): Socket => {
+    return DynamicInputNodeFunctions.getSocketForNewConnection(
+      socket,
+      this,
+      true,
+    );
+  };
+
+  public async inputPlugged() {
+    this.adaptInputs();
+  }
 
   public async inputUnplugged() {
-    return DynamicInputNodeFunctions.inputUnplugged(this);
+    this.adaptInputs();
   }
-  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
-    return true;
+
+  protected adaptInputs(): void {
+    const sockets = this.getAllNonDefaultInputSockets();
+    const positionSockets = sockets.filter((socket) =>
+      socket.name.startsWith(graphicsPositionName),
+    );
+    const graphicsSockets = sockets.filter((socket) =>
+      socket.name.startsWith(outputPixiName),
+    );
+
+    graphicsSockets.forEach((socket) => {
+      const suffix = getSuffix(socket.name, outputPixiName);
+      if (socket.hasLink()) {
+        const hasPosition = positionSockets.some(
+          (positionSocket) =>
+            getSuffix(positionSocket.name, graphicsPositionName) === suffix,
+        );
+        if (!hasPosition) {
+          const offsetName = `${graphicsPositionName}${suffix === '' ? '' : ' ' + suffix}`;
+          this.addInput(offsetName, new TwoDVectorType());
+        }
+      } else {
+        const orphanPosition = positionSockets.find(
+          (positionSocket) =>
+            getSuffix(positionSocket.name, graphicsPositionName) === suffix,
+        );
+        this.removeSocket(socket);
+        this.removeSocket(orphanPosition);
+      }
+    });
   }
 }
 

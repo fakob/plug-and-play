@@ -133,6 +133,10 @@ const GraphOverlayDashboard: React.FunctionComponent<
             return;
           }
           const socket = node.getSocketByNameAndType(socketName, socketType);
+          if (!socket) {
+            removeFromDashboard(item.i);
+            return;
+          }
           return (
             <Box
               key={item.i}

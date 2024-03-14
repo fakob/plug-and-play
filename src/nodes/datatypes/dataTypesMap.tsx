@@ -4,6 +4,7 @@ import { BooleanType } from './booleanType';
 import { CodeType } from './codeType';
 import { ColorType } from './colorType';
 import { DeferredPixiType } from './deferredPixiType';
+import { TwoDVectorType } from './twoDVectorType';
 import { DynamicEnumType } from './dynamicEnumType';
 import { EnumType } from './enumType';
 import { FileType } from './fileType';
@@ -24,6 +25,7 @@ export const allDataTypes = {
   ColorType: ColorType,
   NumberType: NumberType,
   DeferredPixiType: DeferredPixiType,
+  TwoDVectorType: TwoDVectorType,
   FileType: FileType,
   FunctionType: FunctionType,
   StringType: StringType,
@@ -48,4 +50,5 @@ export const dropDownSelectableTypes = {
   JSONType: JSONType,
   ImageType: ImageType,
   CodeType: CodeType,
+  TwoDVectorType: TwoDVectorType,
 };
