@@ -36,6 +36,7 @@ import { RegisteredNodeTypes } from '../utils/interfaces';
 import * as jira from './api/jira';
 import * as chatgpt from './api/chatgpt';
 import * as twitter from './api/twitter';
+import * as dataTypeConversions from './data/dataTypeConversions';
 
 let allNodesCached = undefined;
 let allNodesFormatted = undefined;
@@ -81,6 +82,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       jira,
       chatgpt,
       twitter,
+      dataTypeConversions,
     };
     const toReturn = {};
     const start = Date.now();
@@ -126,11 +128,10 @@ export const getAllNodesFormattedForInterface = (): any[] => {
       .sort((a, b) =>
         a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
       )
-      .sort(
-        (a, b) =>
-          a.group?.localeCompare(b.group, 'en', {
-            sensitivity: 'base',
-          }),
+      .sort((a, b) =>
+        a.group?.localeCompare(b.group, 'en', {
+          sensitivity: 'base',
+        }),
       );
   }
   return allNodesFormatted;

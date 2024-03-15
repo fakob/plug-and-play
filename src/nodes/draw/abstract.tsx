@@ -23,8 +23,7 @@ import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import { NodeExecutionError } from '../../classes/ErrorClass';
 
 export const offsetName = 'Offset';
-export const scaleXName = 'Scale X';
-export const scaleYName = 'Scale Y';
+export const scaleName = 'Scale';
 export const inputRotationName = 'Angle';
 export const inputPivotName = 'Pivot';
 export const inputAlwaysDraw = 'Always Draw';
@@ -79,23 +78,9 @@ export abstract class DRAW_Base extends PPNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        offsetName,
-        new TwoDVectorType(),
-        { x: 200, y: 0 },
-        false,
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        scaleXName,
-        new NumberType(false, 0.01, 10),
-        1,
-        false,
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        scaleYName,
-        new NumberType(false, 0.01, 10),
-        1,
+        inputPivotName,
+        new EnumType(PIXI_PIVOT_OPTIONS),
+        PIXI_PIVOT_OPTIONS[0].text,
         false,
       ),
       new Socket(
@@ -107,9 +92,16 @@ export abstract class DRAW_Base extends PPNode {
       ),
       new Socket(
         SOCKET_TYPE.IN,
-        inputPivotName,
-        new EnumType(PIXI_PIVOT_OPTIONS),
-        PIXI_PIVOT_OPTIONS[0].text,
+        scaleName,
+        new TwoDVectorType(),
+        { x: 1, y: 1 },
+        false,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        offsetName,
+        new TwoDVectorType(),
+        { x: 200, y: 0 },
         false,
       ),
       new Socket(
@@ -318,8 +310,8 @@ export abstract class DRAW_Base extends PPNode {
     toModify.setTransform(
       offset.x,
       offset.y,
-      inputObject[scaleXName],
-      inputObject[scaleYName],
+      inputObject[scaleName].x,
+      inputObject[scaleName].y,
       (inputObject[inputRotationName] * Math.PI) / 180,
       inputObject[inputSkewXName],
       inputObject[inputSkewYName],

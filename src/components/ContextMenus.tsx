@@ -55,6 +55,7 @@ import { useIsSmallScreen } from '../utils/utils';
 import styles from '../utils/style.module.css';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import { getAllNodeTypes } from '../nodes/allNodes';
 import PPStorage from '../PPStorage';
 
 const useStyles = makeStyles((theme) =>
@@ -633,6 +634,7 @@ export const NodeContextMenu = (props) => {
 
 function constructRecommendedNodeOptions(selectedSocket: PPSocket): any {
   const preferredNodes = selectedSocket.getPreferredNodes();
+  const allNodeTypes = getAllNodeTypes();
   return preferredNodes.map((preferredNodesType) => {
     return (
       <MenuItem
@@ -658,7 +660,7 @@ function constructRecommendedNodeOptions(selectedSocket: PPSocket): any {
           >
             Connect{' '}
           </Box>
-          {preferredNodesType}
+          {allNodeTypes[preferredNodesType].name}
         </ListItemText>
       </MenuItem>
     );

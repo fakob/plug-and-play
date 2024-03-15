@@ -184,7 +184,7 @@ export class DRAW_Shape extends DRAW_Base {
         inputObject[inputColorName],
       );
       const drawBorder = inputObject[inputBorderName];
-      graphics.beginFill(selectedColor.hexNumber());
+      graphics.beginFill(selectedColor.hexNumber(), selectedColor.alpha(true));
       graphics.alpha = selectedColor.a;
       graphics.lineStyle(
         drawBorder ? 3 : 0,
@@ -303,7 +303,7 @@ export class DRAW_Text extends DRAW_Base {
       inputObject[inputColorName],
     );
     basicText.style.fill = selectedColor.hex();
-
+    basicText.alpha = selectedColor.alpha(true);
     container.addChild(basicText);
   }
 }
@@ -674,7 +674,11 @@ export class DRAW_Line extends DRAW_Base {
       inputObject[inputColorName],
     );
     graphics.endFill();
-    graphics.lineStyle(inputObject[inputWidthName], selectedColor.hexNumber());
+    graphics.lineStyle(
+      inputObject[inputWidthName],
+      selectedColor.hexNumber(),
+      selectedColor.alpha(true),
+    );
     const points: number[][] = inputObject[inputPointsName];
     if (points.length < 2) {
       return;
@@ -733,8 +737,7 @@ export class DRAW_Polygon extends DRAW_Base {
       new ColorType(),
       inputObject[inputColorName],
     );
-    graphics.beginFill(selectedColor.hexNumber());
-    graphics.alpha = selectedColor.a;
+    graphics.beginFill(selectedColor.hexNumber(), selectedColor.alpha(true));
 
     const points: [number, number][] = inputObject[inputPointsName];
     graphics.drawPolygon(points.map((p) => new PIXI.Point(p[0], p[1])));

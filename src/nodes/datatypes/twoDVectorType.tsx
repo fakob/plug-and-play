@@ -46,7 +46,7 @@ export class TwoDVectorType extends AbstractType {
   }
 
   getColor(): TRgba {
-    return new TRgba(128, 229, 229);
+    return new TRgba(128, 148, 250);
   }
 
   recommendedOutputNodeWidgets(): string[] {
@@ -54,6 +54,6 @@ export class TwoDVectorType extends AbstractType {
   }
 
   recommendedInputNodeWidgets(): string[] {
-    return ['CodeEditor', 'Constant'];
+    return ['NumberToTwoDVector', 'CodeEditor', 'Constant'];
   }
 }
