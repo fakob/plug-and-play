@@ -11,17 +11,23 @@ import {
 } from '../../utils/constants';
 import { ArrayType } from '../datatypes/arrayType';
 import { BooleanType } from '../datatypes/booleanType';
+import { ColorType } from '../datatypes/colorType';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
 import { EnumType } from '../datatypes/enumType';
 import { NumberType } from '../datatypes/numberType';
 import { TwoDVectorType } from '../datatypes/twoDVectorType';
 import { TRgba } from '../../utils/interfaces';
-import { getCurrentCursorPosition } from '../../utils/utils';
+import {
+  getCurrentCursorPosition,
+  parseValueAndAttachWarnings,
+} from '../../utils/utils';
 import { removeAndDestroyChild } from '../../pixi/utils-pixi';
 import { ActionHandler } from '../../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import { NodeExecutionError } from '../../classes/ErrorClass';
 
+export const marginSocketName = 'Margin';
+export const bgColorName = 'Background color';
 export const offsetName = 'Offset';
 export const scaleName = 'Scale';
 export const inputRotationName = 'Angle';
@@ -35,8 +41,8 @@ export const outputMultiplierInjected = 'LastPressedInjected';
 export const outputMultiplierPointerDown = 'PointerDown';
 
 export const objectsInteractive = 'Clickable objects';
-const inputSkewXName = 'Skew X';
-const inputSkewYName = 'Skew Y';
+
+const defaultBgColor = new TRgba(0, 0, 0, 0.3);
 
 export abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
@@ -76,6 +82,13 @@ export abstract class DRAW_Base extends PPNode {
   // you probably want to maintain this output in children
   protected getDefaultIO(): Socket[] {
     return [
+      new Socket(SOCKET_TYPE.IN, bgColorName, new ColorType(), defaultBgColor),
+      new Socket(
+        SOCKET_TYPE.IN,
+        marginSocketName,
+        new NumberType(true, 0, 100),
+        10,
+      ),
       new Socket(
         SOCKET_TYPE.IN,
         inputPivotName,
@@ -137,7 +150,8 @@ export abstract class DRAW_Base extends PPNode {
     };
     this.drawOnContainer(inputObject, myContainer, executions);
 
-    this.positionAndScale(myContainer, inputObject, offset);
+    this.positionScaleAndBackground(myContainer, inputObject, offset);
+
     return myContainer;
   }
 
@@ -161,7 +175,8 @@ export abstract class DRAW_Base extends PPNode {
     ) => {
       const lastNode = !this.getOutputSocketByName(outputPixiName).hasLink();
       const drawnAsChildrenOfLastNode =
-        !lastNode && Object.keys(executions).length > 0;
+        !lastNode &&
+        (executions === undefined || Object.keys(executions).length > 0);
 
       const offset = inputObject[offsetName];
       const newOffset = drawnAsChildrenOfLastNode
@@ -288,8 +303,8 @@ export abstract class DRAW_Base extends PPNode {
     });
   }
 
-  protected positionAndScale(
-    toModify: PIXI.DisplayObject,
+  protected positionScaleAndBackground(
+    toModify: PIXI.Container,
     inputObject: any,
     offset: PIXI.Point,
   ): void {
@@ -301,11 +316,19 @@ export abstract class DRAW_Base extends PPNode {
       ? pivotPointFound.value
       : PIXI_PIVOT_OPTIONS[0].value;
 
+    const margin = {
+      top: inputObject[marginSocketName],
+      right: inputObject[marginSocketName],
+      bottom: inputObject[marginSocketName],
+      left: inputObject[marginSocketName],
+    };
+
     // get bounds with reset pivot
     toModify.pivot.x = 0;
     toModify.pivot.y = 0;
-    const width = toModify.getBounds().width;
-    const height = toModify.getBounds().height;
+    const myContainerBounds = toModify.getBounds();
+    const width = myContainerBounds.width + margin.left + margin.right;
+    const height = myContainerBounds.height + margin.top + margin.bottom;
 
     toModify.setTransform(
       offset.x,
@@ -313,11 +336,27 @@ export abstract class DRAW_Base extends PPNode {
       inputObject[scaleName].x,
       inputObject[scaleName].y,
       (inputObject[inputRotationName] * Math.PI) / 180,
-      inputObject[inputSkewXName],
-      inputObject[inputSkewYName],
-      pivotPoint.x * width,
-      pivotPoint.y * height,
+      0,
+      0,
+      pivotPoint.x * width - margin.left + myContainerBounds.x,
+      pivotPoint.y * height - margin.top + myContainerBounds.y,
     );
+
+    const background = new PIXI.Graphics();
+    const bgColor = parseValueAndAttachWarnings(
+      this,
+      new ColorType(),
+      inputObject[bgColorName],
+    );
+    background.beginFill(bgColor.hex(), bgColor.alpha(true));
+    background.drawRect(
+      -margin.left + myContainerBounds.x,
+      -margin.top + myContainerBounds.y,
+      myContainerBounds.width + margin.left + margin.right,
+      myContainerBounds.height + margin.top + margin.bottom,
+    );
+    background.endFill();
+    toModify.addChildAt(background, 0);
   }
 
   public async outputPlugged(): Promise<void> {
