@@ -24,7 +24,7 @@ import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { SketchPicker } from 'react-color';
+import { Sketch } from '@uiw/react-color';
 import prettyBytes from 'pretty-bytes';
 import InterfaceController from './InterfaceController';
 import { CodeEditor } from './components/Editor';
@@ -746,22 +746,58 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
 
   return (
     <>
-      <Box
-        ref={anchorRef}
-        className={styles.colorPickerSwatch}
+      <FormGroup
+        row={true}
         sx={{
-          backgroundColor: finalColor.rgb(),
-          color: `${finalColor.isDark() ? COLOR_WHITE_TEXT : COLOR_DARK}`,
-          userSelect: 'none',
-          height: '100%',
-        }}
-        onClick={(event) => {
-          event.stopPropagation();
-          showColorPicker(!colorPicker);
+          display: 'flex',
+          flexWrap: 'nowrap',
+          gap: '8px',
+          mt: 1,
         }}
       >
-        {props.isInput ? 'Pick a color' : ''}
-      </Box>
+        <Box
+          ref={anchorRef}
+          className={styles.colorPickerSwatch}
+          sx={{
+            backgroundColor: finalColor.hexa(),
+            color: `${finalColor.isDark() ? COLOR_WHITE_TEXT : COLOR_DARK}`,
+            userSelect: 'none',
+            height: '100%',
+          }}
+          onClick={(event) => {
+            event.stopPropagation();
+            showColorPicker(!colorPicker);
+          }}
+        >
+          {props.isInput ? 'Pick a color' : ''}
+        </Box>
+        <Slider
+          size="small"
+          color="secondary"
+          valueLabelDisplay="auto"
+          key={`${props.property.name}-${props.index}`}
+          min={0}
+          max={1}
+          step={0.1}
+          marks={[{ value: 0 }, { value: 1 }]}
+          slots={{
+            valueLabel: SliderValueLabelComponent,
+          }}
+          onChange={(event, value) => {
+            potentiallyUpdateSocketData(props.property, value);
+            if (!Array.isArray(value)) {
+              changeColor(
+                new TRgba(finalColor.r, finalColor.g, finalColor.b, value),
+              );
+            }
+          }}
+          value={finalColor.a}
+          sx={{
+            mx: 1,
+            width: '50%',
+          }}
+        />
+      </FormGroup>
       <ClickAwayListener onClickAway={handleClickAway}>
         <Popper
           id={`color-picker-${props.property.name}`}
@@ -769,10 +805,10 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
           anchorEl={anchorRef.current}
           sx={{ zIndex: 10 }}
         >
-          <SketchPicker
-            color={finalColor.object()}
-            onChangeComplete={(color) => {
-              const pickedrgb = color.rgb;
+          <Sketch
+            color={finalColor.hsva()}
+            onChange={(color) => {
+              const pickedrgb = color.rgba;
               changeColor(
                 new TRgba(pickedrgb.r, pickedrgb.g, pickedrgb.b, pickedrgb.a),
               );
@@ -810,6 +846,7 @@ export const TwoDNumberWidget: React.FunctionComponent<DataTypeProps> = (
       sx={{
         display: 'flex',
         flexWrap: 'nowrap',
+        gap: '2px',
       }}
     >
       <TextField

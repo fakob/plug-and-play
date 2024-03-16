@@ -622,18 +622,14 @@
           },
           "visible": false
         },
-        {
+                {
           "socketType": "in",
-          "name": "Scale X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "data": 1,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Scale Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "data": 1,
+          "name": "Scale",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 1,
+            "y": 1
+          },
           "visible": false
         },
         {
@@ -848,16 +844,12 @@
         },
         {
           "socketType": "in",
-          "name": "Scale X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "defaultData": 0.2,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Scale Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "defaultData": 0.2,
+          "name": "Scale",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "defaultData": {
+            "x": 1,
+            "y": 1
+          },
           "visible": true
         },
         {
@@ -1705,14 +1697,7 @@
       "sourceNodeId": "dangerous-catfish-72",
       "sourceSocketName": "Out",
       "targetNodeId": "heavy-lionfish-6",
-      "targetSocketName": "Scale X"
-    },
-    {
-      "id": "9cc4f264-a9e7-4de7-aee4-81f5334b44a0",
-      "sourceNodeId": "dangerous-catfish-72",
-      "sourceSocketName": "Out",
-      "targetNodeId": "heavy-lionfish-6",
-      "targetSocketName": "Scale Y"
+      "targetSocketName": "Scale"
     },
     {
       "id": "4685f50d-3db1-4bd7-a61d-ec583584a902",

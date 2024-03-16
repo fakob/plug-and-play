@@ -624,16 +624,12 @@
         },
         {
           "socketType": "in",
-          "name": "Scale X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "data": 1,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Scale Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "data": 1,
+          "name": "Scale",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 1,
+            "y": 1
+          },
           "visible": false
         },
         {
@@ -862,17 +858,13 @@
         },
         {
           "socketType": "in",
-          "name": "Scale X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "defaultData": 0.2,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Scale Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "defaultData": 0.2,
-          "visible": true
+          "name": "Scale",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 0.2,
+            "y": 0.2
+          },
+          "visible": false
         },
         {
           "socketType": "in",
@@ -1732,14 +1724,7 @@
       "sourceNodeId": "dangerous-catfish-72",
       "sourceSocketName": "Out",
       "targetNodeId": "heavy-lionfish-6",
-      "targetSocketName": "Scale X"
-    },
-    {
-      "id": "22d85423-fe21-46d3-a8df-168e95121fc4",
-      "sourceNodeId": "dangerous-catfish-72",
-      "sourceSocketName": "Out",
-      "targetNodeId": "heavy-lionfish-6",
-      "targetSocketName": "Scale Y"
+      "targetSocketName": "Scale"
     },
     {
       "id": "560903f6-8c9c-4e46-9df1-4ecd42aae045",

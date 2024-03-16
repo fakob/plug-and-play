@@ -26,7 +26,7 @@ import {
   Typography,
 } from '@mui/material';
 import ColorizeIcon from '@mui/icons-material/Colorize';
-import { SketchPicker } from 'react-color';
+import { Sketch } from '@uiw/react-color';
 import Socket from '../../classes/SocketClass';
 import { WidgetBase, WidgetHybridBase } from './abstract';
 import { TRgba } from '../../utils/interfaces';
@@ -466,7 +466,7 @@ export class WidgetColorPicker extends WidgetHybridBase {
 
     const id = node.id;
     const handleOnChange = (color) => {
-      const pickedrgb = color.rgb;
+      const pickedrgb = color.rgba;
       const newColor = new TRgba(
         pickedrgb.r,
         pickedrgb.g,
@@ -519,7 +519,7 @@ export class WidgetColorPicker extends WidgetHybridBase {
               fontSize: `${node.nodeHeight / 6}px`,
               lineHeight: `${node.nodeHeight / 5}px`,
               border: 0,
-              bgcolor: finalColor.hex(),
+              bgcolor: finalColor.hexa(),
               color: finalColor.getContrastTextColor().hex(),
               width: `${node.nodeWidth - 8 * margin}px`,
               height: `${node.nodeHeight - 8 * margin}px`,
@@ -555,9 +555,8 @@ export class WidgetColorPicker extends WidgetHybridBase {
                 >
                   <ClickAwayListener onClickAway={() => showColorPicker(false)}>
                     <span className="chrome-picker">
-                      <SketchPicker
-                        color={finalColor.object()}
-                        onChangeComplete={handleOnChange}
+                      <Sketch
+                        color={finalColor.hsva()}
                         onChange={handleOnChange}
                         presetColors={PRESET_COLORS}
                       />
