@@ -42,7 +42,7 @@ export const outputMultiplierPointerDown = 'PointerDown';
 
 export const objectsInteractive = 'Clickable objects';
 
-const defaultBgColor = new TRgba(0, 0, 0, 0.3);
+const defaultBgColor = new TRgba(0, 0, 0, 0);
 
 export abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
@@ -87,7 +87,7 @@ export abstract class DRAW_Base extends PPNode {
         SOCKET_TYPE.IN,
         marginSocketName,
         new NumberType(true, 0, 100),
-        10,
+        0,
       ),
       new Socket(
         SOCKET_TYPE.IN,
