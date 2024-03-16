@@ -784,11 +784,15 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
             valueLabel: SliderValueLabelComponent,
           }}
           onChange={(event, value) => {
-            potentiallyUpdateSocketData(props.property, value);
             if (!Array.isArray(value)) {
-              changeColor(
-                new TRgba(finalColor.r, finalColor.g, finalColor.b, value),
+              const newColor = new TRgba(
+                finalColor.r,
+                finalColor.g,
+                finalColor.b,
+                value,
               );
+              potentiallyUpdateSocketData(props.property, newColor);
+              changeColor(newColor);
             }
           }}
           value={finalColor.a}

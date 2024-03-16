@@ -703,6 +703,7 @@ export class DRAW_Line extends DRAW_Base {
       }
       graphics.lineTo(point[0], point[1]);
     });
+    container.addChild(graphics);
   }
 }
 

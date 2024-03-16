@@ -7,6 +7,7 @@ import {
   NODE_SOURCE,
   NODE_TYPE_COLOR,
   NOTE_LINEHEIGHT_FACTOR,
+  PIXI_TRANSPARENT_ALPHA,
   SOCKET_TYPE,
 } from '../utils/constants';
 import { convertToString, updateDataIfDefault } from '../utils/utils';
@@ -109,7 +110,7 @@ export class Label extends PPNode {
   }
 
   getOpacity(): number {
-    return Math.max(0.001, this.getInputData(backgroundColorName).a) || 1;
+    return this.getInputData(backgroundColorName).alpha(true);
   }
 
   public onNodeAdded = async (source: TNodeSource) => {
@@ -154,6 +155,7 @@ export class Label extends PPNode {
   }
 
   protected async onExecute(input, output): Promise<void> {
+    this.drawNodeShape();
     let text = String(input[inputSocketName]);
     text =
       text.length > LABEL_MAX_STRING_LENGTH
@@ -394,7 +396,7 @@ export class Text extends Label {
         SOCKET_TYPE.IN,
         backgroundColorName,
         new ColorType(),
-        new TRgba(255, 255, 255, 0.001),
+        new TRgba(255, 255, 255, PIXI_TRANSPARENT_ALPHA),
         false,
       ),
     ];
