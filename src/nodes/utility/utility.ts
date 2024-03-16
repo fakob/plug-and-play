@@ -6,6 +6,7 @@ import Socket from '../../classes/SocketClass';
 import { CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import {
+  NODE_MARGIN,
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
   TRIGGER_TYPE_OPTIONS,
@@ -23,6 +24,8 @@ import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
 import { WidgetButton } from '../widgets/widgetNodes';
 import { JSONType } from '../datatypes/jsonType';
+
+const rerouteHeight = 48;
 
 export class Reroute extends PPNode {
   public getName(): string {
@@ -45,14 +48,15 @@ export class Reroute extends PPNode {
   }
 
   public getMinNodeWidth(): number {
-    return 20;
+    return rerouteHeight;
   }
+
   public getMinNodeHeight(): number {
-    return 3;
+    return rerouteHeight;
   }
 
   get headerHeight(): number {
-    return -11;
+    return 16;
   }
 
   public getDrawBackground(): boolean {
@@ -66,15 +70,17 @@ export class Reroute extends PPNode {
   public getParallelInputsOutputs(): boolean {
     return true;
   }
+
   public getRoundedCorners(): boolean {
     return false;
   }
+
   protected getShouldShowHoverActions(): boolean {
     return false;
   }
 
   public getColor(): TRgba {
-    return TRgba.white();
+    return new TRgba(204, 204, 204);
   }
 
   public drawBackground(): void {
@@ -82,7 +88,13 @@ export class Reroute extends PPNode {
       this.getColor().hexNumber(),
       this.getOpacity(),
     );
-    this._BackgroundGraphicsRef.drawCircle(16, 0, 14.5);
+    this._BackgroundGraphicsRef.drawRoundedRect(
+      NODE_MARGIN,
+      0,
+      this.nodeWidth,
+      rerouteHeight,
+      rerouteHeight / 2,
+    );
     this._BackgroundGraphicsRef.endFill();
   }
 
