@@ -347,7 +347,9 @@ export abstract class DRAW_Base extends PPNode {
       new ColorType(),
       inputObject[bgColorName],
     );
-    if (inputObject[marginSocketName] !== 0 || bgColor.alpha() !== 0) {
+    const hasMarginOrBackground =
+      inputObject[marginSocketName] > 0 || bgColor.alpha() > 0;
+    if (hasMarginOrBackground) {
       const background = new PIXI.Graphics();
       background.beginFill(bgColor.hex(), bgColor.alpha(true));
       background.drawRect(
