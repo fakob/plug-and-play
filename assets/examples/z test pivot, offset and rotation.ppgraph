@@ -3,18 +3,18 @@
   "graphSettings": {
     "showExecutionVisualisation": true,
     "viewportCenterPosition": {
-      "x": -1011.5104708842564,
-      "y": 1869.7872269630411
+      "x": -1198.8648364060423,
+      "y": 1818.0179090601662
     },
-    "viewportScale": 0.3787626054349108
+    "viewportScale": 0.4110288744920574
   },
   "nodes": [
     {
       "id": "unlucky-rabbit-71",
       "name": "DateAndTime",
       "type": "DateAndTime",
-      "x": -2610.1706514079215,
-      "y": 1509.7533114771772,
+      "x": -2868.9815017991396,
+      "y": 1532.4101064800636,
       "width": 160,
       "height": 64,
       "socketArray": [
@@ -58,7 +58,7 @@
       "name": "DRAW_Shape",
       "type": "DRAW_Shape",
       "x": -1403.288301986272,
-      "y": 1439.1702584355548,
+      "y": 1399.1191456941797,
       "width": 160,
       "height": 160,
       "socketArray": [
@@ -67,18 +67,6 @@
           "name": "Shape",
           "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"Circle\"},{\"text\":\"Rectangle\"},{\"text\":\"Rounded Rectangle\"},{\"text\":\"Ellipse\"}]}}",
           "data": "Rounded Rectangle",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Color",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "data": {
-            "r": 84,
-            "g": 155,
-            "b": 224,
-            "a": 1
-          },
           "visible": false
         },
         {
@@ -104,12 +92,47 @@
         },
         {
           "socketType": "in",
-          "name": "Offset",
-          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "name": "Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
           "data": {
-            "x": 200,
-            "y": 0
+            "r": 84,
+            "g": 155,
+            "b": 224,
+            "a": 1
           },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Background color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.3
+          },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Margin",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 10,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "defaultData": "center center",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "defaultData": 0,
           "visible": true
         },
         {
@@ -124,17 +147,13 @@
         },
         {
           "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "defaultData": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "defaultData": "center center",
-          "visible": true
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
+          "visible": false
         },
         {
           "socketType": "in",
@@ -175,8 +194,8 @@
       "id": "smart-liger-99",
       "name": "WidgetSlider",
       "type": "WidgetSlider",
-      "x": -2166.4414464388087,
-      "y": 1694.8429654574682,
+      "x": -2422.509520749532,
+      "y": 1706.1286253158307,
       "width": 200,
       "height": 104,
       "socketArray": [
@@ -184,7 +203,7 @@
           "socketType": "in",
           "name": "Initial Value",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 64.80000000000001,
+          "data": 0,
           "visible": false
         },
         {
@@ -241,7 +260,7 @@
       "name": "DRAW_Shape",
       "type": "DRAW_Shape",
       "x": -1403.288301986272,
-      "y": 1701.1283192133478,
+      "y": 1641.051650101285,
       "width": 160,
       "height": 160,
       "socketArray": [
@@ -250,18 +269,6 @@
           "name": "Shape",
           "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"Circle\"},{\"text\":\"Rectangle\"},{\"text\":\"Rounded Rectangle\"},{\"text\":\"Ellipse\"}]}}",
           "data": "Circle",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Color",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "data": {
-            "r": 127,
-            "g": 225,
-            "b": 88,
-            "a": 1
-          },
           "visible": false
         },
         {
@@ -287,12 +294,47 @@
         },
         {
           "socketType": "in",
-          "name": "Offset",
-          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "name": "Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
           "data": {
-            "x": 200,
-            "y": 0
+            "r": 127,
+            "g": 225,
+            "b": 88,
+            "a": 1
           },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Background color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.3
+          },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Margin",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 10,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "defaultData": "center center",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "defaultData": 0,
           "visible": true
         },
         {
@@ -307,17 +349,13 @@
         },
         {
           "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "defaultData": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "defaultData": "center center",
-          "visible": true
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
+          "visible": false
         },
         {
           "socketType": "in",
@@ -359,7 +397,7 @@
       "name": "DRAW_Shape",
       "type": "DRAW_Shape",
       "x": -1403.288301986272,
-      "y": 1963.0863799911408,
+      "y": 1882.9841545083905,
       "width": 160,
       "height": 160,
       "socketArray": [
@@ -368,18 +406,6 @@
           "name": "Shape",
           "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"Circle\"},{\"text\":\"Rectangle\"},{\"text\":\"Rounded Rectangle\"},{\"text\":\"Ellipse\"}]}}",
           "data": "Ellipse",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Color",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "data": {
-            "r": 212,
-            "g": 226,
-            "b": 90,
-            "a": 1
-          },
           "visible": false
         },
         {
@@ -405,12 +431,47 @@
         },
         {
           "socketType": "in",
-          "name": "Offset",
-          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "name": "Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
           "data": {
-            "x": 200,
-            "y": 0
+            "r": 212,
+            "g": 226,
+            "b": 90,
+            "a": 1
           },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Background color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.3
+          },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Margin",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 10,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "defaultData": "center center",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "defaultData": 0,
           "visible": true
         },
         {
@@ -425,17 +486,13 @@
         },
         {
           "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "defaultData": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "defaultData": "center center",
-          "visible": true
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
+          "visible": false
         },
         {
           "socketType": "in",
@@ -477,7 +534,7 @@
       "name": "DRAW_Shape",
       "type": "DRAW_Shape",
       "x": -1403.288301986272,
-      "y": 2225.044440768934,
+      "y": 2124.916658915496,
       "width": 160,
       "height": 160,
       "socketArray": [
@@ -486,18 +543,6 @@
           "name": "Shape",
           "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"Circle\"},{\"text\":\"Rectangle\"},{\"text\":\"Rounded Rectangle\"},{\"text\":\"Ellipse\"}]}}",
           "data": "Rectangle",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Color",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "data": {
-            "r": 0,
-            "g": 0,
-            "b": 0,
-            "a": 1
-          },
           "visible": false
         },
         {
@@ -523,12 +568,47 @@
         },
         {
           "socketType": "in",
-          "name": "Offset",
-          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "name": "Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
           "data": {
-            "x": 200,
-            "y": 0
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
           },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Background color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.3
+          },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Margin",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 10,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "defaultData": "center center",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "defaultData": -11,
           "visible": true
         },
         {
@@ -543,17 +623,13 @@
         },
         {
           "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "defaultData": -11,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "defaultData": "center center",
-          "visible": true
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
+          "visible": false
         },
         {
           "socketType": "in",
@@ -591,79 +667,11 @@
       }
     },
     {
-      "id": "friendly-ladybug-67",
-      "name": "WidgetDropdown",
-      "type": "WidgetDropdown",
-      "x": -1148.1361241415511,
-      "y": 2310.3945905381997,
-      "width": 200,
-      "height": 104,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Options",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "data": [
-            "top left",
-            "top center",
-            "top right",
-            "center left",
-            "center center",
-            "center right",
-            "bottom left",
-            "bottom center",
-            "bottom right"
-          ],
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Selected Option",
-          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
-          "data": "top left",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Select multiple",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": false,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Label",
-          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
-          "data": "Dropdown",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
-          "data": {},
-          "visible": false
-        },
-        {
-          "socketType": "out",
-          "name": "Out",
-          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
-          "visible": true
-        }
-      ],
-      "updateBehaviour": {
-        "load": false,
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
       "id": "good-turtle-54",
       "name": "WidgetDropdown",
       "type": "WidgetDropdown",
-      "x": -2166.4414464388087,
-      "y": 2164.9266219009405,
+      "x": -2422.509520749532,
+      "y": 1876.4198365975549,
       "width": 200,
       "height": 104,
       "socketArray": [
@@ -730,10 +738,10 @@
       "id": "pretty-owl-44",
       "name": "DRAW_Multiplier",
       "type": "DRAW_Multiplier",
-      "x": -246.30979683278838,
-      "y": 1777.8557297440398,
+      "x": -290.7481710129473,
+      "y": 1746.2867361628428,
       "width": 160,
-      "height": 376,
+      "height": 352,
       "socketArray": [
         {
           "socketType": "in",
@@ -766,14 +774,14 @@
           "socketType": "in",
           "name": "Spacing X",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1000,\"stepSize\":0.01}}",
-          "data": 200,
+          "data": 280,
           "visible": true
         },
         {
           "socketType": "in",
           "name": "Spacing Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1000,\"stepSize\":0.01}}",
-          "data": 200,
+          "data": 280,
           "visible": true
         },
         {
@@ -785,12 +793,35 @@
         },
         {
           "socketType": "in",
-          "name": "Offset",
-          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "name": "Background color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
           "data": {
-            "x": 200,
-            "y": 0
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.3
           },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Margin",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 10,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":-0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":-0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":-0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":-1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":-1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":-1}}]}}",
+          "data": "top left",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "data": 0,
           "visible": false
         },
         {
@@ -805,17 +836,13 @@
         },
         {
           "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":-0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":-0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":-0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":-1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":-1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":-1}}]}}",
-          "defaultData": "top left",
-          "visible": true
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": -0.5487277537199589
+          },
+          "visible": false
         },
         {
           "socketType": "in",
@@ -829,7 +856,7 @@
           "name": "Injected Data",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "data": [],
-          "visible": true
+          "visible": false
         },
         {
           "socketType": "in",
@@ -875,7 +902,7 @@
       "name": "DRAW_Text",
       "type": "DRAW_Text",
       "x": -1403.288301986272,
-      "y": 1177.2121976577619,
+      "y": 1157.1866412870743,
       "width": 160,
       "height": 160,
       "socketArray": [
@@ -921,12 +948,35 @@
         },
         {
           "socketType": "in",
-          "name": "Offset",
-          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
-          "data": {
-            "x": 200,
-            "y": 0
+          "name": "Background color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.3
           },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Margin",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 10,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "defaultData": "top left",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "defaultData": 0,
           "visible": true
         },
         {
@@ -941,17 +991,13 @@
         },
         {
           "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "defaultData": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "defaultData": "top left",
-          "visible": true
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
+          "visible": false
         },
         {
           "socketType": "in",
@@ -1006,12 +1052,35 @@
         },
         {
           "socketType": "in",
-          "name": "Offset",
-          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
-          "data": {
-            "x": 200,
-            "y": 0
+          "name": "Background color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.3
           },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Margin",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 10,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "defaultData": "top left",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "defaultData": 0,
           "visible": true
         },
         {
@@ -1026,17 +1095,13 @@
         },
         {
           "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "defaultData": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "defaultData": "top left",
-          "visible": true
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
+          "visible": false
         },
         {
           "socketType": "in",
@@ -1078,7 +1143,7 @@
       "name": "DRAW_Polygon",
       "type": "DRAW_Polygon",
       "x": -1403.288301986272,
-      "y": 2487.0025015467268,
+      "y": 2366.8491633226017,
       "width": 160,
       "height": 160,
       "socketArray": [
@@ -1116,12 +1181,35 @@
         },
         {
           "socketType": "in",
-          "name": "Offset",
-          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
-          "data": {
-            "x": 200,
-            "y": 0
+          "name": "Background color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.3
           },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Margin",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 10,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "defaultData": "top left",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "defaultData": 0,
           "visible": true
         },
         {
@@ -1136,17 +1224,13 @@
         },
         {
           "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "defaultData": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "defaultData": "top left",
-          "visible": true
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
+          "visible": false
         },
         {
           "socketType": "in",
@@ -1188,7 +1272,7 @@
       "name": "DRAW_Line",
       "type": "DRAW_Line",
       "x": -1403.288301986272,
-      "y": 2748.9605623245197,
+      "y": 2608.7816677297074,
       "width": 160,
       "height": 160,
       "socketArray": [
@@ -1247,12 +1331,35 @@
         },
         {
           "socketType": "in",
-          "name": "Offset",
-          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
-          "data": {
-            "x": 200,
-            "y": 0
+          "name": "Background color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.3
           },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Margin",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 10,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "defaultData": "top left",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "defaultData": 0,
           "visible": true
         },
         {
@@ -1267,17 +1374,13 @@
         },
         {
           "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "defaultData": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "defaultData": "top left",
-          "visible": true
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
+          "visible": false
         },
         {
           "socketType": "in",
@@ -1320,7 +1423,7 @@
       "type": "Reroute",
       "x": -1891.5415205128475,
       "y": 1630.0025304605178,
-      "width": 24.920743166867624,
+      "width": 48,
       "height": 48.8083607383453,
       "socketArray": [
         {
@@ -1355,8 +1458,8 @@
       "id": "curvy-mole-29",
       "name": "Remainder (%)",
       "type": "Remainder",
-      "x": -2375.641477771188,
-      "y": 1509.7533114771772,
+      "x": -2634.452328162406,
+      "y": 1532.4101064800636,
       "width": 160,
       "height": 112,
       "socketArray": [
@@ -1399,8 +1502,8 @@
       "id": "spicy-baboon-65",
       "name": "Divide (/)",
       "type": "Divide",
-      "x": -2134.432078240872,
-      "y": 1509.7533114771772,
+      "x": -2382.509520749532,
+      "y": 1527.8374140341066,
       "width": 160,
       "height": 112,
       "socketArray": [
@@ -1440,83 +1543,13 @@
       }
     },
     {
-      "id": "cowardly-baboon-87",
-      "name": "Image",
-      "type": "Image",
-      "x": -2272.9309392534697,
-      "y": 909.3238795053863,
-      "width": 320,
-      "height": 306.9090909090909,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Image",
-          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
-          "data": "data:image/jpeg;base64,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",
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Object fit",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"contain\"},{\"text\":\"cover\"},{\"text\":\"fill\"},{\"text\":\"none\"},{\"text\":\"scale-down\"}]}}",
-          "data": "cover",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Reset size",
-          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"resetNodeSize\",\"previousData\":0}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Save image",
-          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"saveImage\",\"previousData\":0}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
-          "data": {},
-          "visible": false
-        },
-        {
-          "socketType": "out",
-          "name": "Image",
-          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Details",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
-          "visible": false
-        },
-        {
-          "socketType": "out",
-          "name": "Exif",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
-          "visible": false
-        }
-      ],
-      "updateBehaviour": {
-        "load": false,
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
       "id": "modern-dragonfly-74",
       "name": "Combine manually",
       "type": "DRAW_Combine",
-      "x": -932.54344189586,
-      "y": 1618.8405265790473,
+      "x": -843.8826917604595,
+      "y": 1718.2505250569866,
       "width": 160,
-      "height": 280,
+      "height": 328,
       "socketArray": [
         {
           "socketType": "in",
@@ -1527,12 +1560,35 @@
         },
         {
           "socketType": "in",
-          "name": "Offset",
-          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "name": "Background color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
           "data": {
-            "x": 200,
-            "y": 0
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.3
           },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Margin",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 10,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "data": "top left",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "data": 0,
           "visible": false
         },
         {
@@ -1547,16 +1603,12 @@
         },
         {
           "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "data": "top left",
+          "name": "Offset",
+          "dataType": "{\"class\":\"TwoDVectorType\",\"type\":{}}",
+          "data": {
+            "x": 200,
+            "y": 0
+          },
           "visible": false
         },
         {
@@ -1641,198 +1693,737 @@
         "interval": false,
         "intervalFrequency": 1000
       }
+    },
+    {
+      "id": "mighty-insect-54",
+      "name": "If else condition",
+      "type": "If_Else",
+      "x": -2131.8557779102084,
+      "y": 1516.160671357979,
+      "width": 160,
+      "height": 136,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Condition",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "defaultData": false,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "A",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "defaultData": "A",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "B",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "defaultData": "0",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Output",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "stupid-turkey-80",
+      "name": "Switch",
+      "type": "WidgetSwitch",
+      "x": -2422.509520749532,
+      "y": 1357.5462027523824,
+      "width": 200,
+      "height": 104,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Initial Selection",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Off",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "On",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "data": 1,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Label",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "Rotate",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Out",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": true,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "big-fly-28",
+      "name": "Reroute",
+      "type": "Reroute",
+      "x": -1892.632600795296,
+      "y": 2048.724014017481,
+      "width": 48,
+      "height": 48,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "In",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Out",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "swift-shrimp-75",
+      "name": "Slider",
+      "type": "WidgetSlider",
+      "x": -2422.509520749532,
+      "y": 2058.7744845899647,
+      "width": 200,
+      "height": 104,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Initial Value",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 18,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Min",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Max",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 100,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Round",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": true,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Label",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "Slider",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Out",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "cowardly-baboon-87",
+      "name": "Image",
+      "type": "Image",
+      "x": -1754.45551218952,
+      "y": 914.3742910036225,
+      "width": 220,
+      "height": 211,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Image",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "data": "data:image/jpeg;base64,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",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Object fit",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"contain\"},{\"text\":\"cover\"},{\"text\":\"fill\"},{\"text\":\"none\"},{\"text\":\"scale-down\"}]}}",
+          "data": "cover",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Reset size",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"resetNodeSize\",\"previousData\":0}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Save image",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"saveImage\",\"previousData\":0}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Image",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Details",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Exif",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "giant-dragonfly-26",
+      "name": "Reroute",
+      "type": "Reroute",
+      "x": -1892.6625385829564,
+      "y": 1862.8648742193693,
+      "width": 48,
+      "height": 48,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "In",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Out",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "fresh-hound-16",
+      "name": "Reroute",
+      "type": "Reroute",
+      "x": -1883.2852196393317,
+      "y": 2228.6370023140953,
+      "width": 48,
+      "height": 48,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "In",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Out",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "quiet-monkey-82",
+      "name": "Color picker",
+      "type": "WidgetColorPicker",
+      "x": -2423.1439872147703,
+      "y": 2239.405784480848,
+      "width": 200,
+      "height": 104,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Initial Value",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 255,
+            "g": 255,
+            "b": 255,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Label",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "Pick a color",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Out",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": true,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
     }
   ],
   "links": [
     {
-      "id": "a44696d0-db39-4a57-9774-6ab2d3b2d54e",
+      "id": "dcc18e25-2adf-41f9-8394-6a7dcbe52b62",
+      "sourceNodeId": "fresh-hound-16",
+      "sourceSocketName": "Out",
+      "targetNodeId": "great-cheetah-48",
+      "targetSocketName": "Background color"
+    },
+    {
+      "id": "7bce5245-8ae5-4305-b322-43e6cb209d8d",
+      "sourceNodeId": "big-fly-28",
+      "sourceSocketName": "Out",
+      "targetNodeId": "great-cheetah-48",
+      "targetSocketName": "Margin"
+    },
+    {
+      "id": "53963389-6363-4f12-83a8-b0be206ac393",
+      "sourceNodeId": "giant-dragonfly-26",
+      "sourceSocketName": "Out",
+      "targetNodeId": "great-cheetah-48",
+      "targetSocketName": "Pivot"
+    },
+    {
+      "id": "984a9967-d378-4541-9fd6-285aee55b86e",
       "sourceNodeId": "witty-gecko-37",
       "sourceSocketName": "Out",
       "targetNodeId": "great-cheetah-48",
       "targetSocketName": "Angle"
     },
     {
-      "id": "d8d37723-fb69-4b6e-91ac-aba9a4cab260",
-      "sourceNodeId": "good-turtle-54",
+      "id": "960f110e-64a4-439e-90d7-627844a2d117",
+      "sourceNodeId": "fresh-hound-16",
       "sourceSocketName": "Out",
-      "targetNodeId": "great-cheetah-48",
+      "targetNodeId": "honest-donkey-79",
+      "targetSocketName": "Background color"
+    },
+    {
+      "id": "16205426-e02e-4df8-a650-6eb8789ef9e3",
+      "sourceNodeId": "big-fly-28",
+      "sourceSocketName": "Out",
+      "targetNodeId": "honest-donkey-79",
+      "targetSocketName": "Margin"
+    },
+    {
+      "id": "50464758-f761-43af-aceb-7b10a49047e4",
+      "sourceNodeId": "giant-dragonfly-26",
+      "sourceSocketName": "Out",
+      "targetNodeId": "honest-donkey-79",
       "targetSocketName": "Pivot"
     },
     {
-      "id": "4536c637-9e19-4f6a-ba0a-cf972dbb1afa",
+      "id": "2c78fa06-b408-4d8c-a3ab-bc51848ebd33",
       "sourceNodeId": "witty-gecko-37",
       "sourceSocketName": "Out",
       "targetNodeId": "honest-donkey-79",
       "targetSocketName": "Angle"
     },
     {
-      "id": "dd674caa-ffae-4902-8363-4fddcaaa384a",
-      "sourceNodeId": "good-turtle-54",
+      "id": "a5eee862-6659-45c0-a08c-74b98cb47e98",
+      "sourceNodeId": "fresh-hound-16",
       "sourceSocketName": "Out",
-      "targetNodeId": "honest-donkey-79",
+      "targetNodeId": "wise-cobra-81",
+      "targetSocketName": "Background color"
+    },
+    {
+      "id": "3e90bf50-4d5a-4339-bb40-1848038f70fb",
+      "sourceNodeId": "big-fly-28",
+      "sourceSocketName": "Out",
+      "targetNodeId": "wise-cobra-81",
+      "targetSocketName": "Margin"
+    },
+    {
+      "id": "df5b598c-d344-48ba-b85d-40d629b6bbbc",
+      "sourceNodeId": "giant-dragonfly-26",
+      "sourceSocketName": "Out",
+      "targetNodeId": "wise-cobra-81",
       "targetSocketName": "Pivot"
     },
     {
-      "id": "06f92382-7066-47b4-a419-fedd39cf2b8d",
+      "id": "8db5fa43-baa5-4655-8571-5cbf203edad6",
       "sourceNodeId": "witty-gecko-37",
       "sourceSocketName": "Out",
       "targetNodeId": "wise-cobra-81",
       "targetSocketName": "Angle"
     },
     {
-      "id": "67a465e9-fbc7-47a2-a2da-7e0541c266f4",
-      "sourceNodeId": "good-turtle-54",
+      "id": "680bc8c8-ee9a-4a53-b80b-c7ea15c2be3a",
+      "sourceNodeId": "fresh-hound-16",
       "sourceSocketName": "Out",
-      "targetNodeId": "wise-cobra-81",
+      "targetNodeId": "red-walrus-82",
+      "targetSocketName": "Background color"
+    },
+    {
+      "id": "39ecb3f5-7de7-4b09-bbba-ed91cf24b7af",
+      "sourceNodeId": "big-fly-28",
+      "sourceSocketName": "Out",
+      "targetNodeId": "red-walrus-82",
+      "targetSocketName": "Margin"
+    },
+    {
+      "id": "7495ecd0-62da-4141-9adc-69d2786c0982",
+      "sourceNodeId": "giant-dragonfly-26",
+      "sourceSocketName": "Out",
+      "targetNodeId": "red-walrus-82",
       "targetSocketName": "Pivot"
     },
     {
-      "id": "500a4839-cdc0-4440-90cd-c9f0ac8dca91",
+      "id": "c3936239-c1d8-4c54-b4c3-36672a1d9785",
       "sourceNodeId": "witty-gecko-37",
       "sourceSocketName": "Out",
       "targetNodeId": "red-walrus-82",
       "targetSocketName": "Angle"
     },
     {
-      "id": "8fcced06-b561-4d08-9a2b-81be74f71b0a",
-      "sourceNodeId": "good-turtle-54",
-      "sourceSocketName": "Out",
-      "targetNodeId": "red-walrus-82",
-      "targetSocketName": "Pivot"
-    },
-    {
-      "id": "e847bd58-1765-48ee-86b4-d7d33a686073",
+      "id": "903bc9ae-463f-4997-bb83-6e7535ce481a",
       "sourceNodeId": "modern-dragonfly-74",
       "sourceSocketName": "Graphics",
       "targetNodeId": "pretty-owl-44",
       "targetSocketName": "Graphics"
     },
     {
-      "id": "041faa4c-c06a-4217-8040-98f21c983fe1",
-      "sourceNodeId": "friendly-ladybug-67",
+      "id": "cb914c80-70a5-4fda-9685-967dfae897ef",
+      "sourceNodeId": "fresh-hound-16",
       "sourceSocketName": "Out",
-      "targetNodeId": "pretty-owl-44",
+      "targetNodeId": "stale-lionfish-91",
+      "targetSocketName": "Background color"
+    },
+    {
+      "id": "7675f15a-4a81-493b-9631-0c24ac7405ec",
+      "sourceNodeId": "big-fly-28",
+      "sourceSocketName": "Out",
+      "targetNodeId": "stale-lionfish-91",
+      "targetSocketName": "Margin"
+    },
+    {
+      "id": "cdd94855-fa2d-44d2-8103-099afff158dd",
+      "sourceNodeId": "giant-dragonfly-26",
+      "sourceSocketName": "Out",
+      "targetNodeId": "stale-lionfish-91",
       "targetSocketName": "Pivot"
     },
     {
-      "id": "bbd2721a-32e9-4ad3-a686-5ae73090a629",
+      "id": "768363cd-bc0e-4f93-aeaa-c87bf3bfca40",
       "sourceNodeId": "witty-gecko-37",
       "sourceSocketName": "Out",
       "targetNodeId": "stale-lionfish-91",
       "targetSocketName": "Angle"
     },
     {
-      "id": "6fd96fd8-0ec6-42f5-9aca-4a0603e61c47",
-      "sourceNodeId": "good-turtle-54",
-      "sourceSocketName": "Out",
-      "targetNodeId": "stale-lionfish-91",
-      "targetSocketName": "Pivot"
-    },
-    {
-      "id": "693e6a25-73c8-4385-aec2-5b7e9eb07aeb",
+      "id": "f053a259-d8f3-48dd-9f01-a0ea5671a163",
       "sourceNodeId": "cowardly-baboon-87",
       "sourceSocketName": "Image",
       "targetNodeId": "fresh-firefox-72",
       "targetSocketName": "Image"
     },
     {
-      "id": "50a44c5f-7be5-429a-8922-df1112706fef",
+      "id": "045bd954-6120-4ee7-9542-f9338291ee7f",
+      "sourceNodeId": "fresh-hound-16",
+      "sourceSocketName": "Out",
+      "targetNodeId": "fresh-firefox-72",
+      "targetSocketName": "Background color"
+    },
+    {
+      "id": "97a5bc4e-c0df-4289-8634-2a56f32a1a8d",
+      "sourceNodeId": "big-fly-28",
+      "sourceSocketName": "Out",
+      "targetNodeId": "fresh-firefox-72",
+      "targetSocketName": "Margin"
+    },
+    {
+      "id": "f4978ab0-8d20-46c5-acc8-bcafc31a2416",
+      "sourceNodeId": "giant-dragonfly-26",
+      "sourceSocketName": "Out",
+      "targetNodeId": "fresh-firefox-72",
+      "targetSocketName": "Pivot"
+    },
+    {
+      "id": "8fba1c17-ce58-4490-9cdb-7361952fda5f",
       "sourceNodeId": "witty-gecko-37",
       "sourceSocketName": "Out",
       "targetNodeId": "fresh-firefox-72",
       "targetSocketName": "Angle"
     },
     {
-      "id": "2ec185e5-6b97-4f49-a33d-fff25b6186ca",
-      "sourceNodeId": "good-turtle-54",
+      "id": "bce2bceb-f087-4b35-ac6b-ae6092c308a6",
+      "sourceNodeId": "fresh-hound-16",
       "sourceSocketName": "Out",
-      "targetNodeId": "fresh-firefox-72",
+      "targetNodeId": "great-quail-74",
+      "targetSocketName": "Background color"
+    },
+    {
+      "id": "d7bc077f-a4c3-436a-9810-e7d3edfceb01",
+      "sourceNodeId": "big-fly-28",
+      "sourceSocketName": "Out",
+      "targetNodeId": "great-quail-74",
+      "targetSocketName": "Margin"
+    },
+    {
+      "id": "a2ae6f8d-a3d6-40ea-b17b-5bbac059c7ba",
+      "sourceNodeId": "giant-dragonfly-26",
+      "sourceSocketName": "Out",
+      "targetNodeId": "great-quail-74",
       "targetSocketName": "Pivot"
     },
     {
-      "id": "113a3b28-38fe-483e-8fa6-a67eab09557c",
+      "id": "31a5655b-5fd8-4e85-a6a3-735e130935cf",
       "sourceNodeId": "witty-gecko-37",
       "sourceSocketName": "Out",
       "targetNodeId": "great-quail-74",
       "targetSocketName": "Angle"
     },
     {
-      "id": "4619639a-2d71-4264-a387-a5e088407f38",
-      "sourceNodeId": "good-turtle-54",
+      "id": "a0a342bb-9f25-4fbb-8754-ba2fa6bd8292",
+      "sourceNodeId": "fresh-hound-16",
       "sourceSocketName": "Out",
-      "targetNodeId": "great-quail-74",
+      "targetNodeId": "tiny-cat-41",
+      "targetSocketName": "Background color"
+    },
+    {
+      "id": "739320fa-99a7-4af0-be24-0e8d59b3c29e",
+      "sourceNodeId": "big-fly-28",
+      "sourceSocketName": "Out",
+      "targetNodeId": "tiny-cat-41",
+      "targetSocketName": "Margin"
+    },
+    {
+      "id": "e3f5e224-1010-458d-9bb1-4fd860d2b6c5",
+      "sourceNodeId": "giant-dragonfly-26",
+      "sourceSocketName": "Out",
+      "targetNodeId": "tiny-cat-41",
       "targetSocketName": "Pivot"
     },
     {
-      "id": "cda5765d-1e0b-4628-9027-f12bc292d774",
+      "id": "7dbed265-617f-4c20-a11c-52a8812e0629",
       "sourceNodeId": "witty-gecko-37",
       "sourceSocketName": "Out",
       "targetNodeId": "tiny-cat-41",
       "targetSocketName": "Angle"
     },
     {
-      "id": "3105bfa4-d892-43b5-b280-8dd571b98359",
-      "sourceNodeId": "good-turtle-54",
-      "sourceSocketName": "Out",
-      "targetNodeId": "tiny-cat-41",
-      "targetSocketName": "Pivot"
-    },
-    {
-      "id": "1c7214de-373c-40ee-a54e-a8f80e142ea2",
-      "sourceNodeId": "spicy-baboon-65",
-      "sourceSocketName": "Divided",
+      "id": "04c67122-8004-4a33-8999-a70d392c7495",
+      "sourceNodeId": "mighty-insect-54",
+      "sourceSocketName": "Output",
       "targetNodeId": "witty-gecko-37",
       "targetSocketName": "In"
     },
     {
-      "id": "1514fa89-b657-40ff-ba37-7722615ebb3e",
+      "id": "af44459c-b5b7-47d2-aef1-05f3c07234f9",
       "sourceNodeId": "unlucky-rabbit-71",
       "sourceSocketName": "Date and time",
       "targetNodeId": "curvy-mole-29",
       "targetSocketName": "Number 1"
     },
     {
-      "id": "3949fd45-cac8-4345-97aa-501f3e3bc8c3",
+      "id": "5510fae6-d278-4ee6-99fd-84063b33b415",
       "sourceNodeId": "curvy-mole-29",
       "sourceSocketName": "Remainder",
       "targetNodeId": "spicy-baboon-65",
       "targetSocketName": "Number 1"
     },
     {
-      "id": "caefd4a8-4dcc-4897-8449-78a93cadc045",
+      "id": "cac0449f-78cb-4037-9678-c943d55a065f",
       "sourceNodeId": "stale-lionfish-91",
       "sourceSocketName": "Graphics",
       "targetNodeId": "modern-dragonfly-74",
       "targetSocketName": "Graphics"
     },
     {
-      "id": "d27d8aa1-f1cc-409a-9f96-d71a3be50e0d",
+      "id": "e5213329-0208-402f-8838-801871db6c78",
       "sourceNodeId": "wise-cobra-81",
       "sourceSocketName": "Graphics",
       "targetNodeId": "modern-dragonfly-74",
       "targetSocketName": "Graphics 2"
     },
     {
-      "id": "650bc507-a34e-44b4-9121-a1f67305e586",
+      "id": "bbcfb211-9791-4e02-8ecc-edcaf1ab421e",
       "sourceNodeId": "red-walrus-82",
       "sourceSocketName": "Graphics",
       "targetNodeId": "modern-dragonfly-74",
       "targetSocketName": "Graphics 3"
+    },
+    {
+      "id": "e75b09b4-fec7-4ee9-962a-5f145b0669ff",
+      "sourceNodeId": "stupid-turkey-80",
+      "sourceSocketName": "Out",
+      "targetNodeId": "mighty-insect-54",
+      "targetSocketName": "Condition"
+    },
+    {
+      "id": "f3b8bec0-a3c2-4695-a61a-aa467bf41f5c",
+      "sourceNodeId": "spicy-baboon-65",
+      "sourceSocketName": "Divided",
+      "targetNodeId": "mighty-insect-54",
+      "targetSocketName": "A"
+    },
+    {
+      "id": "c3ab23a2-9463-47f5-ba12-8c829b63fe51",
+      "sourceNodeId": "smart-liger-99",
+      "sourceSocketName": "Out",
+      "targetNodeId": "mighty-insect-54",
+      "targetSocketName": "B"
+    },
+    {
+      "id": "8aba0433-28e6-4662-8596-2bf6b9b2b954",
+      "sourceNodeId": "swift-shrimp-75",
+      "sourceSocketName": "Out",
+      "targetNodeId": "big-fly-28",
+      "targetSocketName": "In"
+    },
+    {
+      "id": "c0866338-024d-4103-afdf-7d1e808ef224",
+      "sourceNodeId": "good-turtle-54",
+      "sourceSocketName": "Out",
+      "targetNodeId": "giant-dragonfly-26",
+      "targetSocketName": "In"
+    },
+    {
+      "id": "31f97123-9ce3-4ba6-b986-ac8a522fc9b6",
+      "sourceNodeId": "quiet-monkey-82",
+      "sourceSocketName": "Out",
+      "targetNodeId": "fresh-hound-16",
+      "targetSocketName": "In"
     }
   ],
   "layouts": {
-    "default": [
-      {
-        "w": 2,
-        "h": 2,
-        "x": 0,
-        "y": 0,
-        "i": "modern-dragonfly-74-in-Position",
-        "minW": 2,
-        "minH": 1,
-        "moved": false,
-        "static": false
-      }
-    ]
+    "default": []
   }
 }

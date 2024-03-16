@@ -149,12 +149,6 @@ export class DRAW_Shape extends DRAW_Base {
       ),
       new Socket(
         SOCKET_TYPE.IN,
-        inputColorName,
-        new ColorType(),
-        TRgba.randomColor(),
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
         inputWidthName,
         new NumberType(true, 1, 1000),
         200,
@@ -166,6 +160,12 @@ export class DRAW_Shape extends DRAW_Base {
         200,
       ),
       new Socket(SOCKET_TYPE.IN, inputBorderName, new BooleanType(), false),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputColorName,
+        new ColorType(),
+        TRgba.randomColor(),
+      ),
     ].concat(super.getDefaultIO());
   }
 
