@@ -342,21 +342,23 @@ export abstract class DRAW_Base extends PPNode {
       pivotPoint.y * height - margin.top + myContainerBounds.y,
     );
 
-    const background = new PIXI.Graphics();
     const bgColor = parseValueAndAttachWarnings(
       this,
       new ColorType(),
       inputObject[bgColorName],
     );
-    background.beginFill(bgColor.hex(), bgColor.alpha(true));
-    background.drawRect(
-      -margin.left + myContainerBounds.x,
-      -margin.top + myContainerBounds.y,
-      myContainerBounds.width + margin.left + margin.right,
-      myContainerBounds.height + margin.top + margin.bottom,
-    );
-    background.endFill();
-    toModify.addChildAt(background, 0);
+    if (inputObject[marginSocketName] !== 0 || bgColor.alpha() !== 0) {
+      const background = new PIXI.Graphics();
+      background.beginFill(bgColor.hex(), bgColor.alpha(true));
+      background.drawRect(
+        -margin.left + myContainerBounds.x,
+        -margin.top + myContainerBounds.y,
+        myContainerBounds.width + margin.left + margin.right,
+        myContainerBounds.height + margin.top + margin.bottom,
+      );
+      background.endFill();
+      toModify.addChildAt(background, 0);
+    }
   }
 
   public async outputPlugged(): Promise<void> {
