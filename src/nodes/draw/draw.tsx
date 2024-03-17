@@ -31,6 +31,7 @@ import {
   DRAW_Base,
   DRAW_Interactive_Base,
   injectedDataName,
+  inputPivotName,
   marginSocketName,
   objectsInteractive,
   outputMultiplierIndex,
@@ -94,7 +95,6 @@ const addShallowContainerEventListeners = (
   shallowContainer: PIXI.Container,
   node: PPNode,
   index: number,
-  executions: { string: number },
 ) => {
   shallowContainer.eventMode = 'dynamic';
   const alphaPre = shallowContainer.alpha;
@@ -170,11 +170,7 @@ export class DRAW_Shape extends DRAW_Base {
     ].concat(super.getDefaultIO());
   }
 
-  protected drawOnContainer(
-    inputObject: any,
-    container: PIXI.Container,
-    executions: { string: number },
-  ): void {
+  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
     const width = inputObject[inputWidthName];
     const height = inputObject[inputHeightName];
     if (Number.isFinite(width) && Number.isFinite(height)) {
@@ -237,9 +233,14 @@ export class DRAW_Passthrough extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void {
     if (typeof inputObject[inputGraphicsName] === 'function') {
-      inputObject[inputGraphicsName](container, executions);
+      inputObject[inputGraphicsName](
+        container,
+        executions,
+        topParentOverrideSettings,
+      );
     }
   }
 }
@@ -283,11 +284,7 @@ export class DRAW_Text extends DRAW_Base {
     ].concat(super.getDefaultIO());
   }
 
-  protected drawOnContainer(
-    inputObject: any,
-    container: PIXI.Container,
-    executions: { string: number },
-  ): void {
+  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
     const textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: inputObject[inputSizeName],
@@ -319,9 +316,9 @@ const widthName = 'Width';
 const heightName = 'Height';
 
 const layoutOptions: EnumStructure = [
-  { text: 'Manual' },
-  { text: 'Gap' },
-  { text: 'Fill' },
+  { text: 'manual position' },
+  { text: 'auto spacing' },
+  { text: 'auto fill' },
 ];
 
 const layoutDirectionOptions: EnumStructure = [
@@ -364,18 +361,18 @@ export class DRAW_Combine extends DRAW_Base {
         new EnumType(layoutDirectionOptions),
         layoutDirectionOptions[0].text,
       ),
-      // new Socket(
-      //   SOCKET_TYPE.IN,
-      //   horizontalAlignmentName,
-      //   new EnumType(horizontalAlignmentOptions),
-      //   horizontalAlignmentOptions[0].text,
-      // ),
-      // new Socket(
-      //   SOCKET_TYPE.IN,
-      //   verticalAlignmentName,
-      //   new EnumType(verticalAlignmentOptions),
-      //   verticalAlignmentOptions[0].text,
-      // ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        horizontalAlignmentName,
+        new EnumType(horizontalAlignmentOptions),
+        horizontalAlignmentOptions[0].text,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        verticalAlignmentName,
+        new EnumType(verticalAlignmentOptions),
+        verticalAlignmentOptions[0].text,
+      ),
       new Socket(
         SOCKET_TYPE.IN,
         widthName,
@@ -388,7 +385,7 @@ export class DRAW_Combine extends DRAW_Base {
         new NumberType(true, 0, 2000),
         1000,
       ),
-      new Socket(SOCKET_TYPE.IN, spacingName, new NumberType(true, 0, 2000), 0),
+      new Socket(SOCKET_TYPE.IN, spacingName, new NumberType(true, 0, 2000), 8),
       new Socket(SOCKET_TYPE.IN, inputReverseName, new BooleanType()),
     ].concat(super.getDefaultIO());
   }
@@ -397,6 +394,7 @@ export class DRAW_Combine extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void {
     const graphicsKeys = Object.keys(inputObject).filter((key) =>
       key.startsWith(outputPixiName),
@@ -422,23 +420,30 @@ export class DRAW_Combine extends DRAW_Base {
     const layoutOption = inputObject[layoutName];
     const isVertical =
       inputObject[layoutDirectionName] === layoutDirectionOptions[0].text;
+    topParentOverrideSettings[inputPivotName] =
+      `${isVertical ? verticalAlignmentOptions[0].text : inputObject[verticalAlignmentName]} ${isVertical ? inputObject[horizontalAlignmentName] : horizontalAlignmentOptions[0].text}`;
+
     const width = inputObject[widthName];
     const height = inputObject[heightName];
     let currentPositionX = margin.left;
     let currentPositionY = margin.top;
 
     if (layoutOption === layoutOptions[2].text) {
-      const totalObjectsHeight = graphicsKeys.reduce((sum, graphicsKey) => {
-        const bounds = DRAW_Get_Bounds.getDrawingBounds(
-          inputObject[graphicsKey],
-          0,
-          0,
-        );
-        return sum + bounds.height;
-      }, 0);
+      const totalObjectsHeightWidth = graphicsKeys.reduce(
+        (sum, graphicsKey) => {
+          const bounds = DRAW_Get_Bounds.getDrawingBounds(
+            inputObject[graphicsKey],
+            0,
+            0,
+          );
+          return sum + (isVertical ? bounds.height : bounds.width);
+        },
+        0,
+      );
       // Calculate the remaining space after placing all elements
-      const remainingSpace =
-        height - totalObjectsHeight - margin.top - margin.bottom;
+      const remainingSpace = isVertical
+        ? height - totalObjectsHeightWidth - margin.top - margin.bottom
+        : width - totalObjectsHeightWidth - margin.left - margin.right;
       // Distribute the remaining space as gaps between elements
       spacingValue = remainingSpace / (graphicsKeys.length - 1);
     }
@@ -453,7 +458,12 @@ export class DRAW_Combine extends DRAW_Base {
                 inputObject[positionKey].x,
                 inputObject[positionKey].y,
               );
-              inputObject[graphicsKey](container, executions, position);
+              inputObject[graphicsKey](
+                container,
+                executions,
+                position,
+                topParentOverrideSettings,
+              );
             }
           }
           break;
@@ -467,15 +477,20 @@ export class DRAW_Combine extends DRAW_Base {
             );
 
             const position = new PIXI.Point(currentPositionX, currentPositionY);
-            console.log(
-              currentPositionX,
-              currentPositionY,
-              spacingValue,
-              bounds.width,
-              bounds.height,
+            // console.log(
+            //   currentPositionX,
+            //   currentPositionY,
+            //   spacingValue,
+            //   bounds.width,
+            //   bounds.height,
+            //   position,
+            // );
+            inputObject[graphicsKey](
+              container,
+              executions,
               position,
+              topParentOverrideSettings,
             );
-            inputObject[graphicsKey](container, executions, position);
 
             if (isVertical) {
               currentPositionY += bounds.height + spacingValue;
@@ -583,6 +598,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void {
     const graphicsArray = inputObject[inputCombineArray];
     const changeDrawingOrder = inputObject[drawingOrder];
@@ -611,15 +627,11 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
           shallowContainer,
           executions,
           new PIXI.Point(x * spacingSize.width, y * spacingSize.height),
+          topParentOverrideSettings,
         );
       }
       if (inputObject[objectsInteractive]) {
-        addShallowContainerEventListeners(
-          shallowContainer,
-          this,
-          i,
-          executions,
-        );
+        addShallowContainerEventListeners(shallowContainer, this, i);
       }
       container.addChild(shallowContainer);
     }
@@ -669,6 +681,7 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void {
     const total = inputObject[totalNumberName];
     const changeDrawingOrder = inputObject[drawingOrder];
@@ -688,10 +701,11 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
             x * inputObject[spacingXName],
             y * inputObject[spacingYName],
           ),
+          topParentOverrideSettings,
         );
       }
 
-      addShallowContainerEventListeners(shallowContainer, this, i, executions);
+      addShallowContainerEventListeners(shallowContainer, this, i);
 
       container.addChild(shallowContainer);
     }
@@ -717,6 +731,7 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void {
     inputObject[inputPointsName].forEach((points, i) => {
       const x = points[0];
@@ -727,9 +742,10 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
           shallowContainer,
           executions,
           new PIXI.Point(x, y),
+          topParentOverrideSettings,
         );
 
-      addShallowContainerEventListeners(shallowContainer, this, i, executions);
+      addShallowContainerEventListeners(shallowContainer, this, i);
 
       container.addChild(shallowContainer);
     });
@@ -751,11 +767,7 @@ export class DRAW_Image extends DRAW_Base {
     );
   }
 
-  protected drawOnContainer(
-    inputObject: any,
-    container: PIXI.Container,
-    executions: { string: number },
-  ): void {
+  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
     const image = PIXI.Texture.from(
       inputObject[inputImageName] || DEFAULT_IMAGE,
     );
@@ -797,11 +809,7 @@ export class DRAW_Line extends DRAW_Base {
     ].concat(super.getDefaultIO());
   }
 
-  protected drawOnContainer(
-    inputObject: any,
-    container: PIXI.Container,
-    executions: { string: number },
-  ): void {
+  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor = parseValueAndAttachWarnings(
       this,
@@ -862,11 +870,7 @@ export class DRAW_Polygon extends DRAW_Base {
     ].concat(super.getDefaultIO());
   }
 
-  protected drawOnContainer(
-    inputObject: any,
-    container: PIXI.Container,
-    executions: { string: number },
-  ): void {
+  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor = parseValueAndAttachWarnings(
       this,
