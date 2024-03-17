@@ -31,6 +31,7 @@ import {
   DRAW_Base,
   DRAW_Interactive_Base,
   injectedDataName,
+  marginSocketName,
   objectsInteractive,
   outputMultiplierIndex,
   outputMultiplierInjected,
@@ -308,11 +309,41 @@ export class DRAW_Text extends DRAW_Base {
   }
 }
 
+const layoutName = 'Layout mode';
 const graphicsPositionName = 'Position';
+const layoutDirectionName = 'Direction';
+const horizontalAlignmentName = 'Horizontal alignment';
+const verticalAlignmentName = 'Vertical alignment';
+const spacingName = 'Spacing';
+const widthName = 'Width';
+const heightName = 'Height';
+
+const layoutOptions: EnumStructure = [
+  { text: 'Manual' },
+  { text: 'Gap' },
+  { text: 'Fill' },
+];
+
+const layoutDirectionOptions: EnumStructure = [
+  { text: 'vertical' },
+  { text: 'horizontal' },
+];
+
+const horizontalAlignmentOptions: EnumStructure = [
+  { text: 'left' },
+  { text: 'center' },
+  { text: 'right' },
+];
+
+const verticalAlignmentOptions: EnumStructure = [
+  { text: 'top' },
+  { text: 'center' },
+  { text: 'bottom' },
+];
 
 export class DRAW_Combine extends DRAW_Base {
   public getName(): string {
-    return 'Combine manually';
+    return 'Combine objects';
   }
 
   public getDescription(): string {
@@ -321,6 +352,43 @@ export class DRAW_Combine extends DRAW_Base {
 
   protected getDefaultIO(): Socket[] {
     return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        layoutName,
+        new EnumType(layoutOptions),
+        layoutOptions[1].text,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        layoutDirectionName,
+        new EnumType(layoutDirectionOptions),
+        layoutDirectionOptions[0].text,
+      ),
+      // new Socket(
+      //   SOCKET_TYPE.IN,
+      //   horizontalAlignmentName,
+      //   new EnumType(horizontalAlignmentOptions),
+      //   horizontalAlignmentOptions[0].text,
+      // ),
+      // new Socket(
+      //   SOCKET_TYPE.IN,
+      //   verticalAlignmentName,
+      //   new EnumType(verticalAlignmentOptions),
+      //   verticalAlignmentOptions[0].text,
+      // ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        widthName,
+        new NumberType(true, 0, 2000),
+        1000,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        heightName,
+        new NumberType(true, 0, 2000),
+        1000,
+      ),
+      new Socket(SOCKET_TYPE.IN, spacingName, new NumberType(true, 0, 2000), 0),
       new Socket(SOCKET_TYPE.IN, inputReverseName, new BooleanType()),
     ].concat(super.getDefaultIO());
   }
@@ -344,14 +412,81 @@ export class DRAW_Combine extends DRAW_Base {
       positionKeys.reverse();
     }
 
-    graphicsKeys.forEach((graphicsKey, index) => {
-      const positionKey = positionKeys[index];
-      if (inputObject[positionKey]) {
-        const position = new PIXI.Point(
-          inputObject[positionKey].x,
-          inputObject[positionKey].y,
+    const margin = {
+      top: inputObject[marginSocketName],
+      right: inputObject[marginSocketName],
+      bottom: inputObject[marginSocketName],
+      left: inputObject[marginSocketName],
+    };
+    let spacingValue = inputObject[spacingName];
+    const layoutOption = inputObject[layoutName];
+    const isVertical =
+      inputObject[layoutDirectionName] === layoutDirectionOptions[0].text;
+    const width = inputObject[widthName];
+    const height = inputObject[heightName];
+    let currentPositionX = margin.left;
+    let currentPositionY = margin.top;
+
+    if (layoutOption === layoutOptions[2].text) {
+      const totalObjectsHeight = graphicsKeys.reduce((sum, graphicsKey) => {
+        const bounds = DRAW_Get_Bounds.getDrawingBounds(
+          inputObject[graphicsKey],
+          0,
+          0,
         );
-        inputObject[graphicsKey](container, executions, position);
+        return sum + bounds.height;
+      }, 0);
+      // Calculate the remaining space after placing all elements
+      const remainingSpace =
+        height - totalObjectsHeight - margin.top - margin.bottom;
+      // Distribute the remaining space as gaps between elements
+      spacingValue = remainingSpace / (graphicsKeys.length - 1);
+    }
+
+    graphicsKeys.forEach((graphicsKey, index) => {
+      switch (layoutOption) {
+        case layoutOptions[0].text:
+          {
+            const positionKey = positionKeys[index];
+            if (inputObject[positionKey]) {
+              const position = new PIXI.Point(
+                inputObject[positionKey].x,
+                inputObject[positionKey].y,
+              );
+              inputObject[graphicsKey](container, executions, position);
+            }
+          }
+          break;
+        case layoutOptions[1].text:
+        case layoutOptions[2].text:
+          {
+            const bounds = DRAW_Get_Bounds.getDrawingBounds(
+              inputObject[graphicsKey],
+              0,
+              0,
+            );
+
+            const position = new PIXI.Point(currentPositionX, currentPositionY);
+            console.log(
+              currentPositionX,
+              currentPositionY,
+              spacingValue,
+              bounds.width,
+              bounds.height,
+              position,
+            );
+            inputObject[graphicsKey](container, executions, position);
+
+            if (isVertical) {
+              currentPositionY += bounds.height + spacingValue;
+            } else {
+              currentPositionX += bounds.width + spacingValue;
+            }
+          }
+          break;
+
+        default:
+          break;
       }
     });
   }

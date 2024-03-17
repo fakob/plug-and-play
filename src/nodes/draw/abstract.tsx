@@ -142,6 +142,7 @@ export abstract class DRAW_Base extends PPNode {
     offset: PIXI.Point,
   ): PIXI.Container {
     const myContainer = new PIXI.Container();
+    myContainer.name = `${this.id}-container`;
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
