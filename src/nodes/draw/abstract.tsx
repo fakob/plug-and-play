@@ -134,12 +134,14 @@ export abstract class DRAW_Base extends PPNode {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void;
 
   private getContainer(
     inputObject: any,
     executions: { string: number },
     offset: PIXI.Point,
+    topParentOverrideSettings: any,
   ): PIXI.Container {
     const myContainer = new PIXI.Container();
     inputObject = {
@@ -148,7 +150,13 @@ export abstract class DRAW_Base extends PPNode {
         this.getAndIncrementExecutions(executions)
       ],
     };
-    this.drawOnContainer(inputObject, myContainer, executions);
+    this.drawOnContainer(
+      inputObject,
+      myContainer,
+      executions,
+      topParentOverrideSettings,
+    );
+    inputObject = { ...inputObject, ...topParentOverrideSettings };
 
     this.positionScaleAndBackground(myContainer, inputObject, offset);
 
@@ -172,6 +180,7 @@ export abstract class DRAW_Base extends PPNode {
       container,
       executions,
       position = new PIXI.Point(),
+      topParentOverrideSettings = {},
     ) => {
       const lastNode = !this.getOutputSocketByName(outputPixiName).hasLink();
       const drawnAsChildrenOfLastNode =
@@ -184,14 +193,19 @@ export abstract class DRAW_Base extends PPNode {
         : new PIXI.Point(offset.x + position.x, offset.y + position.y);
       if (container) {
         container.addChild(
-          this.getContainer(inputObject, executions, newOffset),
+          this.getContainer(
+            inputObject,
+            executions,
+            newOffset,
+            topParentOverrideSettings,
+          ),
         );
       } else {
         console.error('container is undefined for some reason');
       }
     };
     outputObject[outputPixiName] = drawingFunction;
-    this.handleDrawing(drawingFunction);
+    this.handleDrawing(drawingFunction, inputObject);
     /*this.handleDrawingThrottled(
       drawingFunction,
     );*/
@@ -275,13 +289,25 @@ export abstract class DRAW_Base extends PPNode {
     leading: false,
   });
 
-  private handleDrawing(drawingFunction: any): void {
+  private handleDrawing(drawingFunction: any, inputObject: any): void {
+    // adjust this logic to how you want it to work
+    const SHOULD_OVERRIDE_SETTINGS_WITH_TOP_PARENT = true;
+    let passedInOverrideSettings = {};
+    if (SHOULD_OVERRIDE_SETTINGS_WITH_TOP_PARENT) {
+      passedInOverrideSettings = inputObject;
+    }
+    ///
     requestAnimationFrame(() => {
       removeAndDestroyChild(this._ForegroundRef, this.deferredGraphics);
       if (this.shouldDraw()) {
         this.deferredGraphics = new PIXI.Container();
         try {
-          drawingFunction(this.deferredGraphics, {}, new PIXI.Point(0, 0));
+          drawingFunction(
+            this.deferredGraphics,
+            {},
+            new PIXI.Point(0, 0),
+            passedInOverrideSettings,
+          );
         } catch (error) {
           this.setStatus(new NodeExecutionError(error.message));
           return;

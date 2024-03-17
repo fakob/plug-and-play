@@ -329,6 +329,7 @@ export class DRAW_Combine extends DRAW_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void {
     const graphicsKeys = Object.keys(inputObject).filter((key) =>
       key.startsWith(outputPixiName),
@@ -351,7 +352,14 @@ export class DRAW_Combine extends DRAW_Base {
           inputObject[positionKey].x,
           inputObject[positionKey].y,
         );
-        inputObject[graphicsKey](container, executions, position);
+        const drawingFunction = inputObject[graphicsKey];
+
+        drawingFunction(
+          container,
+          executions,
+          position,
+          topParentOverrideSettings,
+        );
       }
     });
   }
@@ -448,6 +456,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void {
     const graphicsArray = inputObject[inputCombineArray];
     const changeDrawingOrder = inputObject[drawingOrder];
@@ -476,6 +485,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
           shallowContainer,
           executions,
           new PIXI.Point(x * spacingSize.width, y * spacingSize.height),
+          topParentOverrideSettings,
         );
       }
       if (inputObject[objectsInteractive]) {
@@ -534,6 +544,7 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void {
     const total = inputObject[totalNumberName];
     const changeDrawingOrder = inputObject[drawingOrder];
@@ -553,6 +564,7 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
             x * inputObject[spacingXName],
             y * inputObject[spacingYName],
           ),
+          topParentOverrideSettings,
         );
       }
 
@@ -582,6 +594,7 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void {
     inputObject[inputPointsName].forEach((points, i) => {
       const x = points[0];
@@ -592,6 +605,7 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
           shallowContainer,
           executions,
           new PIXI.Point(x, y),
+          topParentOverrideSettings,
         );
 
       addShallowContainerEventListeners(shallowContainer, this, i, executions);
