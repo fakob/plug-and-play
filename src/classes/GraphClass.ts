@@ -252,7 +252,11 @@ export default class PPGraph {
     // draw connection
     if (this.selectedSocket) {
       // is connected Input
-      if (this.selectedSocket.isInput() && this.clickPoint) {
+      if (
+        this.selectedSocket.isInput() &&
+        this.clickPoint &&
+        this.selectedSocket.hasLink()
+      ) {
         const sourceSocket = this.selectedSocket.links[0].getSource();
         const threshold = calculateDistance(this.clickPoint, event.global);
         // only disconnect if the mouse movement was intentional/more than threshold
