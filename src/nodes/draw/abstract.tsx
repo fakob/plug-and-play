@@ -13,7 +13,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { BooleanType } from '../datatypes/booleanType';
 import { ColorType } from '../datatypes/colorType';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
-import { EnumType } from '../datatypes/enumType';
+import { EnumStructure, EnumType } from '../datatypes/enumType';
 import { NumberType } from '../datatypes/numberType';
 import { TwoDVectorType } from '../datatypes/twoDVectorType';
 import { TRgba } from '../../utils/interfaces';
@@ -28,6 +28,10 @@ import { NodeExecutionError } from '../../classes/ErrorClass';
 
 export const marginSocketName = 'Margin';
 export const bgColorName = 'Background color';
+export const widthBehaviourName = 'Width behaviour';
+export const bgWidthName = 'Background width';
+export const heightBehaviourName = 'Height behaviour';
+export const bgHeightName = 'Background height';
 export const offsetName = 'Offset';
 export const scaleName = 'Scale';
 export const inputRotationName = 'Angle';
@@ -43,6 +47,11 @@ export const outputMultiplierPointerDown = 'PointerDown';
 export const objectsInteractive = 'Clickable objects';
 
 const defaultBgColor = new TRgba(0, 0, 0, 0);
+
+const widthHeightFillOptions: EnumStructure = [
+  { text: 'fit content' },
+  { text: 'fill background' },
+];
 
 export abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
@@ -88,6 +97,30 @@ export abstract class DRAW_Base extends PPNode {
         marginSocketName,
         new NumberType(true, 0, 100),
         0,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        widthBehaviourName,
+        new EnumType(widthHeightFillOptions),
+        widthHeightFillOptions[0].text,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        bgWidthName,
+        new NumberType(true, 0, 2000),
+        400,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        heightBehaviourName,
+        new EnumType(widthHeightFillOptions),
+        widthHeightFillOptions[0].text,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        bgHeightName,
+        new NumberType(true, 0, 2000),
+        400,
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -381,12 +414,29 @@ export abstract class DRAW_Base extends PPNode {
     if (hasMarginOrBackground) {
       const background = new PIXI.Graphics();
       background.beginFill(bgColor.hex(), bgColor.alpha(true));
-      background.drawRect(
-        -margin.left + myContainerBounds.x,
-        -margin.top + myContainerBounds.y,
-        myContainerBounds.width + margin.left + margin.right,
-        myContainerBounds.height + margin.top + margin.bottom,
-      );
+
+      let bgX = -margin.left + myContainerBounds.x;
+      let bgY = -margin.top + myContainerBounds.y;
+      let bgWidth = myContainerBounds.width + margin.left + margin.right;
+      let bgHeight = myContainerBounds.height + margin.top + margin.bottom;
+
+      // if not auto, then use width/height
+      if (inputObject[widthBehaviourName] !== widthHeightFillOptions[0].text) {
+        bgX =
+          -(inputObject[bgWidthName] - myContainerBounds.width - margin.left) *
+            pivotPoint.x +
+          myContainerBounds.x;
+        bgWidth = inputObject[bgWidthName];
+      }
+      if (inputObject[heightBehaviourName] !== widthHeightFillOptions[0].text) {
+        bgY =
+          -(inputObject[bgHeightName] - myContainerBounds.height - margin.top) *
+            pivotPoint.y +
+          myContainerBounds.y;
+        bgHeight = inputObject[bgHeightName];
+      }
+
+      background.drawRect(bgX, bgY, bgWidth, bgHeight);
       background.endFill();
       toModify.addChildAt(background, 0);
     }

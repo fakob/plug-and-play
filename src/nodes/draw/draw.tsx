@@ -34,6 +34,8 @@ import {
   inputPivotName,
   marginSocketName,
   objectsInteractive,
+  bgWidthName,
+  bgHeightName,
   outputMultiplierIndex,
   outputMultiplierInjected,
   outputMultiplierPointerDown,
@@ -311,19 +313,17 @@ const graphicsPositionName = 'Position';
 const layoutDirectionName = 'Direction';
 const horizontalAlignmentName = 'Horizontal alignment';
 const verticalAlignmentName = 'Vertical alignment';
-const spacingName = 'Spacing';
-const widthName = 'Width';
-const heightName = 'Height';
+const spacingName = 'Gap';
 
 const layoutOptions: EnumStructure = [
-  { text: 'manual position' },
-  { text: 'auto spacing' },
-  { text: 'auto fill' },
+  { text: 'position (manually)' },
+  { text: 'gap (auto)' },
+  { text: 'fill (auto)' },
 ];
 
 const layoutDirectionOptions: EnumStructure = [
-  { text: 'vertical' },
-  { text: 'horizontal' },
+  { text: 'column' },
+  { text: 'row' },
 ];
 
 const horizontalAlignmentOptions: EnumStructure = [
@@ -373,19 +373,7 @@ export class DRAW_Combine extends DRAW_Base {
         new EnumType(verticalAlignmentOptions),
         verticalAlignmentOptions[0].text,
       ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        widthName,
-        new NumberType(true, 0, 2000),
-        1000,
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        heightName,
-        new NumberType(true, 0, 2000),
-        1000,
-      ),
-      new Socket(SOCKET_TYPE.IN, spacingName, new NumberType(true, 0, 2000), 8),
+      new Socket(SOCKET_TYPE.IN, spacingName, new NumberType(true, 0, 100), 8),
       new Socket(SOCKET_TYPE.IN, inputReverseName, new BooleanType()),
     ].concat(super.getDefaultIO());
   }
@@ -420,11 +408,12 @@ export class DRAW_Combine extends DRAW_Base {
     const layoutOption = inputObject[layoutName];
     const isVertical =
       inputObject[layoutDirectionName] === layoutDirectionOptions[0].text;
+
     topParentOverrideSettings[inputPivotName] =
       `${isVertical ? verticalAlignmentOptions[0].text : inputObject[verticalAlignmentName]} ${isVertical ? inputObject[horizontalAlignmentName] : horizontalAlignmentOptions[0].text}`;
 
-    const width = inputObject[widthName];
-    const height = inputObject[heightName];
+    const width = inputObject[bgWidthName];
+    const height = inputObject[bgHeightName];
     let currentPositionX = margin.left;
     let currentPositionY = margin.top;
 
@@ -475,16 +464,10 @@ export class DRAW_Combine extends DRAW_Base {
               0,
               0,
             );
-
-            const position = new PIXI.Point(currentPositionX, currentPositionY);
-            // console.log(
-            //   currentPositionX,
-            //   currentPositionY,
-            //   spacingValue,
-            //   bounds.width,
-            //   bounds.height,
-            //   position,
-            // );
+            const position = new PIXI.Point(
+              currentPositionX - bounds.x,
+              currentPositionY - bounds.y,
+            );
             inputObject[graphicsKey](
               container,
               executions,
