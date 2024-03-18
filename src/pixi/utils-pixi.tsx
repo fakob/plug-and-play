@@ -207,7 +207,9 @@ export const removeAndDestroyChild = (that, newContainer): void => {
   that.removeChild(newContainer);
   newContainer?.destroy({
     children: true,
+    /* with these we get a crash when duplicating image node (cypress test "duplicate" will fail)
     texture: true,
     baseTexture: true,
+    */
   });
 };
