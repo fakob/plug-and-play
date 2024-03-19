@@ -216,4 +216,8 @@ export default class TestController {
   spamToast(message: string) {
     InterfaceController.spamToast(message);
   }
+
+  async duplicateSelection() {
+    await PPGraph.currentGraph.duplicateSelection();
+  }
 }
