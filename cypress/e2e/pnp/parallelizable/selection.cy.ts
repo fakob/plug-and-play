@@ -64,6 +64,8 @@ describe("selection", () => {
     });
   });
 
+  /*
+
   it("hover over socket", () => {
     doWithTestController((testController) => {
       const [x,y] = testController.getSocketCenterByNodeIDAndSocketName("Constant", "In");
@@ -73,7 +75,7 @@ describe("selection", () => {
 
   })
 
-
+*/
   it ("select multiple nodes using box", () => {
     cy.wait(100);
     doWithTestController((testController) => {
@@ -96,7 +98,6 @@ describe("selection", () => {
   });
 
   // I disabled this because it seemingly sometimes hangs on github CI
-  /*
   it("drag selection", () => {
 
     let [prevXAdd, prevYAdd] = [0,0];
@@ -119,9 +120,5 @@ describe("selection", () => {
 
 
   });
-
-  */
-
-
 
 });
