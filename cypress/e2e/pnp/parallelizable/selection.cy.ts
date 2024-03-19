@@ -1,9 +1,6 @@
-import { realMouseDown } from "../../../../node_modules/cypress-real-events/commands/mouseDown";
-import { doWithTestController, dragFromAtoB, openNewGraph } from "../helpers";
+import { doWithTestController, openNewGraph } from "../helpers";
 
 describe("selection", () => {
-
-  /*
   it('add nodes', () => {
     openNewGraph();
 
@@ -71,8 +68,7 @@ describe("selection", () => {
       cy.get("body").realMouseMove(x,y);
       cy.get("body").contains("Shift+Click to add to dashboard")
     });
-
-  })
+  });
 
   it ("select multiple nodes using box", () => {
     cy.wait(100);
@@ -115,8 +111,6 @@ describe("selection", () => {
       expect(newYAdd).to.be.within(prevYAdd -101, prevYAdd - 99);
       expect(newYConst).to.be.within(prevYConst -101, prevYConst - 99);
     });
-
-
   });
-  */
+
 });
