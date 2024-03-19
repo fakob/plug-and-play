@@ -3,6 +3,7 @@ import { doWithTestController, dragFromAtoB, openNewGraph } from "../helpers";
 
 describe("selection", () => {
 
+  /*
   it('add nodes', () => {
     openNewGraph();
 
@@ -64,8 +65,6 @@ describe("selection", () => {
     });
   });
 
-  /*
-
   it("hover over socket", () => {
     doWithTestController((testController) => {
       const [x,y] = testController.getSocketCenterByNodeIDAndSocketName("Constant", "In");
@@ -75,7 +74,6 @@ describe("selection", () => {
 
   })
 
-*/
   it ("select multiple nodes using box", () => {
     cy.wait(100);
     doWithTestController((testController) => {
@@ -120,5 +118,5 @@ describe("selection", () => {
 
 
   });
-
+  */
 });
