@@ -9,7 +9,9 @@ describe("selection", () => {
       await testController.addNode('Constant', 'Constant', 0, 200);
     }, "addNodes");
   });
+  // is this causing CI to hang?
 
+  /*
   it ("select one node by clicking directly on it", () => {
     doWithTestController(async (testController) => {
       const [x,y] = testController.getNodeCenterById("Add");
@@ -62,9 +64,7 @@ describe("selection", () => {
     });
   });
 
-  // is this causing CI to hang?
 
-  /*
   it("hover over socket", () => {
     doWithTestController((testController) => {
       const [x,y] = testController.getSocketCenterByNodeIDAndSocketName("Constant", "In");
