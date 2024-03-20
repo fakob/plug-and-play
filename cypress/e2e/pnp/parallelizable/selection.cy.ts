@@ -49,9 +49,9 @@ describe("selection", () => {
       let [prevX,prevY] = testController.getNodeCenterById("Add");
       console.log("PREVX: " + prevX)
 
-      cy.get("body").realMouseMove( prevX , prevY - 300);
-      cy.get("body").realMouseDown({x: prevX  , y: prevY - 300});
-      cy.get("body").realMouseUp({x: prevX, y: prevY - 300});
+      cy.get("body").realMouseMove( prevX , prevY - 100);
+      cy.get("body").realMouseDown({x: prevX  , y: prevY - 100});
+      cy.get("body").realMouseUp({x: prevX, y: prevY - 100});
       doWithTestController((testController) => {
         expect(testController.getSelectedNodes().length).to.eq(0);
       });
@@ -75,7 +75,7 @@ describe("selection", () => {
     doWithTestController((testController) => {
       const [x,y] = testController.getNodeCenterById("Add");
       const startPosX = x ;
-      const startPosY = y -300;
+      const startPosY = y -100;
 
       cy.get("body").realMouseMove(startPosX, startPosY);
       cy.get("body").realMouseDown({x: startPosX,y: startPosY});
@@ -112,5 +112,4 @@ describe("selection", () => {
       expect(newYConst).to.be.within(prevYConst -101, prevYConst - 99);
     });
   });
-
 });
