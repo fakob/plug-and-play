@@ -235,14 +235,6 @@ export class Macro extends PPNode {
     return false;
   }
 
-  public selectableViaBounds(): boolean {
-    return false;
-  }
-
-  public getExtraSelectedWhenSelected(): PPNode[] {
-    return this.getInsideNodes();
-  }
-
   public getInsideNodes(): PPNode[] {
     // get all nodes that are within the bounds
     const myBounds = this.getSelectionBounds();
@@ -251,10 +243,6 @@ export class Macro extends PPNode {
       myBounds,
     );
     return nodesInside;
-  }
-
-  public shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected(): boolean {
-    return true;
   }
 
   public propagateExecutionPast(): boolean {
