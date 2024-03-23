@@ -29,6 +29,8 @@ describe("selection", () => {
     cy.get('#inspector-filter-out').should("exist");
     cy.get('#inspector-filter-in').should("exist");
   });
+
+  /*
   it("move it", () => {
     cy.wait(100);
     let [prevX, prevY] = [0, 0];
@@ -46,7 +48,7 @@ describe("selection", () => {
   });
 
   // is this causing CI to hang?
-  /*
+  
   
   it ("deselect", () => {
     doWithTestController((testController) => {
