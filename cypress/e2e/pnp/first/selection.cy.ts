@@ -9,13 +9,12 @@ describe("selection", () => {
       await testController.addNode('Constant', 'Constant', 0, 200);
     }, "addNodes");
   });
-  // is this causing CI to hang?
 
-  /*
-  it ("select one node by clicking directly on it", () => {
+
+  it("select one node by clicking directly on it", () => {
     doWithTestController(async (testController) => {
-      const [x,y] = testController.getNodeCenterById("Add");
-      cy.get("body").realMouseDown({x: x, y: y});
+      const [x, y] = testController.getNodeCenterById("Add");
+      cy.get("body").realMouseDown({ x: x, y: y });
       cy.get("body").realMouseUp();
     }, "clickety");
     //cy.wait(100);
@@ -24,28 +23,31 @@ describe("selection", () => {
     });
   });
 
-  it ("see that properties are accessible in inspectorcontainer", () => {
+  it("see that properties are accessible in inspectorcontainer", () => {
     cy.get('[data-cy="inspector-container-toggle-button"]').click();
     cy.get("body").contains("Addend").should("exist");
     cy.get('#inspector-filter-out').should("exist");
     cy.get('#inspector-filter-in').should("exist");
   });
-  it ("move it", () => {
+  it("move it", () => {
     cy.wait(100);
-    let [prevX, prevY] = [0,0];
+    let [prevX, prevY] = [0, 0];
     doWithTestController((testController) => {
-      [prevX,prevY] = testController.getNodeCenterById("Add");
-      cy.get("body").realMouseDown({x: prevX, y: prevY});
-      cy.get("body").realMouseMove(prevX + 100,prevY);
+      [prevX, prevY] = testController.getNodeCenterById("Add");
+      cy.get("body").realMouseDown({ x: prevX, y: prevY });
+      cy.get("body").realMouseMove(prevX + 100, prevY);
       cy.get("body").realMouseUp();
     });
     cy.wait(100);
     doWithTestController((testController) => {
       const [x] = testController.getNodeCenterById("Add");
-      expect(x - prevX).to.be.within(99,101); // avoid rounding error
+      expect(x - prevX).to.be.within(99, 101); // avoid rounding error
     });
   });
 
+  // is this causing CI to hang?
+  /*
+  
   it ("deselect", () => {
     doWithTestController((testController) => {
       let [prevX,prevY] = testController.getNodeCenterById("Add");
