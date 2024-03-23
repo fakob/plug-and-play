@@ -46,18 +46,19 @@ describe("selection", () => {
       expect(x - prevX).to.be.within(99, 101); // avoid rounding error
     });
   });
+  */
 
   // is this causing CI to hang?
-  
-  
-  it ("deselect", () => {
+
+
+  it("deselect", () => {
     doWithTestController((testController) => {
-      let [prevX,prevY] = testController.getNodeCenterById("Add");
+      let [prevX, prevY] = testController.getNodeCenterById("Add");
       console.log("PREVX: " + prevX)
 
-      cy.get("body").realMouseMove( prevX , prevY - 100);
-      cy.get("body").realMouseDown({x: prevX  , y: prevY - 100});
-      cy.get("body").realMouseUp({x: prevX, y: prevY - 100});
+      cy.get("body").realMouseMove(prevX, prevY - 100);
+      cy.get("body").realMouseDown({ x: prevX, y: prevY - 100 });
+      cy.get("body").realMouseUp({ x: prevX, y: prevY - 100 });
       doWithTestController((testController) => {
         expect(testController.getSelectedNodes().length).to.eq(0);
       });
@@ -71,22 +72,22 @@ describe("selection", () => {
 
   it("hover over socket", () => {
     doWithTestController((testController) => {
-      const [x,y] = testController.getSocketCenterByNodeIDAndSocketName("Constant", "In");
-      cy.get("body").realMouseMove(x,y);
+      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName("Constant", "In");
+      cy.get("body").realMouseMove(x, y);
       cy.get("body").contains("Shift+Click to add to dashboard")
     });
   });
 
-  it ("select multiple nodes using box", () => {
+  it("select multiple nodes using box", () => {
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x,y] = testController.getNodeCenterById("Add");
-      const startPosX = x ;
-      const startPosY = y -100;
+      const [x, y] = testController.getNodeCenterById("Add");
+      const startPosX = x;
+      const startPosY = y - 100;
 
       cy.get("body").realMouseMove(startPosX, startPosY);
-      cy.get("body").realMouseDown({x: startPosX,y: startPosY});
-      cy.get("body").realMouseMove(x + 50 ,y + 200);
+      cy.get("body").realMouseDown({ x: startPosX, y: startPosY });
+      cy.get("body").realMouseMove(x + 50, y + 200);
       cy.get("body").realMouseUp();
 
 
@@ -100,23 +101,23 @@ describe("selection", () => {
 
   it("drag selection", () => {
 
-    let [prevXAdd, prevYAdd] = [0,0];
-    let [prevXConst, prevYConst] = [0,0];
+    let [prevXAdd, prevYAdd] = [0, 0];
+    let [prevXConst, prevYConst] = [0, 0];
     doWithTestController((testController) => {
-      [prevXAdd,prevYAdd] = testController.getNodeCenterById("Add");
-      [prevXConst,prevYConst] = testController.getNodeCenterById("Constant");
+      [prevXAdd, prevYAdd] = testController.getNodeCenterById("Add");
+      [prevXConst, prevYConst] = testController.getNodeCenterById("Constant");
       cy.get("body").realMouseMove(prevXAdd, prevYAdd);
-      cy.get("body").realMouseDown({x: prevXAdd,y: prevYAdd});
-      cy.get("body").realMouseMove(prevXAdd , prevYAdd - 100);
+      cy.get("body").realMouseDown({ x: prevXAdd, y: prevYAdd });
+      cy.get("body").realMouseMove(prevXAdd, prevYAdd - 100);
       cy.get("body").realMouseUp();
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [newXAdd,newYAdd] = testController.getNodeCenterById("Add");
-      const [newXConst,newYConst] = testController.getNodeCenterById("Constant");
-      expect(newYAdd).to.be.within(prevYAdd -101, prevYAdd - 99);
-      expect(newYConst).to.be.within(prevYConst -101, prevYConst - 99);
+      const [newXAdd, newYAdd] = testController.getNodeCenterById("Add");
+      const [newXConst, newYConst] = testController.getNodeCenterById("Constant");
+      expect(newYAdd).to.be.within(prevYAdd - 101, prevYAdd - 99);
+      expect(newYConst).to.be.within(prevYConst - 101, prevYConst - 99);
     });
   });
-  */
+
 });
