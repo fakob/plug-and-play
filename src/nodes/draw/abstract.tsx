@@ -13,7 +13,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { BooleanType } from '../datatypes/booleanType';
 import { ColorType } from '../datatypes/colorType';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
-import { EnumType } from '../datatypes/enumType';
+import { EnumStructure, EnumType } from '../datatypes/enumType';
 import { NumberType } from '../datatypes/numberType';
 import { TwoDVectorType } from '../datatypes/twoDVectorType';
 import { TRgba } from '../../utils/interfaces';
@@ -28,6 +28,10 @@ import { NodeExecutionError } from '../../classes/ErrorClass';
 
 export const marginSocketName = 'Margin';
 export const bgColorName = 'Background color';
+export const widthBehaviourName = 'Width behaviour';
+export const bgWidthName = 'Background width';
+export const heightBehaviourName = 'Height behaviour';
+export const bgHeightName = 'Background height';
 export const offsetName = 'Offset';
 export const scaleName = 'Scale';
 export const inputRotationName = 'Angle';
@@ -43,6 +47,11 @@ export const outputMultiplierPointerDown = 'PointerDown';
 export const objectsInteractive = 'Clickable objects';
 
 const defaultBgColor = new TRgba(0, 0, 0, 0);
+
+const widthHeightFillOptions: EnumStructure = [
+  { text: 'fit content' },
+  { text: 'fill background' },
+];
 
 export abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
@@ -91,6 +100,30 @@ export abstract class DRAW_Base extends PPNode {
       ),
       new Socket(
         SOCKET_TYPE.IN,
+        widthBehaviourName,
+        new EnumType(widthHeightFillOptions),
+        widthHeightFillOptions[0].text,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        bgWidthName,
+        new NumberType(true, 0, 2000),
+        400,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        heightBehaviourName,
+        new EnumType(widthHeightFillOptions),
+        widthHeightFillOptions[0].text,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        bgHeightName,
+        new NumberType(true, 0, 2000),
+        400,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
         inputPivotName,
         new EnumType(PIXI_PIVOT_OPTIONS),
         PIXI_PIVOT_OPTIONS[0].text,
@@ -134,21 +167,31 @@ export abstract class DRAW_Base extends PPNode {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number },
+    topParentOverrideSettings: any,
   ): void;
 
   private getContainer(
     inputObject: any,
     executions: { string: number },
     offset: PIXI.Point,
+    topParentOverrideSettings: any,
   ): PIXI.Container {
     const myContainer = new PIXI.Container();
+    myContainer.name = `${this.id}-container`;
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
         this.getAndIncrementExecutions(executions)
       ],
+      ...topParentOverrideSettings,
     };
-    this.drawOnContainer(inputObject, myContainer, executions);
+
+    this.drawOnContainer(
+      inputObject,
+      myContainer,
+      executions,
+      topParentOverrideSettings,
+    );
 
     this.positionScaleAndBackground(myContainer, inputObject, offset);
 
@@ -172,6 +215,7 @@ export abstract class DRAW_Base extends PPNode {
       container,
       executions,
       position = new PIXI.Point(),
+      topParentOverrideSettings = {},
     ) => {
       const lastNode = !this.getOutputSocketByName(outputPixiName).hasLink();
       const drawnAsChildrenOfLastNode =
@@ -184,14 +228,19 @@ export abstract class DRAW_Base extends PPNode {
         : new PIXI.Point(offset.x + position.x, offset.y + position.y);
       if (container) {
         container.addChild(
-          this.getContainer(inputObject, executions, newOffset),
+          this.getContainer(
+            inputObject,
+            executions,
+            newOffset,
+            topParentOverrideSettings,
+          ),
         );
       } else {
         console.error('container is undefined for some reason');
       }
     };
     outputObject[outputPixiName] = drawingFunction;
-    this.handleDrawing(drawingFunction);
+    this.handleDrawing(drawingFunction, inputObject);
     /*this.handleDrawingThrottled(
       drawingFunction,
     );*/
@@ -275,13 +324,26 @@ export abstract class DRAW_Base extends PPNode {
     leading: false,
   });
 
-  private handleDrawing(drawingFunction: any): void {
+  private handleDrawing(drawingFunction: any, inputObject): void {
+    let passedInOverrideSettings;
+    // const lastNode = !this.getOutputSocketByName(outputPixiName).hasLink();
+    // if (lastNode) {
+    //   passedInOverrideSettings = {
+    //     Pivot: inputObject[inputPivotName],
+    //   };
+    // }
+
     requestAnimationFrame(() => {
       removeAndDestroyChild(this._ForegroundRef, this.deferredGraphics);
       if (this.shouldDraw()) {
         this.deferredGraphics = new PIXI.Container();
         try {
-          drawingFunction(this.deferredGraphics, {}, new PIXI.Point(0, 0));
+          drawingFunction(
+            this.deferredGraphics,
+            {},
+            new PIXI.Point(0, 0),
+            passedInOverrideSettings,
+          );
         } catch (error) {
           this.setStatus(new NodeExecutionError(error.message));
           return;
@@ -352,12 +414,29 @@ export abstract class DRAW_Base extends PPNode {
     if (hasMarginOrBackground) {
       const background = new PIXI.Graphics();
       background.beginFill(bgColor.hex(), bgColor.alpha(true));
-      background.drawRect(
-        -margin.left + myContainerBounds.x,
-        -margin.top + myContainerBounds.y,
-        myContainerBounds.width + margin.left + margin.right,
-        myContainerBounds.height + margin.top + margin.bottom,
-      );
+
+      let bgX = -margin.left + myContainerBounds.x;
+      let bgY = -margin.top + myContainerBounds.y;
+      let bgWidth = myContainerBounds.width + margin.left + margin.right;
+      let bgHeight = myContainerBounds.height + margin.top + margin.bottom;
+
+      // if not auto, then use width/height
+      if (inputObject[widthBehaviourName] !== widthHeightFillOptions[0].text) {
+        bgX =
+          -(inputObject[bgWidthName] - myContainerBounds.width - margin.left) *
+            pivotPoint.x +
+          myContainerBounds.x;
+        bgWidth = inputObject[bgWidthName];
+      }
+      if (inputObject[heightBehaviourName] !== widthHeightFillOptions[0].text) {
+        bgY =
+          -(inputObject[bgHeightName] - myContainerBounds.height - margin.top) *
+            pivotPoint.y +
+          myContainerBounds.y;
+        bgHeight = inputObject[bgHeightName];
+      }
+
+      background.drawRect(bgX, bgY, bgWidth, bgHeight);
       background.endFill();
       toModify.addChildAt(background, 0);
     }
