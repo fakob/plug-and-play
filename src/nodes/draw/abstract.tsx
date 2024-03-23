@@ -49,6 +49,8 @@ export abstract class DRAW_Base extends PPNode {
   listenIDUp = '';
   listenIDMove = '';
   isDragging = false;
+
+  // these are useful in case we are being called many times in a row (for example when being moved), means we can re-use container, key is a hash of parameters and caller
   cachedContainers: Record<string, PIXI.Container> = {};
 
   public getName(): string {
@@ -141,15 +143,24 @@ export abstract class DRAW_Base extends PPNode {
     executions: { string: number },
     offset: PIXI.Point,
   ): PIXI.Container {
-    const myContainer = new PIXI.Container();
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
+      this.getAndIncrementExecutions(executions)
       ],
     };
-    this.drawOnContainer(inputObject, myContainer, executions);
+    const hash = "a"; //JSON.stringify(inputObject);
+    if (this.cachedContainers[hash] == undefined) {
+      const container = new PIXI.Container();
+      this.drawOnContainer(inputObject, container, executions);
 
+
+      this.cachedContainers[hash] = container;
+      console.log("cache miss");
+    } else {
+      console.log("cache hit");
+    }
+    const myContainer = this.cachedContainers[hash];
     this.positionScaleAndBackground(myContainer, inputObject, offset);
 
     return myContainer;

@@ -60,12 +60,12 @@ export const doRectsIntersect = (
 ): boolean => {
   return (
     Math.max(firstRect.x, secondRect.x) <
-      Math.min(
-        firstRect.x + firstRect.width,
-        secondRect.x + secondRect.width,
-      ) &&
+    Math.min(
+      firstRect.x + firstRect.width,
+      secondRect.x + secondRect.width,
+    ) &&
     Math.max(firstRect.y, secondRect.y) <
-      Math.min(firstRect.y + firstRect.height, secondRect.y + secondRect.height)
+    Math.min(firstRect.y + firstRect.height, secondRect.y + secondRect.height)
   );
 };
 
@@ -205,11 +205,12 @@ export const ensureVisible = (nodes: PPNode[], undoable = false): void => {
 
 export const removeAndDestroyChild = (that, newContainer): void => {
   that.removeChild(newContainer);
-  newContainer?.destroy({
+  /*newContainer?.destroy({
     children: true,
-    /* with these we get a crash when duplicating image node (cypress test "duplicate" will fail)
-    texture: true,
-    baseTexture: true,
-    */
+    // with these we get a crash when duplicating image node (cypress test "duplicate" will fail)
+    //texture: true,
+    //baseTexture: true,
   });
+  */
+
 };
