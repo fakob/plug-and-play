@@ -30,7 +30,7 @@ describe("selection", () => {
     cy.get('#inspector-filter-in').should("exist");
   });
 
-  /*
+
   it("move it", () => {
     cy.wait(100);
     let [prevX, prevY] = [0, 0];
@@ -46,7 +46,7 @@ describe("selection", () => {
       expect(x - prevX).to.be.within(99, 101); // avoid rounding error
     });
   });
-  */
+
 
   // is this causing CI to hang?
 
@@ -118,6 +118,8 @@ describe("selection", () => {
       expect(newYAdd).to.be.within(prevYAdd - 101, prevYAdd - 99);
       expect(newYConst).to.be.within(prevYConst - 101, prevYConst - 99);
     });
+
+    cy.wait(5000); // will this fix the issue when building on github?
   });
 
 });
